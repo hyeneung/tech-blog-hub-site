@@ -1,8 +1,8 @@
 ---
 name: ISSUE_TEMPLATE
 about: Issue template
-title: ''
-labels: ''
+title: '[Feature] '
+labels: Feature
 assignees: ''
 
 ---
