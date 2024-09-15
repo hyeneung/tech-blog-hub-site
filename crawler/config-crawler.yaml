@@ -1,0 +1,10 @@
+crawlers:
+- company: line
+  url: https://techblog.lycorp.co.jp/ko/feed/index.xml
+  lastUpdated: 0
+- company: toss
+  url: https://toss.tech/rss.xml
+  lastUpdated: 0
+- company: daangn
+  url: https://medium.com/feed/daangn
+  lastUpdated: 0
