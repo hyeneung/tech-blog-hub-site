@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -47,7 +46,7 @@ func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate 
 
 	res, err := es.Info()
 	if err != nil {
-		log.Fatalf("Error getting response: %s", err)
+		logger.LogError("Error getting response from Elasticsearch: " + err.Error())
 	}
 	defer res.Body.Close()
 
