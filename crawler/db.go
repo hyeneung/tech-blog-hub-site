@@ -1,20 +1,20 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crawler/utils"
 	"crypto/sha256"
 	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/elastic/go-elasticsearch/esapi"
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
@@ -27,6 +27,7 @@ type PostData struct {
 }
 
 func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate int) uint32 {
+	indexName := "posts"
 	logger := utils.GetLoggerSingletonInstance()
 	// address := os.Getenv("ELASTICSEARCH_ADDRESS")
 
@@ -44,13 +45,11 @@ func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate 
 		logger.LogError("Error creating the client: " + err.Error())
 	}
 
-	// Elastic Search 사용
 	res, err := es.Info()
 	if err != nil {
 		log.Fatalf("Error getting response: %s", err)
 	}
 	defer res.Body.Close()
-	logger.LogInfo(res.String())
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
@@ -77,28 +76,29 @@ func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate 
 			return
 		}
 
-		// URL을 해시하여 문서 ID로 사용
 		hasher := sha256.New()
 		hasher.Write([]byte(post.Link))
 		documentID := hex.EncodeToString(hasher.Sum(nil))
 
-		req := esapi.IndexRequest{
-			Index:      "posts",
-			DocumentID: documentID,
-			Body:       bytes.NewReader(jsonData),
-			Refresh:    "true",
-		}
-
-		res, err := req.Do(ctx, es)
+		res, err := es.Create(
+			indexName,
+			documentID,
+			strings.NewReader(string(jsonData)),
+			es.Create.WithContext(ctx),
+			es.Create.WithRefresh("true"),
+		)
 		if err != nil {
-			logger.LogError("Error indexing document: " + err.Error())
+			logger.LogError("Error creating document: " + err.Error())
 			resultChan <- false
 			return
 		}
 		defer res.Body.Close()
 
-		if res.IsError() {
-			logger.LogError("Error indexing document: " + res.String())
+		if res.StatusCode == 409 {
+			logger.LogInfo(fmt.Sprintf("Document already exists: Link=%s, DocumentID=%s", post.Link, documentID))
+			resultChan <- false
+		} else if res.IsError() {
+			logger.LogError("Error creating document: " + res.String())
 			resultChan <- false
 		} else {
 			resultChan <- true
@@ -114,8 +114,6 @@ func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate 
 		wg.Wait()
 		close(resultChan)
 	}()
-
-	// 결과 집계
 	for success := range resultChan {
 		if success {
 			atomic.AddUint32(&successCount, 1)
