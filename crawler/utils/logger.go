@@ -53,6 +53,10 @@ func (l *Logger) LogInfo(message string) {
 	l.logger.Info(message)
 }
 
+func (l *Logger) LogDebug(message string) {
+	l.logger.Debug(message)
+}
+
 func (l *Logger) LogHttpResponseError(resp *http.Response) {
 	l.logger.Error("HTTP response error", slog.Int("Status Code", resp.StatusCode))
 }

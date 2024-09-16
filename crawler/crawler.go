@@ -64,7 +64,6 @@ func getTextSummary(stub *pb.CrawlerTextHandlerClient, posts *[]utils.Post, last
 		for {
 			res, err := stream.Recv()
 			if err == io.EOF {
-				logger.LogInfo("Received EOF")
 				close(doneChan)
 				return
 			}
@@ -120,8 +119,6 @@ func (c *Crawler) Run(stub *pb.CrawlerTextHandlerClient) {
 		logger.LogCrawlerResult(c.Company, postNumToUpdate, postNumUpdated)
 		return
 	}
-
-	lastIdxToUpdate = 0 // for test
 
 	// get text analysis results (grpc bidirectional)
 	var textInfos *[]TextSummarized = getTextSummary(stub, &posts, lastIdxToUpdate)
