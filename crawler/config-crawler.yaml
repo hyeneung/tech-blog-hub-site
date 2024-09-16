@@ -1,3 +1,4 @@
+# Only compatible with RSS 2.0 feeds
 crawlers:
 - company: line
   url: https://techblog.lycorp.co.jp/ko/feed/index.xml
@@ -7,4 +8,10 @@ crawlers:
   lastUpdated: 0
 - company: daangn
   url: https://medium.com/feed/daangn
+  lastUpdated: 0
+- company: kakao
+  url: https://tech.kakao.com/blog/feed
+  lastUpdated: 0
+- company: woowahan
+  url: https://techblog.woowahan.com/feed
   lastUpdated: 0

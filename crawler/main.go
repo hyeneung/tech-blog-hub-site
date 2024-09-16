@@ -26,12 +26,12 @@ func main() {
 
 	// run all crawlers
 	var wg sync.WaitGroup
-	for _, c := range crawlerArrayAddress.Crawlers {
+	for i := range crawlerArrayAddress.Crawlers {
 		wg.Add(1)
-		go func(crawler Crawler) {
+		go func(crawler *Crawler) {
 			defer wg.Done()
 			crawler.Run(&stub)
-		}(c)
+		}(&crawlerArrayAddress.Crawlers[i])
 	}
 	wg.Wait() // wait until all crawlers end
 
