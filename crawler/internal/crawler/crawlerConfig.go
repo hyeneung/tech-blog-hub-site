@@ -1,4 +1,4 @@
-package main
+package crawler
 
 import (
 	"io"
@@ -8,7 +8,17 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func getCrawlerArrayAddressFromFile(filePath string) *CrawlerArray {
+type Crawler struct {
+	Company     string `yaml:"company"`
+	URL         string `yaml:"url"`
+	LastUpdated int64  `yaml:"lastUpdated"`
+}
+
+type CrawlerArray struct {
+	Crawlers []Crawler `yaml:"crawlers"`
+}
+
+func GetCrawlerArrayAddressFromFile(filePath string) *CrawlerArray {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
@@ -29,7 +39,7 @@ func getCrawlerArrayAddressFromFile(filePath string) *CrawlerArray {
 	return &crawlerArray
 }
 
-func writeCrawlerInfoToFile(filePath string, crawlerArrayPointer *CrawlerArray) {
+func WriteCrawlerInfoToFile(filePath string, crawlerArrayPointer *CrawlerArray) {
 	yamlData, err := yaml.Marshal(&crawlerArrayPointer)
 	if err != nil {
 		log.Fatalf("error marshalling YAML: %v", err)

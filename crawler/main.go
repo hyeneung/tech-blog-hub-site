@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	pb "crawler/generated" // {module_name}/package
+	crawlerUtils "crawler/internal/crawler"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,14 +22,15 @@ func main() {
 	stub := pb.NewCrawlerTextHandlerClient(conn)
 
 	// read crawler info from config file
-	configFilePath := "./config-crawler.yaml"
-	crawlerArrayAddress := getCrawlerArrayAddressFromFile(configFilePath)
+	// configFilePath := os.Getenv("CRAWLER_CONFIG_FILE_PATH")
+	configFilePath := "./config/config-crawler.yaml"
+	crawlerArrayAddress := crawlerUtils.GetCrawlerArrayAddressFromFile(configFilePath)
 
 	// run all crawlers
 	var wg sync.WaitGroup
 	for i := range crawlerArrayAddress.Crawlers {
 		wg.Add(1)
-		go func(crawler *Crawler) {
+		go func(crawler *crawlerUtils.Crawler) {
 			defer wg.Done()
 			crawler.Run(&stub)
 		}(&crawlerArrayAddress.Crawlers[i])
@@ -36,5 +38,5 @@ func main() {
 	wg.Wait() // wait until all crawlers end
 
 	// save changed crawler info
-	writeCrawlerInfoToFile(configFilePath, crawlerArrayAddress)
+	crawlerUtils.WriteCrawlerInfoToFile(configFilePath, crawlerArrayAddress)
 }

@@ -1,8 +1,7 @@
-package main
+package db
 
 import (
 	"context"
-	"crawler/utils"
 	"crypto/sha256"
 	"crypto/tls"
 	"encoding/hex"
@@ -14,10 +13,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	types "crawler/internal/types"
+	utils "crawler/internal/utils"
+
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-type PostData struct {
+type postData struct {
 	Title          string
 	PubDate        string
 	Content        string
@@ -25,7 +27,7 @@ type PostData struct {
 	Hashtags       []string
 }
 
-func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate int) uint32 {
+func InsertDB(posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
 	indexName := "posts"
 	logger := utils.GetLoggerSingletonInstance()
 	// address := os.Getenv("ELASTICSEARCH_ADDRESS")
@@ -58,9 +60,9 @@ func InsertDB(posts *[]utils.Post, textInfos *[]TextSummarized, lastIdxToUpdate 
 	var wg sync.WaitGroup
 	resultChan := make(chan bool, lastIdxToUpdate+1)
 
-	worker := func(post utils.Post, textInfo TextSummarized) {
+	worker := func(post types.Post, textInfo types.TextSummarized) {
 		defer wg.Done()
-		data := PostData{
+		data := postData{
 			Title:          post.Title,
 			PubDate:        post.PubDate,
 			Content:        textInfo.Content,

@@ -12,23 +12,23 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-type Logger struct {
+type logger struct {
 	logger *slog.Logger
 }
 
 // singleton pattern
-var instance *Logger
+var instance *logger
 var once sync.Once
 
-func GetLoggerSingletonInstance() *Logger {
+func GetLoggerSingletonInstance() *logger {
 	once.Do(func() {
-		instance = &Logger{}
+		instance = &logger{}
 		instance.initLogger()
 	})
 	return instance
 }
 
-func (l *Logger) initLogger() {
+func (l *logger) initLogger() {
 	lumberjackLogger := &lumberjack.Logger{
 		Filename:   getLogFilePath(),
 		MaxSize:    20,
@@ -45,23 +45,23 @@ func (l *Logger) initLogger() {
 	)
 }
 
-func (l *Logger) LogError(message string) {
+func (l *logger) LogError(message string) {
 	l.logger.Error(message)
 }
 
-func (l *Logger) LogInfo(message string) {
+func (l *logger) LogInfo(message string) {
 	l.logger.Info(message)
 }
 
-func (l *Logger) LogDebug(message string) {
+func (l *logger) LogDebug(message string) {
 	l.logger.Debug(message)
 }
 
-func (l *Logger) LogHttpResponseError(resp *http.Response) {
+func (l *logger) LogHttpResponseError(resp *http.Response) {
 	l.logger.Error("HTTP response error", slog.Int("Status Code", resp.StatusCode))
 }
 
-func (l *Logger) LogCrawlerResult(companyName string, totalCount int, successCount uint32) {
+func (l *logger) LogCrawlerResult(companyName string, totalCount int, successCount uint32) {
 	resultLogger := l.logger.With(
 		slog.String("crawler", companyName),
 		slog.Group("results",
