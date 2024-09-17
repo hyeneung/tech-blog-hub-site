@@ -40,10 +40,16 @@ Key aspects of our project include:
 ## 📁 Project Structure
 
 ```
-.
+tech-blog-hub-site/
 ├── crawler/
+│   ├── config/
 │   ├── generated/
-│   └── utils/
+│   ├── internal/
+│   │   ├── crawler/
+│   │   ├── db/
+│   │   ├── types/
+│   │   └── utils/
+│   └── main.go
 ├── text_handler/
 │   ├── generated/
 │   ├── model/
@@ -53,16 +59,32 @@ Key aspects of our project include:
 └── proto_config/
 ```
 
-- `crawler/`: RSS 피드 스크래핑 관련 코드
-  - `generated/`: gRPC protobuf로부터 생성된 코드
-  - `utils/`: 크롤러 유틸리티 함수
-- `text_handler/`: 텍스트 처리 서비스 관련 코드
-  - `generated/`: gRPC protobuf로부터 생성된 코드
-  - `model/`: 텍스트 처리 모델
-  - `utils/`: 텍스트 처리 유틸리티 함수
-- `front/`: 프론트엔드 관련 코드
-- `api/`: API 서버 관련 코드
-- `proto_config/`: gRPC 프로토콜 버퍼 정의 파일
+1. crawler/
+   - 크롤러 관련 코드와 설정을 포함하는 메인 디렉토리
+   - config/: 크롤러 설정 파일을 저장하는 폴더
+   - generated/: grpc protobuf로 생성된 Go 코드
+   - internal/
+     - crawler/: 실제 크롤링 로직이 구현된 패키지
+     - db/: 데이터베이스 관련 코드가 있는 패키지
+     - types/: 공통으로 사용되는 타입 정의가 있는 패키지
+     - utils/: 유틸리티 함수들이 모여있는 패키지
+   - main.go: 크롤러 애플리케이션의 진입점
+
+2. text_handler/
+   - 텍스트 처리 관련 코드
+   - generated/: grpc protobuf로 생성된 Python 코드
+   - model/: 텍스트 데이터 모델 관련 코드
+   - utils/: 텍스트 처리에 필요한 유틸리티 함수들
+
+3. front/
+   - 프론트엔드 관련 코드가 위치하는 디렉토리
+
+4. api/
+   - API 관련 코드나 정의가 포함된 디렉토리
+
+5. proto_config/
+   - 프로토콜 버퍼 정의 파일들이 저장되는 디렉토리
+   - 서비스 간 통신을 위한 인터페이스를 정의
 
 ## 📄 License
 This project is distributed under the MIT License. See the LICENSE file for more information.
