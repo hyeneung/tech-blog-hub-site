@@ -1,0 +1,20 @@
+# Note: This crawler configuration is compatible with RSS 2.0 only.
+# The crawler will only function correctly with RSS 2.0 version feeds at the specified URLs.
+# Other RSS versions or feed formats may not be processed properly.
+
+crawlers:
+- company: line
+  url: https://techblog.lycorp.co.jp/ko/feed/index.xml
+  lastUpdated: 0
+- company: toss
+  url: https://toss.tech/rss.xml
+  lastUpdated: 0
+- company: daangn
+  url: https://medium.com/feed/daangn
+  lastUpdated: 0
+- company: kakao
+  url: https://tech.kakao.com/blog/feed
+  lastUpdated: 0
+- company: woowahan
+  url: https://techblog.woowahan.com/feed
+  lastUpdated: 0
