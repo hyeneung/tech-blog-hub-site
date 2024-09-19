@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+# from generated import crawler_text_handler_pb2
 from generated import crawler_text_handler_pb2 as crawler__text__handler__pb2
 
 GRPC_GENERATED_VERSION = '1.66.1'

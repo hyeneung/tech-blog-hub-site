@@ -4,7 +4,7 @@
 // - protoc             v5.27.0--rc3
 // source: crawler_text_handler.proto
 
-package _go
+package generated
 
 import (
 	context "context"
