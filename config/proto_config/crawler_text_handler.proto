@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+// Go에서 사용할 패키지 경로 지정
+option go_package = "../../crawler/generated";
+
+service CrawlerTextHandler {
+  // Bidirectional streaming where Crawler sends URLs and receives summarized data in response
+  rpc StreamUrlSummaries (stream UrlRequest) returns (stream SummarizedDataResponse) {}
+}
+
+message UrlRequest {
+  string url = 1;
+}
+
+message SummarizedDataResponse {
+  string content = 1; // 기술 블로그는 글자 많아봤자 30KB. string 타입으로 충분
+  string summarized_text = 2;
+  repeated string hashtags = 3;
+}
