@@ -1,0 +1,171 @@
+openapi: 3.1.0
+info:
+  title: tech blog hub site의 API 
+  description: 카테고리, 회사, 검색어를 기반으로 한 검색 API (페이징 지원)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/swagger-ui
+paths:
+  /search:
+    get:
+      summary: 검색 수행
+      description: 카테고리, 회사, 검색어를 기반으로 검색을 수행합니다. 페이징을 지원합니다.
+      parameters:
+        - in: query
+          name: hashtags
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          description: 검색할 카테고리 목록 (선택사항, 쉼표로 구분)
+        - in: query
+          name: company
+          schema:
+            type: string
+          description: 검색할 회사 이름 (선택사항)
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: 검색어 (선택사항)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: 페이지 번호 (0부터 시작, 기본값 0)
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 30
+            default: 20
+          description: 페이지 당 결과 수 (기본값 20, 최대 30)
+      responses:
+        '200':
+          description: 성공
+          content:
+            application/json:    
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+# # 성공 응답
+# {
+#   "status": 200,
+#   "message": "Success",
+#   "content": {
+#     "posts": [
+#       {
+#         "title": "첫 번째 게시물",
+#         "pubDate": "2024-09-18T10:00:00Z",
+#         "companyName": "테크 컴퍼니",
+#         "content": "첫 번째 게시물 내용...",
+#         "summarizedText": "첫 번째 요약...",
+#         "hashtags": ["기술", "개발"]
+#       },
+#       {
+#         "title": "두 번째 게시물",
+#         "pubDate": "2024-09-19T11:00:00Z",
+#         "companyName": "AI 솔루션즈",
+#         "content": "두 번째 게시물 내용...",
+#         "summarizedText": "두 번째 요약...",
+#         "hashtags": ["AI", "머신러닝"]
+#       } ...
+#     ],
+#     "pageable": {
+#       "pageNumber": 0,
+#       "pageSize": 20,
+#       "totalElements": 50,
+#       "totalPages": 3
+#     }
+#   }
+# }
+# # 실패 응답
+# {
+#   "status": 400,
+#   "message": "Bad Request",
+#   "content": null
+# }
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      required:
+        - status
+        - message
+        - content
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        content:
+          oneOf:
+            - $ref: '#/components/schemas/SearchResult'
+            - type: 'null'
+
+    SearchResult:
+      type: object
+      required:
+        - posts
+        - pageable
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+
+    Post:
+      type: object
+      required:
+        - title
+        - pubDate
+        - companyName
+        - content
+        - summarizedText
+        - hashtags
+      properties:
+        title:
+          type: string
+        pubDate:
+          type: string
+        companyName:
+          type: string
+        content:
+          type: string
+        summarizedText:
+          type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+
+    Pageable:
+      type: object
+      required:
+        - pageNumber
+        - pageSize
+        - totalElements
+        - totalPages
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
