@@ -21,12 +21,13 @@ import (
 type postData struct {
 	Title          string
 	PubDate        string
+	CompanyName    string
 	Content        string
 	SummarizedText string
 	Hashtags       []string
 }
 
-func InsertDB(posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
+func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
 	indexName := "posts"
 	logger := utils.GetLoggerSingletonInstance()
 	config := config.GetConfigSingletonInstance()
@@ -56,6 +57,7 @@ func InsertDB(posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToU
 		data := postData{
 			Title:          post.Title,
 			PubDate:        post.PubDate,
+			CompanyName:    companyName,
 			Content:        textInfo.Content,
 			SummarizedText: textInfo.SummarizedText,
 			Hashtags:       textInfo.Hashtags,

@@ -37,7 +37,7 @@ func (c *Crawler) Run(stub *pb.CrawlerTextHandlerClient) {
 	var textInfos *[]types.TextSummarized = getTextSummary(stub, &posts, lastIdxToUpdate)
 
 	// insert results to DB
-	postNumUpdated = db.InsertDB(&posts, textInfos, lastIdxToUpdate)
+	postNumUpdated = db.InsertDB(c.Company, &posts, textInfos, lastIdxToUpdate)
 
 	// update crawler execution time info
 	// c.LastUpdated = time.Now().Unix()
