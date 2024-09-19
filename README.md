@@ -10,12 +10,6 @@
 </p>
 
 > A platform to aggregate, analyze, and recommend tech blog posts from various companies(3-2 data analysis capstone design)
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [License](#license)
 
 ## 🔎 Overview
 
@@ -25,8 +19,6 @@ Key aspects of our project include:
 - Aggregation of tech blog posts from multiple company sources
 - Automated hashtag extraction and analysis from blog content
 - Content recommendation based on hashtag similarity
-- Enhanced search functionality using hashtag-based indexing
-- Trend analysis of popular topics in the tech industry through hashtag frequency
 
 [Detailed Project Presentation](https://gamma.app/docs/-5i75coxbxfpndyl?mode=doc)
 ## ✨ Features
@@ -35,7 +27,6 @@ Key aspects of our project include:
 - Natural Language Processing for text analysis and hashtag extraction
 - Hashtag-based content recommendation system
 - Advanced search functionality using hashtag filters
-- Trend analysis and visualization of popular tech topics based on hashtag usage
 
 ## 📁 Project Structure
 
@@ -49,14 +40,23 @@ tech-blog-hub-site/
 │   │   ├── db/
 │   │   ├── types/
 │   │   └── utils/
-│   └── main.go
 ├── text_handler/
 │   ├── generated/
 │   ├── model/
 │   └── utils/
-├── front/
-├── api/
-└── proto_config/
+├── frontend/
+├── backend/
+│   ├── generated-go-server/
+│   ├── core/
+│   │   ├── handlers/
+│   │   ├── models/
+│   │   ├── services/
+│   │   ├── middleware/
+│   │   ├── utils/
+│   │   └── config/
+├── config/
+│   ├── proto_config/
+│   └── openai_config/
 ```
 
 1. crawler/
@@ -68,7 +68,6 @@ tech-blog-hub-site/
      - db/: 데이터베이스 관련 코드가 있는 패키지
      - types/: 공통으로 사용되는 타입 정의가 있는 패키지
      - utils/: 유틸리티 함수들이 모여있는 패키지
-   - main.go: 크롤러 애플리케이션의 진입점
 
 2. text_handler/
    - 텍스트 처리 관련 코드
@@ -76,15 +75,24 @@ tech-blog-hub-site/
    - model/: 텍스트 데이터 모델 관련 코드
    - utils/: 텍스트 처리에 필요한 유틸리티 함수들
 
-3. front/
+3. frontend/
    - 프론트엔드 관련 코드가 위치하는 디렉토리
 
-4. api/
-   - API 관련 코드나 정의가 포함된 디렉토리
+4. backend/
+   - 백엔드 API 서버 관련 코드가 위치하는 디렉토리
+   - generated-go-server/: OpenAPI 스펙으로 자동 생성된 서버 코드
+   - core/: 직접 작성하는 서버 코드
+     - handlers/: 요청을 처리하는 핸들러 함수들
+     - models/: 데이터 모델 정의
+     - services/: 비즈니스 로직을 담당하는 서비스 레이어
+     - middleware/: 미들웨어 함수들
+     - utils/: 유틸리티 함수들
+     - config/: 애플리케이션 설정 관련 코드
 
-5. proto_config/
-   - 프로토콜 버퍼 정의 파일들이 저장되는 디렉토리
-   - 서비스 간 통신을 위한 인터페이스를 정의
+5. config/
+   - 프로젝트 전체 설정 관련 디렉토리
+   - proto_config/: 프로토콜 버퍼 정의 파일들이 저장되는 디렉토리
+   - openai_config/: OpenAI 관련 설정 파일들이 저장되는 디렉토리
 
 ## 📄 License
 This project is distributed under the MIT License. See the LICENSE file for more information.
