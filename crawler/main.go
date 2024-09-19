@@ -7,6 +7,7 @@ import (
 	config "crawler/config"
 	pb "crawler/generated" // {module_name}/package
 	crawlerUtils "crawler/internal/crawler"
+	utils "crawler/internal/utils"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -25,9 +26,11 @@ func main() {
 	address := cfg.GRPCServerAddress
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		logger.LogError("did not connect to grpc server: " + err.Error())
+		log.Fatal("did not connect to grpc server: " + err.Error())
 	}
 	defer conn.Close()
+
 	stub := pb.NewCrawlerTextHandlerClient(conn)
 
 	// read crawler info from config file
