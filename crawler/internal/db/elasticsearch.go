@@ -3,16 +3,15 @@ package db
 import (
 	"context"
 	"crypto/sha256"
-	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	config "crawler/config"
 	types "crawler/internal/types"
 	utils "crawler/internal/utils"
 
@@ -30,18 +29,10 @@ type postData struct {
 func InsertDB(posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
 	indexName := "posts"
 	logger := utils.GetLoggerSingletonInstance()
-	// address := os.Getenv("ELASTICSEARCH_ADDRESS")
+	config := config.GetConfigSingletonInstance()
 
-	cfg := elasticsearch.Config{
-		Addresses: []string{"https://localhost:9200"},
-		Username:  "elastic",
-		Password:  "1234",
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
+	es, err := elasticsearch.NewClient(config.ElasticsearchConfig)
 
-	es, err := elasticsearch.NewClient(cfg)
 	if err != nil {
 		logger.LogError("Error creating the client: " + err.Error())
 	}

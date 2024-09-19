@@ -4,6 +4,7 @@ import (
 	"log"
 	"sync"
 
+	config "crawler/config"
 	pb "crawler/generated" // {module_name}/package
 	crawlerUtils "crawler/internal/crawler"
 
@@ -12,8 +13,16 @@ import (
 )
 
 func main() {
-	// address := os.Getenv("GRPC_SERVER_ADDRESS")
-	address := "localhost:50051"
+	// Initialize the logger singleton instance
+	// This logger is used throughout the application and should only be initialized and closed in the main function
+	// Do not call Close() from any other part of the application
+	// The logger uses asynchronous logging, so proper initialization and closure are crucial
+	logger := utils.GetLoggerSingletonInstance()
+	defer logger.Close()
+
+	cfg := config.GetConfigSingletonInstance()
+
+	address := cfg.GRPCServerAddress
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -22,8 +31,7 @@ func main() {
 	stub := pb.NewCrawlerTextHandlerClient(conn)
 
 	// read crawler info from config file
-	// configFilePath := os.Getenv("CRAWLER_CONFIG_FILE_PATH")
-	configFilePath := "./config/config-crawler.yaml"
+	configFilePath := cfg.CrawlerConfigFilePath
 	crawlerArrayAddress := crawlerUtils.GetCrawlerArrayAddressFromFile(configFilePath)
 
 	// run all crawlers

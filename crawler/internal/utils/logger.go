@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	config "crawler/config"
+
 	slogmulti "github.com/samber/slog-multi"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -73,8 +75,8 @@ func (l *logger) LogCrawlerResult(companyName string, totalCount int, successCou
 }
 
 func getLogFilePath() string {
-	// logFolderPath := os.Getenv("CRAWLER_LOG_FOLDER_PATH")
-	logFolderPath := "./log/"
+	cfg := config.GetConfigSingletonInstance()
+	logFolderPath := cfg.LogFolderPath
 	if _, err := os.Stat(logFolderPath); os.IsNotExist(err) {
 		err := os.Mkdir(logFolderPath, 0700)
 		if err != nil {
