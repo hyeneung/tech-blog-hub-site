@@ -40,7 +40,7 @@ func GetCrawlerArrayAddressFromFile(filePath string) *CrawlerArray {
 }
 
 func WriteCrawlerInfoToFile(filePath string, crawlerArrayPointer *CrawlerArray) {
-	yamlData, err := yaml.Marshal(&crawlerArrayPointer)
+	yamlData, err := yaml.Marshal(crawlerArrayPointer)
 	if err != nil {
 		log.Fatalf("error marshalling YAML: %v", err)
 	}
