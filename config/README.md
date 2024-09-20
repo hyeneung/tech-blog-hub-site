@@ -58,8 +58,13 @@ To generate server and client code from the OpenAPI specification:
     cd root/config/openapi_config
     ```
     ```bash
-    npx @openapitools/openapi-generator-cli generate -i ./openapi.yaml -g spring -o ../../backend/generated-spring-server --additional-properties=useSpringBoot3=true,springBootVersion=3.1.3,artifactId=backend,artifactVersion=0.0.1-SNAPSHOT,delegatePattern=true
+    npx @openapitools/openapi-generator-cli generate -i ./openapi.yaml -g spring -o ../../backend/generated-spring-server --additional-properties=useSpringBoot3=true,springBootVersion=3.1.3,artifactId=backend,artifactVersion=0.0.1-SNAPSHOT,delegatePattern=true,serializableModel=true --api-package=com.openapi.gen.springboot.api --model-package=com.openapi.gen.springboot.dto
     ```
+    ```bash
+    copy /Y openapi.yaml ..\..\backend\src\main\resources\swagger\openapi.yaml
+    cp -f openapi.yaml ../../backend/src/main/resources/swagger/openapi.yaml
+    ```
+
    - go server
         ```bash
         cd root/config/openapi_config

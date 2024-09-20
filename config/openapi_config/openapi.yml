@@ -1,10 +1,11 @@
-openapi: 3.1.0
+openapi: 3.0.1
 info:
-  title: tech blog hub site의 API 
+  title: tech blog hub site의 API
   description: 카테고리, 회사, 검색어를 기반으로 한 검색 API (페이징 지원)
   version: 1.0.0
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8080/api/v1
+    description: Local server
 paths:
   /search:
     get:
@@ -50,7 +51,7 @@ paths:
         '200':
           description: 성공
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: '#/components/schemas/ResponseDto'
         '400':
@@ -59,49 +60,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseDto'
-
-# # 성공 응답
-# {
-#   "status": 200,
-#   "message": "Success",
-#   "content": {
-#     "posts": [
-#       {
-#         "title": "첫 번째 게시물",
-#         "pubDate": "2024-09-18T10:00:00Z",
-#         "companyName": "테크 컴퍼니",
-#         "url": "https://tech-company.com/blog/first-post",
-#         "summarizedText": "첫 번째 요약...",
-#         "hashtags": ["기술", "개발"]
-#       },
-#       {
-#         "title": "두 번째 게시물",
-#         "pubDate": "2024-09-19T11:00:00Z",
-#         "companyName": "AI 솔루션즈",
-#         "url": "https://ai-solutions.com/blog/second-post",
-#         "summarizedText": "두 번째 요약...",
-#         "hashtags": ["AI", "머신러닝"]
-#       } ...
-#     ],
-#     "pageable": {
-#       "pageNumber": 0,
-#       "pageSize": 20,
-#       "totalElements": 50,
-#       "totalPages": 3
-#     }
-#   }
-# }
-# # 실패 응답
-# {
-#   "status": 400,
-#   "message": "Bad Request",
-#   "content": null
-# }
-
 components:
   schemas:
     ResponseDto:
       type: object
+      description: API response format
       required:
         - status
         - message
@@ -112,22 +75,21 @@ components:
         message:
           type: string
         content:
-          oneOf:
-            - $ref: '#/components/schemas/SearchResult'
-            - type: 'null'
+          $ref: '#/components/schemas/SearchResult'
 
     SearchResult:
       type: object
+      nullable: true
       required:
         - posts
-        - pageable
+        - page
       properties:
         posts:
           type: array
           items:
             $ref: '#/components/schemas/Post'
-        pageable:
-          $ref: '#/components/schemas/Pageable'
+        page:
+          $ref: '#/components/schemas/Page'
 
     Post:
       type: object
@@ -154,7 +116,7 @@ components:
           items:
             type: string
 
-    Pageable:
+    Page:
       type: object
       required:
         - pageNumber

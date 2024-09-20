@@ -1,10 +1,10 @@
-package org.datacapstone.tech_blog_hub;
+package org.datacapstonedesign.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TechBlogHubApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {

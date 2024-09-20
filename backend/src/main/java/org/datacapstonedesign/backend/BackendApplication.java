@@ -1,13 +1,13 @@
-package org.datacapstone.tech_blog_hub;
+package org.datacapstonedesign.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TechBlogHubApplication {
+public class BackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TechBlogHubApplication.class, args);
+		SpringApplication.run(BackendApplication.class, args);
 	}
 
 }
