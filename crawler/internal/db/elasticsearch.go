@@ -19,12 +19,13 @@ import (
 )
 
 type postData struct {
-	Title          string
-	PubDate        string
-	CompanyName    string
-	Content        string
-	SummarizedText string
-	Hashtags       []string
+	Title          string   `json:"title"`
+	PubDate        string   `json:"pub_date"`
+	CompanyName    string   `json:"company_name"`
+	URL            string   `json:"url"`
+	Content        string   `json:"content"`
+	SummarizedText string   `json:"summarized_text"`
+	Hashtags       []string `json:"hashtags"`
 }
 
 func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
@@ -58,6 +59,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 			Title:          post.Title,
 			PubDate:        post.PubDate,
 			CompanyName:    companyName,
+			URL:            post.Link,
 			Content:        textInfo.Content,
 			SummarizedText: textInfo.SummarizedText,
 			Hashtags:       textInfo.Hashtags,
@@ -72,7 +74,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 
 		hasher := sha256.New()
 		hasher.Write([]byte(post.Link))
-		documentID := hex.EncodeToString(hasher.Sum(nil))
+		documentID := hex.EncodeToString(hasher.Sum(nil)) // URL should be unique
 
 		res, err := es.Create(
 			indexName,
