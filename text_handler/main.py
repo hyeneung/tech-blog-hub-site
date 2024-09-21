@@ -1,10 +1,7 @@
 import grpc
 from concurrent import futures
-import time
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-import os
-import concurrent.futures
 
 from generated import crawler_text_handler_pb2_grpc, crawler_text_handler_pb2
 from model.hashtag import HashtaggingModule
@@ -48,13 +45,11 @@ class CrawlerTextHandlerServicer(crawler_text_handler_pb2_grpc.CrawlerTextHandle
 
     async def summarize_url(self, url):
         loop = asyncio.get_running_loop()
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            return await loop.run_in_executor(pool, self.summarize_module.summarize, url)
+        return await loop.run_in_executor(self.executor, self.summarize_module.summarize, url)
 
     async def generate_hashtags(self, url):
         loop = asyncio.get_running_loop()
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            return await loop.run_in_executor(pool, self.hashtagging_module.generate_hashtags, url)
+        return await loop.run_in_executor(self.executor, self.hashtagging_module.generate_hashtags, url)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
