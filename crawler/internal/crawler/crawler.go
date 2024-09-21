@@ -17,16 +17,17 @@ func (c *Crawler) Run(stub *pb.CrawlerTextHandlerClient) {
 	var postNumUpdated uint32 = 0
 	var posts []types.Post
 	var err error
-
+	logger := utils.GetLoggerSingletonInstance()
+	logger.LogInfo("starting " + c.Company + " crawler")
 	// read RSS file
 	posts, err = utils.GetPostArrayFromUrl(c.URL)
 	if err != nil {
 		return
 	}
-
+	logger.LogInfo("reading RSS file Done: " + c.Company + " crawler")
 	// Determine the range of posts that need to be inserted in the database
 	var lastIdxToUpdate int = getOldestPostIndexForUpdate(posts, c.LastUpdated)
-	logger := utils.GetLoggerSingletonInstance()
+	logger.LogInfo("checking the range Done: " + c.Company + " crawler")
 	// If there are no new posts to update, log the result and exit
 	if lastIdxToUpdate < 0 {
 		logger.LogCrawlerResult(c.Company, postNumToUpdate, postNumUpdated)
@@ -51,11 +52,24 @@ func (c *Crawler) Run(stub *pb.CrawlerTextHandlerClient) {
 // Returns the index of the oldest post that needs to be updated.
 // The index starts from 0. If there are no posts to update, it returns -1.
 func getOldestPostIndexForUpdate(posts []types.Post, lastUpdatedDateUnixTime int64) int {
+	logger := utils.GetLoggerSingletonInstance()
 	for i, post := range posts {
 		if post.PubDate == "" {
 			continue
 		}
-		if utils.Str2UnixTime(post.PubDate) <= lastUpdatedDateUnixTime {
+		standardizedDate := utils.GetRFC3339TimeFormat(posts[i].PubDate)
+		if standardizedDate == "" {
+			logger.LogError("Failed to standardize date: " + posts[i].PubDate)
+			continue
+		}
+		posts[i].PubDate = standardizedDate
+
+		unixTime, err := utils.RFC3339TimeToUnixTime(standardizedDate)
+		if err != nil {
+			logger.LogError("Failed to convert to Unix time: " + err.Error())
+			continue
+		}
+		if unixTime <= lastUpdatedDateUnixTime {
 			return i - 1 // last one that needs updating
 		}
 	}

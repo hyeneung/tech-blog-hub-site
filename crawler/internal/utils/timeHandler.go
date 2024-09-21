@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -8,7 +9,7 @@ func UnixTime2Time(unixTime int64) time.Time {
 	return time.Unix(unixTime, 0).UTC()
 }
 
-func Str2time(strTime string) time.Time {
+func Str2UtcTime(strTime string) (time.Time, error) {
 	timeFormats := [...]string{
 		time.RFC1123,
 		time.RFC1123Z,
@@ -17,19 +18,27 @@ func Str2time(strTime string) time.Time {
 		time.RFC822,
 		time.RFC3339,
 	}
-	// RFC1123 : Thu, 02 May 2024 08:00:00 GMT
-	// https://go.dev/src/time/format.go
 	for _, format := range timeFormats {
 		t, err := time.Parse(format, strTime)
 		if err == nil {
-			return t.UTC()
+			return t.UTC(), nil
 		}
 	}
-	GetLoggerSingletonInstance().LogError("time format error")
-	return time.Time{}
+	return time.Time{}, fmt.Errorf("failed to parse time: %s", strTime)
 }
 
-func Str2UnixTime(strTime string) int64 {
-	t := Str2time(strTime)
-	return t.Unix()
+func GetRFC3339TimeFormat(pubDate string) string {
+	t, err := Str2UtcTime(pubDate)
+	if err != nil {
+		return ""
+	}
+	return t.Format(time.RFC3339)
+}
+
+func RFC3339TimeToUnixTime(rfc3339 string) (int64, error) {
+	t, err := time.Parse(time.RFC3339, rfc3339)
+	if err != nil {
+		return 0, err
+	}
+	return t.Unix(), nil
 }
