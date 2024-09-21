@@ -22,10 +22,11 @@ class CrawlerTextHandlerServicer(crawler_text_handler_pb2_grpc.CrawlerTextHandle
             try:
                 url = request.url
                 print(f"Processing URL: {url}")
-                content, summarized_text, hashtags = asyncio.run(self.process_url(url))
+                preprocessed_text = get_preprocessed_text(url)
+                summarized_text, hashtags = asyncio.run(self.process_text(preprocessed_text))
                 
                 yield crawler_text_handler_pb2.SummarizedDataResponse(
-                    content=content,
+                    content=preprocessed_text,
                     summarized_text=summarized_text,
                     hashtags=hashtags
                 )
@@ -36,21 +37,14 @@ class CrawlerTextHandlerServicer(crawler_text_handler_pb2_grpc.CrawlerTextHandle
                 print(f"Error in StreamUrlSummaries: {e}")
                 context.abort(grpc.StatusCode.INTERNAL, f"Internal Error: {str(e)}")
 
-    async def process_url(self, url):
-        content_task = asyncio.create_task(self.preprocess_url(url))
-        summarize_task = asyncio.create_task(self.summarize_url(url))
-        hashtag_task = asyncio.create_task(self.generate_hashtags(url))
+    async def process_text(self, preprocessed_text):
+        summarize_task = asyncio.create_task(self.summarize_url(preprocessed_text))
+        hashtag_task = asyncio.create_task(self.generate_hashtags(preprocessed_text))
 
-        content = await content_task
         summarized_text = await summarize_task
         hashtags = await hashtag_task
 
-        return content, summarized_text, hashtags
-
-    async def preprocess_url(self, url):
-        loop = asyncio.get_running_loop()
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            return await loop.run_in_executor(pool, get_preprocessed_text, url)
+        return summarized_text, hashtags
 
     async def summarize_url(self, url):
         loop = asyncio.get_running_loop()
