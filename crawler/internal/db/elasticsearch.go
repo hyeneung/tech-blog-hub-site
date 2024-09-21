@@ -29,7 +29,6 @@ type postData struct {
 }
 
 func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
-	indexName := "posts"
 	logger := utils.GetLoggerSingletonInstance()
 	config := config.GetConfigSingletonInstance()
 
@@ -77,14 +76,20 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 		documentID := hex.EncodeToString(hasher.Sum(nil)) // URL should be unique
 
 		res, err := es.Create(
-			indexName,
+			config.IndexName,
 			documentID,
 			strings.NewReader(string(jsonData)),
 			es.Create.WithContext(ctx),
 			es.Create.WithRefresh("true"),
 		)
 		if err != nil {
-			logger.LogError("Error creating document: " + err.Error())
+			if err == context.Canceled {
+				logger.LogError("Request was canceled by context")
+			} else if err == context.DeadlineExceeded {
+				logger.LogError("Request timed out")
+			} else {
+				logger.LogError("Error creating document: " + err.Error())
+			}
 			resultChan <- false
 			return
 		}

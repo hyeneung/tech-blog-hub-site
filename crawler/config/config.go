@@ -14,6 +14,7 @@ type Config struct {
 	GRPCServerAddress     string
 	CrawlerConfigFilePath string
 	LogFolderPath         string
+	IndexName             string
 	ElasticsearchConfig   elasticsearch.Config
 }
 
@@ -28,6 +29,7 @@ func GetConfigSingletonInstance() *Config {
 			GRPCServerAddress:     getEnv("GRPC_SERVER_ADDRESS", "localhost:50051"),
 			CrawlerConfigFilePath: getEnv("CRAWLER_CONFIG_FILE_PATH", "./config/config-crawler.yaml"),
 			LogFolderPath:         getEnv("CRAWLER_LOG_FOLDER_PATH", "./log/"),
+			IndexName:             getEnv("ELASTICSEARCH_INDEX_NAME", "articleinfos"),
 			ElasticsearchConfig:   getElasticsearchConfig(),
 		}
 	})
