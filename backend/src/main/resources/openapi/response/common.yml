@@ -1,0 +1,15 @@
+schemas:
+  ApiResponse:
+    name: ApiResponse
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      content:
+        type: object
+    required:
+      - status
+      - message
+      - content

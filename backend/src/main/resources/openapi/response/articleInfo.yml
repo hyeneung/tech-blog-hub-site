@@ -1,0 +1,64 @@
+components:
+  schemas:
+    SearchResponse:
+      allOf:
+        - $ref: './common.yml#/schemas/ApiResponse'
+        - type: object
+          properties:
+            content: # ApiResponse의 content 부분에 아래꺼 매핑
+              $ref: '#/components/schemas/SearchResponseBody'
+
+    SearchResponseBody:
+      type: object
+      required:
+        - articleInfos
+        - page
+      properties:
+        articleInfos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleInfo'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+
+    ArticleInfo:
+      type: object
+      required:
+        - title
+        - pubDate
+        - companyName
+        - url
+        - summarizedText
+        - hashtags
+      properties:
+        title:
+          type: string
+        pubDate:
+          type: string
+        companyName:
+          type: string
+        url:
+          type: string
+        summarizedText:
+          type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+
+    PageInfo:
+      type: object
+      required:
+        - pageNumber
+        - pageSize
+        - totalElements
+        - totalPages
+      properties:
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer

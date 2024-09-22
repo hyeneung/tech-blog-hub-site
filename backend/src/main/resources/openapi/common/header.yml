@@ -1,0 +1,7 @@
+XUserID:
+  name: X-User-ID
+  in: header
+  description: local storage에 저장한 user identifier
+  required: true
+  schema:
+    type: string
