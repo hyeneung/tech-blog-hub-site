@@ -35,12 +35,17 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-elasticsearch</artifactId>
 		</dependency>
 
 		<dependency>
@@ -62,34 +67,14 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
@@ -103,12 +88,12 @@
 						<configuration>
 							<generatorName>spring</generatorName>
 							<inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yml</inputSpec>
-							<modelPackage>org.datacapstonedesign.backend.server.dto</modelPackage>
-							<apiPackage>org.datacapstonedesign.backend.server.api</apiPackage>
+							<output>${project.build.directory}/generated-sources/backend-java-spring-package</output>
+							<modelPackage>org.datacapstonedesign.backend.generated.dto</modelPackage>
+							<apiPackage>org.datacapstonedesign.backend.generated.api</apiPackage>
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
 							<configOptions>
 								<title>backend</title>
-								<serializableModel>true</serializableModel>
 								<delegatePattern>true</delegatePattern>
 								<useSpringBoot3>true</useSpringBoot3>
 							</configOptions>
@@ -129,6 +114,24 @@
 								<npmVersion>${project.version}</npmVersion>
 								<npmRepository>https://npm.pkg.github.com</npmRepository>
 							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.2</version>
+				<executions>
+					<execution>
+						<id>exclude-commons-logging</id>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<excludeGroupIds>commons-logging</excludeGroupIds>
+							<excludeArtifactIds>commons-logging</excludeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>
