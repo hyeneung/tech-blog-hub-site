@@ -9,3 +9,9 @@ servers:
 paths:
   /article-infos/search:
     $ref: "./request/articleInfo.yml#/search"
+  /article-infos/companies:
+    $ref: "./request/articleInfo.yml#/companies"
+  /redirect:
+    $ref: "./request/redirect.yml#/redirect"
+  /recommend:
+    $ref: "./request/recommend.yml#/recommend"
