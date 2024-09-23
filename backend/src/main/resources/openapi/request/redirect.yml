@@ -1,0 +1,21 @@
+redirect:
+  get:
+    operationId: redirectToUrl
+    summary: 지정된 URL로 리다이렉트
+    description: 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
+    parameters:
+      - $ref: '../common/header.yml#/XUserID'
+      - in: query
+        name: url
+        required: true
+        schema:
+          type: string
+        description: 리다이렉트할 URL
+    responses:
+      '302':
+        description: 지정된 URL로 리다이렉트
+        headers:
+          Location:
+            schema:
+              type: string
+            description: 리다이렉트할 URL
