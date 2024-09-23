@@ -11,19 +11,29 @@ search:
           type: array
           items:
             type: string
+            minLength: 1
+            maxLength: 25
+            pattern: '^[a-zA-Z]+$'
+          maxItems: 10
         style: form
         explode: false
-        description: 검색할 카테고리 목록 (선택사항, 쉼표로 구분)
+        description: 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 25자, 알파벳만 허용)
       - in: query
         name: company
         schema:
           type: string
-        description: 검색할 회사 이름 (선택사항)
+          minLength: 1
+          maxLength: 10
+          pattern: '^[a-z]+$'
+        description: 검색할 회사 이름 (선택사항, 최대 10자, 알파벳 소문자만 허용)
       - in: query
         name: query
         schema:
           type: string
-        description: 검색어 (선택사항)
+          minLength: 1
+          maxLength: 15
+          pattern: '^[가-힣a-zA-Z0-9\s]+$'
+        description: 검색어 (선택사항, 최대 15자, 한국어, 영어, 숫자, 띄어쓰기만 허용)
       - in: query
         name: page
         schema:
