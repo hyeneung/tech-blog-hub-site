@@ -68,30 +68,27 @@ components:
       required:
         - status
         - message
-        - content
       properties:
         status:
           type: integer
         message:
           type: string
-        content:
-          $ref: '#/components/schemas/SearchResult'
+        responseDtoBody:
+          $ref: '#/components/schemas/ResponseDtoBody'
 
-    SearchResult:
+    ResponseDtoBody:
       type: object
-      nullable: true
       required:
-        - posts
+        - articleInfos
         - page
       properties:
-        posts:
+        articleInfos:
           type: array
           items:
-            $ref: '#/components/schemas/Post'
+            $ref: '#/components/schemas/ArticleInfo'
         page:
-          $ref: '#/components/schemas/Page'
-
-    Post:
+          $ref: '#/components/schemas/PageInfo'
+    ArticleInfo:
       type: object
       required:
         - title
@@ -116,7 +113,7 @@ components:
           items:
             type: string
 
-    Page:
+    PageInfo:
       type: object
       required:
         - pageNumber

@@ -1,0 +1,29 @@
+components:
+  schemas:
+    RecommendResponse:
+      allOf:
+        - $ref: './common.yml#/schemas/ApiResult'
+        - type: object
+          properties:
+            content:
+              $ref: '#/components/schemas/RecommendResponseBody'
+    RecommendResponseBody:
+      type: object
+      required:
+        - summarizedText
+        - hashtags
+        - recommends
+      properties:
+        summarizedText:
+          type: string
+          description: 게시글의 요약 텍스트
+        hashtags:
+          type: array
+          items:
+            type: string
+          description: 관련 해시태그 목록
+        recommends:
+          type: array
+          items:
+            type: string
+          description: 추천 게시글 목록
