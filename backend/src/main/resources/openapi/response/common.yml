@@ -1,6 +1,6 @@
 schemas:
-  ApiResponse:
-    name: ApiResponse
+  ApiResult:
+    name: ApiResult
     type: object
     properties:
       status:

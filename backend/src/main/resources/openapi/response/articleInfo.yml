@@ -2,10 +2,10 @@ components:
   schemas:
     SearchResponse:
       allOf:
-        - $ref: './common.yml#/schemas/ApiResponse'
+        - $ref: './common.yml#/schemas/ApiResult'
         - type: object
           properties:
-            content: # ApiResponse의 content 부분에 아래꺼 매핑
+            content:
               $ref: '#/components/schemas/SearchResponseBody'
 
     SearchResponseBody:

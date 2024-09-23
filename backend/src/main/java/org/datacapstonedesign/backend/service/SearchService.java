@@ -1,10 +1,10 @@
 package org.datacapstonedesign.backend.service;
 
 import java.util.List;
-import org.datacapstonedesign.backend.generated.dto.ResponseDtoBody;
+import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 
 public interface SearchService {
-    ResponseDtoBody getPosts(
+    SearchResponseBody getArticleInfos(
         final List<String> hashtags,
         final String company,
         final String query,

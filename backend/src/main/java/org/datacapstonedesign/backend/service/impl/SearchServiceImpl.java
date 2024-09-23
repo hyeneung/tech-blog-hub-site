@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import org.datacapstonedesign.backend.document.ArticleInfoDocument;
 import org.datacapstonedesign.backend.generated.dto.ArticleInfo;
 import org.datacapstonedesign.backend.generated.dto.PageInfo;
-import org.datacapstonedesign.backend.generated.dto.ResponseDtoBody;
+import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 import org.datacapstonedesign.backend.repository.SearchRepository;
 import org.datacapstonedesign.backend.service.SearchService;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +24,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public ResponseDtoBody getArticleInfos(
+    public SearchResponseBody getArticleInfos(
         final List<String> hashtags,
         final String company,
         final String query,
@@ -54,7 +54,7 @@ public class SearchServiceImpl implements SearchService {
             .totalElements((int) totalHits)
             .totalPages(totalPages);
 
-        return new ResponseDtoBody()
+        return new SearchResponseBody()
             .articleInfos(articleInfos)
             .page(pageInfo);
     }
