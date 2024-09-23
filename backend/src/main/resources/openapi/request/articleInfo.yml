@@ -51,4 +51,19 @@ search:
         content:
           application/json:
             schema:
-              $ref: '../response/common.yml#/schemas/ApiResponse'
+              $ref: '../response/common.yml#/schemas/ApiResult'
+
+companies:
+  get:
+    operationId: getCompanyNames
+    summary: 회사 이름들 반환
+    description: 크롤링된 기술 블로그들의 회사명을 반환합니다.
+    parameters:
+      - $ref: '../common/header.yml#/XUserID'
+    responses:
+      '200':
+        description: 성공
+        content:
+          application/json:
+            schema:
+              $ref: '../response/articleInfo.yml#/components/schemas/CompaniesResponse'

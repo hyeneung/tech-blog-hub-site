@@ -62,3 +62,17 @@ components:
           type: integer
         totalPages:
           type: integer
+
+    CompaniesResponse:
+      allOf:
+        - $ref: './common.yml#/schemas/ApiResult'
+        - type: object
+          properties:
+            content:
+              $ref: '#/components/schemas/CompaniesResponseBody'
+
+    CompaniesResponseBody:
+      type: array
+      items:
+        type: string
+      example: [ "네이버", "카카오", "라인", "우아한형제들", "쿠팡" ]
