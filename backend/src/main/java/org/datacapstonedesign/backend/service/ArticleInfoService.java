@@ -3,7 +3,7 @@ package org.datacapstonedesign.backend.service;
 import java.util.List;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 
-public interface SearchService {
+public interface ArticleInfoService {
     SearchResponseBody getArticleInfos(
         final List<String> hashtags,
         final String company,

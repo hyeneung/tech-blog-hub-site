@@ -6,23 +6,24 @@ import org.datacapstonedesign.backend.document.ArticleInfoDocument;
 import org.datacapstonedesign.backend.generated.dto.ArticleInfo;
 import org.datacapstonedesign.backend.generated.dto.PageInfo;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
-import org.datacapstonedesign.backend.repository.SearchRepository;
-import org.datacapstonedesign.backend.service.SearchService;
+import org.datacapstonedesign.backend.repository.ArticleInfoRepository;
+import org.datacapstonedesign.backend.service.ArticleInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class SearchServiceImpl implements SearchService {
+public class ArticleInfoServiceImpl implements ArticleInfoService {
 
-    private final SearchRepository searchRepository;
-
-    public SearchServiceImpl(SearchRepository searchRepository) {
-        this.searchRepository = searchRepository;
+    private final ArticleInfoRepository articleInfoRepository;
+    @Autowired
+    public ArticleInfoServiceImpl(ArticleInfoRepository articleInfoRepository) {
+        this.articleInfoRepository = articleInfoRepository;
     }
-
+    @Transactional(readOnly = true)
     @Override
     public SearchResponseBody getArticleInfos(
         final List<String> hashtags,
@@ -31,13 +32,11 @@ public class SearchServiceImpl implements SearchService {
         final Integer page,
         final Integer size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        SearchHits<ArticleInfoDocument> searchHits = searchRepository.findByQueryParams(
+        SearchHits<ArticleInfoDocument> searchHits = articleInfoRepository.findByQueryParams(
             hashtags,
             company,
             query,
-            pageable
+            PageRequest.of(page, size)
         );
 
         List<ArticleInfo> articleInfos = searchHits.getSearchHits().stream()

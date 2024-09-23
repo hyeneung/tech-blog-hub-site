@@ -4,18 +4,18 @@ import java.util.List;
 import org.datacapstonedesign.backend.generated.api.ArticleInfosApiDelegate;
 import org.datacapstonedesign.backend.generated.dto.CompaniesResponse;
 import org.datacapstonedesign.backend.generated.dto.SearchResponse;
-import org.datacapstonedesign.backend.service.SearchService;
+import org.datacapstonedesign.backend.service.ArticleInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ArticleInfosApiDelegateImpl implements ArticleInfosApiDelegate {
-    private final SearchService searchService;
+    private final ArticleInfoService articleInfoService;
 
     @Autowired
-    public ArticleInfosApiDelegateImpl(SearchService searchService){
-        this.searchService = searchService;
+    public ArticleInfosApiDelegateImpl(ArticleInfoService articleInfoService){
+        this.articleInfoService = articleInfoService;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ArticleInfosApiDelegateImpl implements ArticleInfosApiDelegate {
             new SearchResponse()
                 .status(200)
                 .message("ok")
-                .content(searchService.getArticleInfos(hashtags, company, query, page, size))
+                .content(articleInfoService.getArticleInfos(hashtags, company, query, page, size))
         );
     }
 
