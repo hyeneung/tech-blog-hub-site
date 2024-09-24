@@ -71,5 +71,18 @@ public class NativeQueryRepositoryImpl implements NativeQueryRepository {
 
         Query searchQuery = nativeQueryBuilder.build();
         return elasticsearchOperations.search(searchQuery, ArticleInfoDocument.class);
+    @Override
+    public SearchResponse<Void> findAllUniqueCompanyNames() throws IOException {
+        SearchRequest searchRequest = SearchRequest.of(builder -> builder
+            .index(indexName)
+            .size(0)
+            .aggregations("unique_companies", a -> a
+                .terms(t -> t
+                    .field("company_name")
+                    .size(10000)
+                )
+            )
+        );
+        return elasticsearchClient.search(searchRequest, Void.class);
     }
 }

@@ -1,14 +1,16 @@
 package org.datacapstonedesign.backend.mapper.impl;
 
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.datacapstonedesign.backend.document.ArticleInfoDocument;
 import org.datacapstonedesign.backend.generated.dto.ArticleInfo;
+import org.datacapstonedesign.backend.generated.dto.CompaniesResponseBody;
 import org.datacapstonedesign.backend.generated.dto.PageInfo;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 import org.datacapstonedesign.backend.mapper.ArticleInfoMapper;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,16 +18,17 @@ public class ArticleInfoMapperImpl implements ArticleInfoMapper {
 
     @Override
     public SearchResponseBody toSearchResponseBody(
-        final SearchHits<ArticleInfoDocument> searchHits,
+        SearchResponse<ArticleInfoDocument> searchResponse,
         int page,
         int size
     ) {
-        List<ArticleInfo> articleInfos = searchHits.getSearchHits().stream()
-            .map(SearchHit::getContent)
+        List<ArticleInfo> articleInfos = searchResponse.hits().hits().stream()
+            .map(Hit::source)
+            .filter(Objects::nonNull)
             .map(ArticleInfoDocument::toArticleInfo)
             .collect(Collectors.toList());
 
-        long totalHits = searchHits.getTotalHits();
+        long totalHits = searchResponse.hits().total().value();
         int totalPages = (int) Math.ceil((double) totalHits / size);
 
         PageInfo pageInfo = new PageInfo()
@@ -37,5 +40,20 @@ public class ArticleInfoMapperImpl implements ArticleInfoMapper {
         return new SearchResponseBody()
             .articleInfos(articleInfos)
             .page(pageInfo);
+    }
+
+    @Override
+    public CompaniesResponseBody toCompaniesResponseBody(
+        final SearchResponse<Void> searchResponse
+    ) {
+        List<String> companyNames = searchResponse.aggregations()
+            .get("unique_companies")
+            .sterms()
+            .buckets().array()
+            .stream()
+            .map(b -> b.key().stringValue())
+            .toList();
+
+        return new CompaniesResponseBody().companyNames(companyNames);
     }
 }

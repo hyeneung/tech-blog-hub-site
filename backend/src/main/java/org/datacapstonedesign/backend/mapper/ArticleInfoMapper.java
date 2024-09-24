@@ -1,13 +1,15 @@
 package org.datacapstonedesign.backend.mapper;
 
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import org.datacapstonedesign.backend.document.ArticleInfoDocument;
+import org.datacapstonedesign.backend.generated.dto.CompaniesResponseBody;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
-import org.springframework.data.elasticsearch.core.SearchHits;
 
 public interface ArticleInfoMapper {
     SearchResponseBody toSearchResponseBody(
-        SearchHits<ArticleInfoDocument> searchHits,
+        SearchResponse<ArticleInfoDocument> searchResponse,
         int page,
         int size
     );
+    CompaniesResponseBody toCompaniesResponseBody (SearchResponse<Void> searchResponse);
 }

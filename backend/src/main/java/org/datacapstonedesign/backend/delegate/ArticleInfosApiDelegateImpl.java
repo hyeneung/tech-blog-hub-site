@@ -6,6 +6,7 @@ import org.datacapstonedesign.backend.generated.dto.CompaniesResponse;
 import org.datacapstonedesign.backend.generated.dto.SearchResponse;
 import org.datacapstonedesign.backend.service.ArticleInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -29,15 +30,19 @@ public class ArticleInfosApiDelegateImpl implements ArticleInfosApiDelegate {
     ) {
         return ResponseEntity.ok(
             new SearchResponse()
-                .status(200)
+                .status(HttpStatus.OK.value())
                 .message("ok")
-                .content(articleInfoService.getArticleInfos(hashtags, company, query, page, size))
+                .content(articleInfoService.getArticleInfosByQueryParams(hashtags, company, query, page, size))
         );
     }
 
     @Override
     public ResponseEntity<CompaniesResponse> getCompanyNames(final String xUserID) {
-        // TODO - implement concrete functionality
-        return ArticleInfosApiDelegate.super.getCompanyNames(xUserID);
+        return ResponseEntity.ok(
+            new CompaniesResponse()
+                .status(HttpStatus.OK.value())
+                .message("ok")
+                .content(articleInfoService.getCompanyNames())
+        );
     }
 }
