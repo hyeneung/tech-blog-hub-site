@@ -1,7 +1,7 @@
 package org.datacapstonedesign.backend.config;
 
-import java.util.Arrays;
 import java.util.List;
+import org.datacapstonedesign.backend.interceptor.UserIdHeaderInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -15,7 +15,7 @@ public class CorsConfig {
         // TODO - change mydomain.com to real domain name
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://mydomain.com"));
         // Using custom header "X-User-ID" to identify the user with local storage data
-        corsConfiguration.setAllowedHeaders(List.of("Content-Type", "Accept", "X-User-ID"));
+        corsConfiguration.setAllowedHeaders(List.of("Content-Type", "Accept", UserIdHeaderInterceptor.CustomHeaderNameForLogging));
         corsConfiguration.setAllowedMethods(List.of("GET"));
         corsConfiguration.setMaxAge(3600L);
 
