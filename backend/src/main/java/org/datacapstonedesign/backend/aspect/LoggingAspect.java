@@ -36,7 +36,7 @@ public class LoggingAspect {
      * @throws Throwable If any exception occurs during the method execution
      */
     @Around("controllerPointcut()")
-    public Object logBeforeController(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object logControllerExecution(ProceedingJoinPoint joinPoint) throws Throwable {
         // prevent duplicated log : ArticleInfosApi.getArticleInfos calls ArticleInfosApiDelegateImpl.getArticleInfos
         if (joinPoint.getSignature().getDeclaringType().getSimpleName().endsWith("Api")) {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
