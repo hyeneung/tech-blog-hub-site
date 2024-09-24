@@ -27,7 +27,6 @@ public class ArticleInfosApiDelegateImpl implements ArticleInfosApiDelegate {
         final Integer page,
         final Integer size
     ) {
-        // TODO - implement logging
         return ResponseEntity.ok(
             new SearchResponse()
                 .status(200)
@@ -38,7 +37,7 @@ public class ArticleInfosApiDelegateImpl implements ArticleInfosApiDelegate {
 
     @Override
     public ResponseEntity<CompaniesResponse> getCompanyNames(final String xUserID) {
-        // TODO - implement logging and concrete functionality
+        // TODO - implement concrete functionality
         return ArticleInfosApiDelegate.super.getCompanyNames(xUserID);
     }
 }

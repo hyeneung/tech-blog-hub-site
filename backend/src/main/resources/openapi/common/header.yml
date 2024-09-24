@@ -2,9 +2,9 @@ XUserID:
   name: X-User-ID
   in: header
   description: Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
-  required: true
+  required: false
   schema:
-    type: string # 버전 4 UUID
+    type: string
     minLength: 36
     maxLength: 36
     pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'

@@ -13,7 +13,7 @@ public class RecommendApiDelegateImpl implements RecommendApiDelegate {
         final String xUserID,
         final String url
     ) {
-        // TODO - implement logging and concrete functionality
+        // TODO - implement concrete functionality
         return RecommendApiDelegate.super.recommendOtherArticles(xUserID, url);
     }
 }

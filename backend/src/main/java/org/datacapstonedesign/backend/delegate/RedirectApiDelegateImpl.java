@@ -12,10 +12,9 @@ public class RedirectApiDelegateImpl implements RedirectApiDelegate {
 
     @Override
     public ResponseEntity<Void> redirectToUrl(
-        final String xUserID,
-        final String url
+        final String url,
+        final String xUserID
     ) {
-        // TODO - implement logging
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create(url));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
