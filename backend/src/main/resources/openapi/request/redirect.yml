@@ -10,6 +10,7 @@ redirect:
         required: true
         schema:
           type: string
+          maxLength: 2000
         description: 리다이렉트할 URL
     responses:
       '302':

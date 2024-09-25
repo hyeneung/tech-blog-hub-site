@@ -9,6 +9,7 @@ recommend:
           required: true
           schema:
             type: string
+            maxLength: 2000
           description: 분석할 기사의 URL
     responses:
       '200':
