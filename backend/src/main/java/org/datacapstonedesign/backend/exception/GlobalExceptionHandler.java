@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.datacapstonedesign.backend.generated.dto.ApiResult;
 import org.datacapstonedesign.backend.interceptor.UserIdHeaderInterceptor;
+import org.datacapstonedesign.backend.util.CustomLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,53 +24,69 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResult> handleConstraintViolationException(
         ConstraintViolationException ex,
-        HttpServletRequest httpServletRequest
+        HttpServletRequest request
     ) {
         List<String> errors = ex.getConstraintViolations()
             .stream()
             .map(ConstraintViolation::getMessage)
             .toList();
 
-        String userId = (String) httpServletRequest.getAttribute(UserIdHeaderInterceptor.CustomHeaderNameForLogging);
-
-        logger.error("Validation failed. User ID: {}, Errors: {}",
-            userId != null ? userId : "Unknown",
-            String.join(", ", errors)
-        );
-
-        ApiResult apiResult = new ApiResult()
-            .status(HttpStatus.BAD_REQUEST.value())
-            .message("Validation failed")
-            .content(Map.of("errors", errors));
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResult);
+        return handleException(new ExceptionContext(ex, request, "Validation", errors.toString(), HttpStatus.BAD_REQUEST, LogLevel.WARN));
     }
+
+    @ExceptionHandler(UrlInvalidException.class)
+    public ResponseEntity<ApiResult> handleUrlInvalidException(
+        UrlInvalidException ex,
+        HttpServletRequest request
+    ) {
+        return handleException(new ExceptionContext(ex, request, "URL Validation", ex.getMessage(), HttpStatus.BAD_REQUEST, LogLevel.WARN));
+    }
+
 
     @ExceptionHandler(ElasticsearchIOException.class)
     public ResponseEntity<ApiResult> handleElasticsearchIOException(
         ElasticsearchIOException ex,
-        HttpServletRequest httpServletRequest
+        HttpServletRequest request
     ) {
-        String errorMessage = ex.getMessage();
         String detailedError = (ex.getCause() != null) ? ex.getCause().getMessage() : "No additional details available";
-
-        String userId = (String) httpServletRequest.getAttribute(UserIdHeaderInterceptor.CustomHeaderNameForLogging);
-
-        Map<String, String> errorDetails = Map.of(
-            "message", errorMessage,
-            "details", detailedError
-        );
-
-        logger.error("Elasticsearch I/O operation failed. User ID: {}, Errors: {}",
-            userId != null ? userId : "Unknown",
-            errorDetails
-        );
-
-        ApiResult apiResult = new ApiResult()
-            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .message("Elasticsearch I/O operation failed")
-            .content(Map.of("errors", errorDetails));
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResult);
+        String errorDetails = String.format("Message: %s, Details: {%s}", ex.getMessage(), detailedError);
+        return handleException(new ExceptionContext(ex, request, "Elasticsearch I/O operation", errorDetails, HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR));
     }
 
+    private String getUserId(HttpServletRequest request) {
+        return (String) request.getAttribute(UserIdHeaderInterceptor.CustomHeaderNameForLogging);
+    }
+
+    private enum LogLevel {
+        ERROR, WARN, INFO, DEBUG
+    }
+
+    private record ExceptionContext(
+        Exception exception,
+        HttpServletRequest request,
+        String operation,
+        String message,
+        HttpStatus status,
+        LogLevel logLevel
+    ) {
+    }
+
+    private ResponseEntity<ApiResult> handleException(ExceptionContext context) {
+        String userId = getUserId(context.request);
+
+        switch (context.logLevel) {
+            case ERROR:
+                CustomLogger.logError(logger, context.operation, userId, context.message);
+                break;
+            case WARN:
+                CustomLogger.logWarn(logger, context.operation, userId, context.message);
+                break;
+        }
+
+        ApiResult apiResult = new ApiResult()
+            .status(context.status.value())
+            .message(context.operation + " failed")
+            .content(Map.of("errors", context.message));
+        return ResponseEntity.status(context.status).body(apiResult);
+    }
 }

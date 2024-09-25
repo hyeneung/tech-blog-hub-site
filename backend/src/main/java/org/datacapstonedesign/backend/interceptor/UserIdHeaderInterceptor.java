@@ -28,7 +28,7 @@ public class UserIdHeaderInterceptor implements HandlerInterceptor {
         HttpServletRequest request,
         HttpServletResponse response,
         Object handler
-    ) throws Exception {
+    ) {
         String userId = request.getHeader(CustomHeaderNameForLogging);
         if (userId == null || userId.isEmpty()) {
             userId = Generators.timeBasedGenerator().generate().toString();
