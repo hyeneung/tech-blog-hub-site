@@ -17,14 +17,13 @@ def get_preprocessed_text(url: str) -> str:
     Returns:
     str: 전처리된 텍스트
     """
-
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     time_to_live = 3
     while True:
         try:
             driver.get(url)
             wait = WebDriverWait(driver, timeout=5)
-            wait.until(lambda d: d.find_element(By.TAG_NAME, 'article'))
+            wait.until(lambda d: d.find_element(By.TAG_NAME, 'body'))
             break
         except:
             time_to_live -= 1
@@ -32,17 +31,25 @@ def get_preprocessed_text(url: str) -> str:
                 continue
             else:
                 return ""
+
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
+    headers = soup.find_all('header')
+    header = headers[1] if len(headers) > 1 else headers[0]
     article = soup.article
 
     preprocessed_text = ""
-    tags = ['h1', 'h2', 'h3', 'p']
-    for tag in article.find_all(tags):
-        if tag.name == 'h1':
-            preprocessed_text += 'Title: '
-        elif tag.name == 'h2':
-            preprocessed_text += 'Subtitle: '
-        preprocessed_text += tag.get_text() + '\n'
+
+    if article != None:
+        preprocessed_text += 'Title: '
+        if header != None:
+            preprocessed_text += header.h1.get_text()
+        else:
+            preprocessed_text += article.h1.get_text()
+        preprocessed_text += '\n'
+        for tag in article.find_all(['h1', 'h2', 'h3', 'p']):
+            if tag.name in ['h1', 'h2']:
+                preprocessed_text += 'Subtitle: '
+            preprocessed_text += tag.get_text() + '\n'
 
     return preprocessed_text
