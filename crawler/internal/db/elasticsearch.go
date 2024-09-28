@@ -29,6 +29,10 @@ type postData struct {
 	CreatedAt      string   `json:"created_at"`
 }
 
+// Limit the number of items to be inserted into Elasticsearch
+// This is done to prevent overwhelming the database with a large number of inserts at once
+var semaphore = make(chan struct{}, 5)
+
 func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
 	logger := utils.GetLoggerSingletonInstance()
 	config := config.GetConfigSingletonInstance()
@@ -45,7 +49,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 	}
 	defer res.Body.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	var successCount uint32 = 0
@@ -54,6 +58,8 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 	resultChan := make(chan bool, lastIdxToUpdate+1)
 
 	worker := func(post types.Post, textInfo types.TextSummarized) {
+		semaphore <- struct{}{}
+		defer func() { <-semaphore }()
 		defer wg.Done()
 		data := postData{
 			Title:          post.Title,
@@ -73,13 +79,9 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 			return
 		}
 
-		hasher := sha256.New()
-		hasher.Write([]byte(post.Link))
-		documentID := hex.EncodeToString(hasher.Sum(nil)) // URL should be unique
-
 		res, err := es.Create(
 			config.IndexName,
-			documentID,
+			getDocumentID(post.Link),
 			strings.NewReader(string(jsonData)),
 			es.Create.WithContext(ctx),
 			es.Create.WithRefresh("true"),
@@ -87,8 +89,6 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 		if err != nil {
 			if err == context.Canceled {
 				logger.LogError("Request was canceled by context")
-			} else if err == context.DeadlineExceeded {
-				logger.LogError("Request timed out")
 			} else {
 				logger.LogError("Error creating document: " + err.Error())
 			}
@@ -98,7 +98,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 		defer res.Body.Close()
 
 		if res.StatusCode == 409 {
-			logger.LogInfo(fmt.Sprintf("Document already exists: Link=%s, DocumentID=%s", post.Link, documentID))
+			logger.LogInfo(fmt.Sprintf("Document already exists: URL=%s", post.Link))
 			resultChan <- false
 		} else if res.IsError() {
 			logger.LogError("Error creating document: " + res.String())
@@ -124,4 +124,9 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 	}
 
 	return successCount
+}
+func getDocumentID(url string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(url)) // url should be unique
+	return hex.EncodeToString(hasher.Sum(nil))
 }
