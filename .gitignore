@@ -4,7 +4,12 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 # application config file
-backend/src/main/resources/application-dev.yml
+application-dev.yml
+application-pub.yml
+.env
+
+# certification files for SSL
+certs/
 
 # User-specific files
 *.rsuser
