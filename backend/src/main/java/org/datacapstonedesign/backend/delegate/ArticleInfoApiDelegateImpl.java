@@ -1,7 +1,7 @@
 package org.datacapstonedesign.backend.delegate;
 
 import java.util.List;
-import org.datacapstonedesign.backend.generated.api.ArticleInfosApiDelegate;
+import org.datacapstonedesign.backend.generated.api.ArticleInfoApiDelegate;
 import org.datacapstonedesign.backend.generated.dto.CompaniesResponse;
 import org.datacapstonedesign.backend.generated.dto.SearchResponse;
 import org.datacapstonedesign.backend.service.ArticleInfoService;
@@ -11,11 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ArticleInfosApiDelegateImpl implements ArticleInfosApiDelegate {
+public class ArticleInfoApiDelegateImpl implements ArticleInfoApiDelegate {
     private final ArticleInfoService articleInfoService;
 
     @Autowired
-    public ArticleInfosApiDelegateImpl(ArticleInfoService articleInfoService){
+    public ArticleInfoApiDelegateImpl(ArticleInfoService articleInfoService){
         this.articleInfoService = articleInfoService;
     }
 

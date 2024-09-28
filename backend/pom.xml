@@ -101,6 +101,12 @@
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
 				<version>7.4.0</version>
+				<configuration>
+					<generateApiTests>false</generateApiTests>
+					<generateApiDocumentation>false</generateApiDocumentation>
+					<generateModelTests>false</generateModelTests>
+					<generateModelDocumentation>false</generateModelDocumentation>
+				</configuration>
 				<executions>
 					<execution>
 						<id>generate-server</id>
@@ -118,6 +124,7 @@
 								<title>backend</title>
 								<delegatePattern>true</delegatePattern>
 								<useSpringBoot3>true</useSpringBoot3>
+								<useTags>true</useTags>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -131,11 +138,15 @@
 							<inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yml</inputSpec>
 							<output>${project.build.directory}/generated-sources/frontend-ts-axios-package</output>
 							<configOptions>
-								<title>frontend</title>
 								<npmName>@datacapstonedesign/tech-blog-hub-api</npmName>
 								<npmVersion>${project.version}</npmVersion>
 								<npmRepository>https://npm.pkg.github.com</npmRepository>
 							</configOptions>
+							<additionalProperties>
+								<additionalProperty>withSeparateModelsAndApi=true</additionalProperty>
+								<additionalProperty>apiPackage=api</additionalProperty>
+								<additionalProperty>modelPackage=model</additionalProperty>
+							</additionalProperties>
 						</configuration>
 					</execution>
 				</executions>

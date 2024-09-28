@@ -37,7 +37,7 @@ public class LoggingAspect {
      */
     @Around("controllerPointcut()")
     public Object logControllerExecution(ProceedingJoinPoint joinPoint) throws Throwable {
-        // prevent duplicated log : ArticleInfosApi.getArticleInfos calls ArticleInfosApiDelegateImpl.getArticleInfos
+        // prevent duplicated log : ArticleInfosApi.getArticleInfos calls ArticleInfoApiDelegateImpl.getArticleInfos
         if (joinPoint.getSignature().getDeclaringType().getSimpleName().endsWith("Api")) {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
