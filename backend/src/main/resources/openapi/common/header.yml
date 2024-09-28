@@ -1,7 +1,11 @@
 XUserID:
   name: X-User-ID
   in: header
-  description: local storage에 저장한 user identifier for logging
-  required: true
+  description: Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+  required: false
   schema:
     type: string
+    minLength: 36
+    maxLength: 36
+    pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+    example: '550e8400-e29b-41d4-a716-446655440000'

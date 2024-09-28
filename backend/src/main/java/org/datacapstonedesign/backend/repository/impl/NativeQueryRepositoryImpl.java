@@ -1,75 +1,94 @@
 package org.datacapstonedesign.backend.repository.impl;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery.Builder;
-import co.elastic.clients.util.ObjectBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.datacapstonedesign.backend.document.ArticleInfoDocument;
 import org.datacapstonedesign.backend.repository.NativeQueryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class NativeQueryRepositoryImpl implements NativeQueryRepository {
-    private final ElasticsearchOperations elasticsearchOperations;
+    @Value("${spring.elasticsearch.index.name}")
+    private String indexName;
+    private final ElasticsearchClient elasticsearchClient;
 
     @Autowired
-    public NativeQueryRepositoryImpl(ElasticsearchOperations elasticsearchOperations) {
-        this.elasticsearchOperations = elasticsearchOperations;
+    public NativeQueryRepositoryImpl(ElasticsearchClient elasticsearchClient) {
+        this.elasticsearchClient = elasticsearchClient;
     }
 
     @Override
-    public SearchHits<ArticleInfoDocument> findByQueryParams(
+    public SearchResponse<ArticleInfoDocument> findByQueryParams(
         final List<String> hashtags,
         final String company,
         final String query,
         final Pageable pageable
-    ) {
-        NativeQueryBuilder nativeQueryBuilder = NativeQuery.builder().withPageable(pageable);
+    ) throws IOException {
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
-        // Use terms query for hashtags
+        // Hashtags query
         if (hashtags != null && !hashtags.isEmpty()) {
-            Function<Builder, ObjectBuilder<TermsQuery>> termsQuery = termsBuilder -> termsBuilder
-                .field("hashtags.keyword")
-                .terms(termsValueBuilder -> termsValueBuilder.value(
-                    hashtags.stream()
-                        .map(FieldValue::of)
-                        .collect(Collectors.toList())
+            TermsQuery hashtagsQuery = TermsQuery.of(t -> t
+                .field("hashtags")
+                .terms(TermsQueryField.of(f -> f
+                    .value(hashtags.stream().map(FieldValue::of).toList()))
                 ));
-
-            nativeQueryBuilder.withQuery(q -> q.terms(termsQuery));
+            boolQueryBuilder.must(m -> m.terms(hashtagsQuery));
         }
 
-        // Company name search logic
+        // Company name query
         if (company != null && !company.isEmpty()) {
-            Function<TermsQuery.Builder, ObjectBuilder<TermsQuery>> termsQuery = termsBuilder -> termsBuilder
+            TermQuery companyQuery = TermQuery.of(t -> t
                 .field("company_name")
-                .terms(termsValueBuilder -> termsValueBuilder.value(
-                    // Convert the company name of String type to FieldValue type and wrap it in a list
-                    List.of(FieldValue.of(company))
-                ));
-
-            nativeQueryBuilder.withQuery(q -> q.terms(termsQuery));
+                .value(company.toLowerCase())
+            );
+            boolQueryBuilder.must(m -> m.term(companyQuery));
         }
 
-        // General search query logic
+        // General search query
         if (query != null && !query.isEmpty()) {
-            nativeQueryBuilder.withQuery(q -> q.multiMatch(m -> m
+            MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
                 .fields("title", "content")
                 .query(query)
-            ));
+            );
+            boolQueryBuilder.must(m -> m.multiMatch(multiMatchQuery));
         }
 
-        Query searchQuery = nativeQueryBuilder.build();
-        return elasticsearchOperations.search(searchQuery, ArticleInfoDocument.class);
+        // Build the search request
+        SearchRequest searchRequest = SearchRequest.of(s -> s
+            .index(indexName)
+            .query(q -> q.bool(boolQueryBuilder.build()))
+            .from(pageable.getPageNumber() * pageable.getPageSize())
+            .size(pageable.getPageSize())
+        );
+
+        return elasticsearchClient.search(searchRequest, ArticleInfoDocument.class);
+    }
+
+    @Override
+    public SearchResponse<Void> findAllUniqueCompanyNames() throws IOException {
+        SearchRequest searchRequest = SearchRequest.of(builder -> builder
+            .index(indexName)
+            .size(0)
+            .aggregations("unique_companies", a -> a
+                .terms(t -> t
+                    .field("company_name")
+                    .size(10000)
+                )
+            )
+        );
+        return elasticsearchClient.search(searchRequest, Void.class);
     }
 }

@@ -1,5 +1,7 @@
 redirect:
   get:
+    tags:
+      - Redirect
     operationId: redirectToUrl
     summary: 지정된 URL로 리다이렉트
     description: 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
@@ -10,6 +12,7 @@ redirect:
         required: true
         schema:
           type: string
+          maxLength: 2000
         description: 리다이렉트할 URL
     responses:
       '302':

@@ -72,7 +72,12 @@ components:
               $ref: '#/components/schemas/CompaniesResponseBody'
 
     CompaniesResponseBody:
-      type: array
-      items:
-        type: string
-      example: [ "네이버", "카카오", "라인", "우아한형제들", "쿠팡" ]
+      type: object
+      required:
+        - companyNames
+      properties:
+        companyNames:
+          type: array
+          items:
+            type: string
+          example: [ "line", "kakao", "coupang", "toss", "daangn" ]

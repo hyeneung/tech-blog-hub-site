@@ -1,5 +1,7 @@
 recommend:
   get:
+    tags:
+      - Recommend
     operationId: recommendOtherArticles
     summary: 다른 기사 추천 및 요약 정보 제공
     parameters:
@@ -9,6 +11,7 @@ recommend:
           required: true
           schema:
             type: string
+            maxLength: 2000
           description: 분석할 기사의 URL
     responses:
       '200':

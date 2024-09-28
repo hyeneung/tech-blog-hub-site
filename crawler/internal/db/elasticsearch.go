@@ -26,6 +26,7 @@ type postData struct {
 	Content        string   `json:"content"`
 	SummarizedText string   `json:"summarized_text"`
 	Hashtags       []string `json:"hashtags"`
+	CreatedAt      string   `json:"created_at"`
 }
 
 func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
@@ -62,6 +63,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 			Content:        textInfo.Content,
 			SummarizedText: textInfo.SummarizedText,
 			Hashtags:       textInfo.Hashtags,
+			CreatedAt:      time.Now().UTC().Format(time.RFC3339),
 		}
 
 		jsonData, err := json.Marshal(data)

@@ -1,10 +1,17 @@
 package org.datacapstonedesign.backend.config;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import javax.net.ssl.SSLContext;
-import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 import org.springframework.lang.NonNull;
@@ -13,7 +20,7 @@ import org.springframework.lang.NonNull;
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     @Value("${spring.elasticsearch.uris}")
-    private String[] elasticsearchUrls;
+    private String elasticsearchUrl;
 
     @Value("${spring.elasticsearch.username}")
     private String username;
@@ -23,20 +30,27 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
     @Override
     public @NonNull ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
-            // TODO - connectedTo(elasticsearchUrls)
-            .connectedToLocalhost()
-            .usingSsl(buildSSLContext())
-            .withBasicAuth(username, password)
-            .build();
-    }
-    private SSLContext buildSSLContext() {
         try {
-            return new SSLContextBuilder()
-                .loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
+            Resource certResource = new ClassPathResource("certs/fullchain.crt");
+            X509Certificate cert = loadX509Certificate(certResource);
+            SSLContext sslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(null, (chain, authType) -> Arrays.asList(chain).contains(cert))
+                .build();
+
+            return ClientConfiguration.builder()
+                .connectedTo(elasticsearchUrl.replace("https://", ""))
+                .usingSsl(sslContext)
+                .withBasicAuth(username, password)
                 .build();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to configure Elasticsearch client", e);
+        }
+    }
+
+    private X509Certificate loadX509Certificate(Resource resource) throws CertificateException, IOException {
+        try (InputStream inputStream = resource.getInputStream()) {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            return (X509Certificate) factory.generateCertificate(inputStream);
         }
     }
 }

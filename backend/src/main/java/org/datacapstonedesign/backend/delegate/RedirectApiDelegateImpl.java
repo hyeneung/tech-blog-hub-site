@@ -2,6 +2,7 @@ package org.datacapstonedesign.backend.delegate;
 
 import java.net.URI;
 import org.datacapstonedesign.backend.generated.api.RedirectApiDelegate;
+import org.datacapstonedesign.backend.util.UrlValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,10 @@ public class RedirectApiDelegateImpl implements RedirectApiDelegate {
 
     @Override
     public ResponseEntity<Void> redirectToUrl(
-        final String xUserID,
-        final String url
+        final String url,
+        final String xUserID
     ) {
-        // TODO - implement logging
+        UrlValidator.validateHttpUrl(url);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create(url));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
