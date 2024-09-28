@@ -3,18 +3,66 @@
 # Other RSS versions or feed formats may not be processed properly.
 
 crawlers:
-- company: line
-  url: https://techblog.lycorp.co.jp/ko/feed/index.xml
-  lastUpdated: 0
-- company: toss
-  url: https://toss.tech/rss.xml
-  lastUpdated: 0
-- company: daangn
-  url: https://medium.com/feed/daangn
-  lastUpdated: 0
-- company: kakao
-  url: https://tech.kakao.com/blog/feed
-  lastUpdated: 0
-- company: woowahan
-  url: https://techblog.woowahan.com/feed
-  lastUpdated: 0
+  - company: 라인
+    url: https://techblog.lycorp.co.jp/ko/feed/index.xml
+    lastUpdated: 0
+  - company: 토스
+    url: https://toss.tech/rss.xml
+    lastUpdated: 0
+  - company: 당근
+    url: https://medium.com/feed/daangn
+    lastUpdated: 0
+  - company: 카카오
+    url: https://tech.kakao.com/feed
+    lastUpdated: 0
+  - company: 우아한형제들
+    url: https://techblog.woowahan.com/feed
+    lastUpdated: 0
+  - company: 카카오페이
+    url: https://tech.kakaopay.com/rss
+    lastUpdated: 0
+  - company: AWS
+    url: https://aws.amazon.com/ko/blogs/tech/feed/
+    lastUpdated: 0
+  - company: 컬리
+    url: https://helloworld.kurly.com/feed.xml
+    lastUpdated: 0
+  - company: 요기요
+    url: https://techblog.yogiyo.co.kr/feed
+    lastUpdated: 0
+  - company: 여기어때
+    url: https://techblog.gccompany.co.kr/feed
+    lastUpdated: 0
+  - company: 지마켓
+    url: https://ebay-korea.tistory.com/rss
+    lastUpdated: 0
+  - company: SK플래닛
+    url: https://techtopic.skplanet.com/rss
+    lastUpdated: 0
+  - company: 사람인
+    url: https://saramin.github.io/feed.xml
+    lastUpdated: 0
+  - company: 데브시스터즈
+    url: https://tech.devsisters.com/rss.xml
+    lastUpdated: 0
+  - company: 한글과컴퓨터
+    url: https://tech.hancom.com/feed
+    lastUpdated: 0
+  - company: 뱅크샐러드
+    url: https://blog.banksalad.com/rss.xml
+    lastUpdated: 0
+  - company: CJ온스타일
+    url: https://medium.com/feed/cj-onstyle
+    lastUpdated: 0
+  - company: 스포카
+    url: https://spoqa.github.io/rss
+    lastUpdated: 0
+  - company: 29CM
+    url: https://medium.com/feed/29cm
+    lastUpdated: 0
+  - company: 브랜디
+    url: http://labs.brandi.co.kr/feed.xml
+    lastUpdated: 0
+  - company: 헤이딜러
+    url: https://medium.com/feed/prnd
+    lastUpdated: 0

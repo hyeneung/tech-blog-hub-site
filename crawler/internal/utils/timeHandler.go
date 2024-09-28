@@ -17,6 +17,7 @@ func Str2UtcTime(strTime string) (time.Time, error) {
 		time.RFC850,
 		time.RFC822,
 		time.RFC3339,
+		"Mon, 2 Jan 2006 15:04:05 -0700",
 	}
 	for _, format := range timeFormats {
 		t, err := time.Parse(format, strTime)
