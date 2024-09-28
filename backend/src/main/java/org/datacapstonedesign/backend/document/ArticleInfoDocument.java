@@ -28,7 +28,11 @@ public record ArticleInfoDocument(
     @Field(name = "summarized_text")
     String summarizedText,
     @JsonProperty("hashtags")
-    List<String> hashtags
+    List<String> hashtags,
+
+    @JsonProperty("created_at")
+    @Field(name = "created_at")
+    String createdAt
 ) {
     public static ArticleInfo toArticleInfo(ArticleInfoDocument articleInfoDocument) {
         return new ArticleInfo(
