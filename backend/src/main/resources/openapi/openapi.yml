@@ -7,11 +7,19 @@ servers:
   - url: http://localhost:8080/api/v1
     description: Local server
 paths:
-  /article-infos/search:
+  /frontend/article-infos/search:
     $ref: "./request/articleInfo.yml#/search"
-  /article-infos/companies:
+  /frontend/article-infos/companies:
     $ref: "./request/articleInfo.yml#/companies"
-  /redirect:
+  /frontend/redirect:
     $ref: "./request/redirect.yml#/redirect"
-  /recommend:
+  /extension/recommend:
     $ref: "./request/recommend.yml#/recommend"
+
+tags:
+  - name: ArticleInfo
+    description: 웹사이트 화면 구성용 api
+  - name: Redirect
+    description: 사용자 행동 로깅용 API
+  - name: Recommend
+    description: 크롬 확장 프로그램용 추천 API

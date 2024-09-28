@@ -1,5 +1,7 @@
 recommend:
   get:
+    tags:
+      - Recommend
     operationId: recommendOtherArticles
     summary: 다른 기사 추천 및 요약 정보 제공
     parameters:

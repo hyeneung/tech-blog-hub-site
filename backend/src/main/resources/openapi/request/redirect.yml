@@ -1,5 +1,7 @@
 redirect:
   get:
+    tags:
+      - Redirect
     operationId: redirectToUrl
     summary: 지정된 URL로 리다이렉트
     description: 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
