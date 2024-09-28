@@ -1,10 +1,8 @@
 package config
 
 import (
-	"crypto/tls"
-	"net/http"
+	"log"
 	"os"
-	"strconv"
 	"sync"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -29,7 +27,7 @@ func GetConfigSingletonInstance() *Config {
 			GRPCServerAddress:     getEnv("GRPC_SERVER_ADDRESS", "localhost:50051"),
 			CrawlerConfigFilePath: getEnv("CRAWLER_CONFIG_FILE_PATH", "./config/config-crawler.yaml"),
 			LogFolderPath:         getEnv("CRAWLER_LOG_FOLDER_PATH", "./log/"),
-			IndexName:             getEnv("ELASTICSEARCH_INDEX_NAME", "articleinfos"),
+			IndexName:             getEnv("ELASTICSEARCH_INDEX_NAME", "article_infos"),
 			ElasticsearchConfig:   getElasticsearchConfig(),
 		}
 	})
@@ -37,17 +35,17 @@ func GetConfigSingletonInstance() *Config {
 }
 
 func getElasticsearchConfig() elasticsearch.Config {
+	cert, err := os.ReadFile("../config/certs/elasticsearch.crt")
+	if err != nil {
+		log.Fatalf("Error reading certificate: %v", err)
+	}
 	return elasticsearch.Config{
 		Addresses: []string{
 			getEnv("ELASTICSEARCH_ADDRESS", "https://localhost:9200"),
 		},
 		Username: getEnv("ELASTICSEARCH_USERNAME", "elastic"),
 		Password: getEnv("ELASTICSEARCH_PASSWORD", "1234"),
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: getBoolEnv("ELASTICSEARCH_INSECURE_SKIP_VERIFY", true),
-			},
-		},
+		CACert:   cert,
 	}
 }
 
@@ -56,13 +54,4 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-func getBoolEnv(key string, defaultValue bool) bool {
-	strValue := getEnv(key, strconv.FormatBool(defaultValue))
-	boolValue, err := strconv.ParseBool(strValue)
-	if err != nil {
-		return defaultValue
-	}
-	return boolValue
 }
