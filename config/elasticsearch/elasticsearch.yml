@@ -1,0 +1,19 @@
+node.name: elasticsearch
+discovery.type: single-node
+
+network.host: elasticsearch
+
+xpack.security:
+  enabled: true
+  transport.ssl:
+    enabled: true
+    verification_mode: certificate
+    key: certs/elasticsearch.key
+    certificate: certs/elasticsearch.crt
+    certificate_authorities: ["certs/ca.crt"]
+  http.ssl:
+    enabled: true
+    verification_mode: certificate
+    key: certs/elasticsearch.key
+    certificate: certs/elasticsearch.crt
+    certificate_authorities: ["certs/ca.crt"]
