@@ -31,7 +31,7 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
     @Override
     public @NonNull ClientConfiguration clientConfiguration() {
         try {
-            Resource certResource = new ClassPathResource("certs/fullchain.crt");
+            Resource certResource = new ClassPathResource("certs/elasticsearch.crt");
             X509Certificate cert = loadX509Certificate(certResource);
             SSLContext sslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(null, (chain, authType) -> Arrays.asList(chain).contains(cert))
