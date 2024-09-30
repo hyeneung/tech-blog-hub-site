@@ -81,6 +81,10 @@ func (l *logger) LogDebug(message string, args ...any) {
 	l.ch <- logMessage{level: slog.LevelDebug, message: message, args: args}
 }
 
+func (l *logger) LogWarn(message string, args ...any) {
+	l.ch <- logMessage{level: slog.LevelWarn, message: message, args: args}
+}
+
 func (l *logger) LogHttpResponseError(resp *http.Response) {
 	l.LogError("HTTP response error", slog.Int("Status Code", resp.StatusCode))
 }

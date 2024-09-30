@@ -21,6 +21,8 @@ func main() {
 	logger := utils.GetLoggerSingletonInstance()
 	defer logger.Close()
 
+	logger.LogInfo("Starting crawler")
+
 	cfg := config.GetConfigSingletonInstance()
 
 	address := cfg.GRPCServerAddress
@@ -49,5 +51,5 @@ func main() {
 	wg.Wait() // wait until all crawlers end
 
 	// save changed crawler info
-	crawlerUtils.WriteCrawlerInfoToFile(configFilePath, crawlerArrayAddress)
+	// crawlerUtils.WriteCrawlerInfoToFile(configFilePath, crawlerArrayAddress)
 }
