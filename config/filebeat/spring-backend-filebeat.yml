@@ -1,0 +1,28 @@
+- type: log
+  id: spring-backend-logs
+  enabled: true
+  paths:
+    - /var/log/spring-backend/*.log
+  fields:
+    application: spring-backend  
+  include_lines:
+    - 'User ID:'            # User ID: 를 포함하는 로그 선택
+    - '\[.*\] (WARN|ERROR)' # WARN, ERROR 포함되면 선택
+  processors:
+    - drop_event:
+        when:
+          not:
+            or:
+              - regexp:
+                  message: 'User ID:'
+              - regexp:
+                  message: '\[.*\] (WARN|ERROR)'
+  multiline:
+    pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+    negate: true
+    match: after
+  harvester_limit: 0
+  scan_frequency: 10s
+  tail_files: true
+  backoff.init: 1s
+  backoff.max: 10s

@@ -1,0 +1,24 @@
+filebeat.config.inputs:
+  enabled: true
+  path: ${path.config}/*-filebeat.yml
+
+output.logstash:
+  hosts: ["logstash:5044"]
+  ssl:
+    enabled: true
+    certificate_authorities: ["/usr/share/filebeat/certs/ca.crt"]
+    certificate: "/usr/share/filebeat/certs/filebeat.crt"
+    key: "/usr/share/filebeat/certs/filebeat.key"
+  max_retries: 3
+  backoff.init: 1s
+  backoff.max: 60s
+
+logging.level: error
+logging.to_files: true
+logging.files:
+  path: /var/share/filebeat/log
+  name: filebeat.log
+  keepfiles: 7
+  permissions: 0644
+
+monitoring.enabled: true

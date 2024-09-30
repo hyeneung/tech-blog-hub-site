@@ -18,16 +18,14 @@ func (c *Crawler) Run(stub *pb.CrawlerTextHandlerClient) {
 	var posts []types.Post
 	var err error
 	logger := utils.GetLoggerSingletonInstance()
-	logger.LogInfo("starting " + c.Company + " crawler")
+	logger.LogDebug("starting " + c.Company + " crawler")
 	// read RSS file
 	posts, err = utils.GetPostArrayFromUrl(c.URL)
 	if err != nil {
 		return
 	}
-	logger.LogInfo("reading RSS file Done: " + c.Company + " crawler")
 	// Determine the range of posts that need to be inserted in the database
 	var lastIdxToUpdate int = getOldestPostIndexForUpdate(posts, c.LastUpdated)
-	logger.LogInfo("checking the range Done: " + c.Company + " crawler")
 	// If there are no new posts to update, log the result and exit
 	if lastIdxToUpdate < 0 {
 		logger.LogCrawlerResult(c.Company, postNumToUpdate, postNumUpdated)
@@ -41,7 +39,7 @@ func (c *Crawler) Run(stub *pb.CrawlerTextHandlerClient) {
 	postNumUpdated = db.InsertDB(c.Company, &posts, textInfos, lastIdxToUpdate)
 
 	// update crawler execution time info
-	// c.LastUpdated = time.Now().Unix()
+	c.LastUpdated = time.Now().Unix()
 
 	// log the result
 	postNumToUpdate = lastIdxToUpdate + 1
@@ -102,7 +100,7 @@ func getTextSummary(stub *pb.CrawlerTextHandlerClient, posts *[]types.Post, last
 				errorChan <- err
 				return
 			}
-			logger.LogInfo("Sent request for URL: " + (*posts)[i].Link)
+			logger.LogDebug("Sent request for URL: " + (*posts)[i].Link)
 		}
 		if err := stream.CloseSend(); err != nil {
 			logger.LogError("Error closing send stream: " + err.Error())
@@ -137,7 +135,7 @@ func getTextSummary(stub *pb.CrawlerTextHandlerClient, posts *[]types.Post, last
 		case result := <-resultChan:
 			results = append(results, result)
 		case <-doneChan:
-			logger.LogInfo("All data received")
+			logger.LogDebug("All data received")
 			return &results
 		case err := <-errorChan:
 			logger.LogError("Error in stream processing: " + err.Error())

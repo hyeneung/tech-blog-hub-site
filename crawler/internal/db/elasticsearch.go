@@ -98,7 +98,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 		defer res.Body.Close()
 
 		if res.StatusCode == 409 {
-			logger.LogInfo(fmt.Sprintf("Document already exists: URL=%s", post.Link))
+			logger.LogWarn(fmt.Sprintf("Document already exists: URL=%s", post.Link))
 			resultChan <- false
 		} else if res.IsError() {
 			logger.LogError("Error creating document: " + res.String())
