@@ -1,0 +1,11 @@
+- type: log
+  id: crawler-logs
+  enabled: true
+  paths:
+    - /var/log/crawler/*.log
+  fields:
+    application: crawler
+  include_lines: 
+    - '"msg":"Update Done"'
+    - '"level":"ERROR"'
+    - '"level":"WARN"'
