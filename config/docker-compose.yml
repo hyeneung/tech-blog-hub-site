@@ -83,9 +83,7 @@ services:
     image: docker.elastic.co/beats/filebeat:8.7.1
     user: root  # Run as root to have permission to change file modes
     volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./filebeat/crawler-filebeat.yml:/usr/share/filebeat/crawler-filebeat.yml
-      - ./filebeat/spring-backend-filebeat.yml:/usr/share/filebeat/spring-backend-filebeat.yml
+      - ./filebeat/:/usr/share/filebeat/
       - ../crawler/log:/var/log/crawler:ro
       - ../backend/log:/var/log/spring-backend:ro
       - ./certs:/usr/share/filebeat/certs:ro
