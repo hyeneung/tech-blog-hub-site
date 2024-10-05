@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+body {
+    line-height: 1.5;
+}
+
+main {
+    padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    :root {
+        font-size: 14px;
+    }
+}

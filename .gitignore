@@ -11,6 +11,8 @@ application-pub.yml
 # certification files for SSL
 certs/
 
+elasticsearch-data/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -404,3 +406,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+frontend/.vscode/extensions.json
+frontend/.vscode/
