@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.datacapstonedesign.backend.document.ArticleInfoDocument;
 import org.datacapstonedesign.backend.generated.dto.ArticleInfo;
-import org.datacapstonedesign.backend.generated.dto.CompaniesResponseBody;
 import org.datacapstonedesign.backend.generated.dto.PageInfo;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 import org.datacapstonedesign.backend.mapper.ArticleInfoMapper;
@@ -40,20 +39,5 @@ public class ArticleInfoMapperImpl implements ArticleInfoMapper {
         return new SearchResponseBody()
             .articleInfos(articleInfos)
             .page(pageInfo);
-    }
-
-    @Override
-    public CompaniesResponseBody toCompaniesResponseBody(
-        final SearchResponse<Void> searchResponse
-    ) {
-        List<String> companyNames = searchResponse.aggregations()
-            .get("unique_companies")
-            .sterms()
-            .buckets().array()
-            .stream()
-            .map(b -> b.key().stringValue())
-            .toList();
-
-        return new CompaniesResponseBody().companyNames(companyNames);
     }
 }
