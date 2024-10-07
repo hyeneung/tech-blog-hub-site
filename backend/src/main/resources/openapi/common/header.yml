@@ -9,3 +9,9 @@ XUserID:
     maxLength: 36
     pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
     example: '550e8400-e29b-41d4-a716-446655440000'
+
+XUserIDResponse:
+  description: UUID v4 형식의 사용자 식별자 (로깅용)
+  schema:
+    type: string
+    pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
