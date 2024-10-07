@@ -408,3 +408,4 @@ FodyWeavers.xsd
 *.sln.iml
 frontend/.vscode/extensions.json
 frontend/.vscode/
+frontend/src/assets/
