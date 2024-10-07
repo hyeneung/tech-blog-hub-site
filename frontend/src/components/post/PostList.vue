@@ -1,34 +1,55 @@
 <template>
   <section class="post-container">
-      <CompanySelect />
-      <PostItem v-for="post in posts" :key="post.id" :post="post" />
+    <CompanySelect />
+    <div v-if="loading">Loading...</div>
+    <div v-else-if="error" class="error-message" role="alert">{{ error }}</div>
+    <template v-else>
+      <PostItem v-for="post in posts" :key="post.title" :post="post" />
+    </template>
   </section>
 </template>
   
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
 import PostItem from './PostItem.vue'
-import CompanySelect from '../search/CompanySelect.vue';
-function getImageUrl(name) {
-  return new URL(`../../assets/${name}`, import.meta.url).href
-}
-const posts = ref([
-  {
-    id: 1,
-    title: "CodeDeploy를 이용한 배포 실패 Troubleshooting",
-    date: "2024-09-13",
-    company: "여기어때",
-    companyLogo: getImageUrl('yogiottae.png'),
-    tags: ["Backend", "DevOps"],
-    summary: "이 게시글은 CI/CD 과정에서 발생한 문제와 이를 해결하는 과정에 대해 담은 글입니다."
-  },
-])
+import CompanySelect from '../search/CompanySelect.vue'
+import { useArticleSearch } from '@/composables/useArticleSearch'
+import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
+import type { ArticleInfo } from '@/frontend-ts-axios-package'
+
+const { articles, loading, error, fetchArticles } = useArticleSearch()
+const searchCriteriaStore = useArticleSearchCriteriaStore()
+
+const posts = ref<ArticleInfo[]>([])
+
+onMounted(() => {
+  searchCriteriaStore.loadFromLocalStorage()
+  fetchArticles()
+})
+
+// Fetch articles whenever search criteria changes
+watch(() => searchCriteriaStore.currentCriteria, fetchArticles, { deep: true })
+
+// Update posts when search results change
+watch(articles, (newArticles) => {
+  posts.value = newArticles
+})
 </script>
   
 <style scoped>
 .post-container {
-  max-width: 70rem;
+  max-width: 60rem;
   margin: 0 auto;
   padding: 0 1rem;
+}
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
 }
 </style>

@@ -1,25 +1,27 @@
 <template>
-  <div class="post-summary">
-    <div class="summary-container">
-      <div class="summary-toggle" :class="{ active: isActive }" @click="toggleSummary">
-        <span class="summary-toggle-text">요약된 내용 보기</span>
-      </div>
-      <div v-if="isActive" class="summary">
-        <p>{{ summary }}</p>
+  <div class="post-summary-wrapper">
+    <div class="post-summary">
+      <div class="summary-container">
+        <div class="summary-toggle" :class="{ active: isActive }" @click="toggleSummary">
+          <span class="summary-toggle-text">요약된 내용 보기</span>
+        </div>
+        <div v-if="isActive" class="summary">
+          <p>{{ summary }}</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
-defineProps({
+const props = defineProps({
   summary: {
     type: String,
     required: true
   }
-})
+} as const)
 
 const isActive = ref(false)
 
