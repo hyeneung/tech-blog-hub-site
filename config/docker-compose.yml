@@ -5,6 +5,7 @@ services:
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - 9200:9200
       - 9300:9300
@@ -14,6 +15,11 @@ services:
       - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     networks:
       - elastic
+    command: >
+      /bin/bash -c "
+        elasticsearch-plugin install --batch analysis-nori;
+        /usr/local/bin/docker-entrypoint.sh elasticsearch
+      "
     healthcheck:
       test: ["CMD-SHELL", "curl -s --cacert /usr/share/elasticsearch/config/certs/elasticsearch.crt -u ${ELASTICSEARCH_USERNAME}:${ELASTIC_PASSWORD} https://${DNS_NAME}:9200 -o /dev/null || exit 1"]
       interval: 30s
@@ -28,7 +34,49 @@ services:
         condition: service_healthy
     command: >
       sh -c '
-        curl -k --cacert /certs/elasticsearch.crt -u ${ELASTICSEARCH_USERNAME}:${ELASTIC_PASSWORD} -X PUT "https://${DNS_NAME}:9200/article_infos?pretty" -H "Content-Type: application/json" -d "{\"mappings\":{\"properties\":{\"id\":{\"type\":\"keyword\"},\"title\":{\"type\":\"text\"},\"pub_date\":{\"type\":\"date\"},\"company_name\":{\"type\":\"keyword\"},\"url\":{\"type\":\"keyword\"},\"content\":{\"type\":\"text\"},\"summarized_text\":{\"type\":\"text\"},\"hashtags\":{\"type\":\"keyword\"},\"created_at\":{\"type\":\"date\"}}}}"
+        curl -k --cacert /certs/elasticsearch.crt -u ${ELASTICSEARCH_USERNAME}:${ELASTIC_PASSWORD} -X PUT "https://${DNS_NAME}:9200/article_infos?pretty" -H "Content-Type: application/json" -d "{
+          \"settings\": {
+            \"analysis\": {
+              \"analyzer\": {
+                \"nori_analyzer\": {
+                  \"type\": \"custom\",
+                  \"tokenizer\": \"nori_tokenizer\",
+                  \"filter\": [
+                    \"nori_readingform\",
+                    \"nori_number\",
+                    \"trim\",
+                    \"my_stop\"
+                  ]
+                }
+              },
+              \"tokenizer\": {
+                \"nori_tokenizer\": {
+                  \"type\": \"nori_tokenizer\",
+                  \"decompound_mode\": \"mixed\"
+                }
+              },
+              \"filter\": {
+                \"my_stop\": {
+                  \"type\": \"stop\",
+                  \"stopwords\": [\"_korean_\", \"은\", \"는\", \"이\", \"가\"]
+                }
+              }
+            }
+          },
+          \"mappings\":{
+            \"properties\":{
+              \"id\":{\"type\":\"keyword\"},
+              \"title\":{\"type\":\"text\", \"analyzer\": \"nori_analyzer\"},
+              \"pub_date\":{\"type\":\"date\"},
+              \"company_name\":{\"type\":\"keyword\"},
+              \"url\":{\"type\":\"keyword\"},
+              \"content\":{\"type\":\"text\", \"analyzer\": \"nori_analyzer\"},
+              \"summarized_text\":{\"type\":\"text\", \"analyzer\": \"nori_analyzer\"},
+              \"hashtags\":{\"type\":\"keyword\"},
+              \"created_at\":{\"type\":\"date\"}
+            }
+          }
+        }"
       '
     volumes:
       - ./certs:/certs
@@ -83,7 +131,9 @@ services:
     image: docker.elastic.co/beats/filebeat:8.7.1
     user: root  # Run as root to have permission to change file modes
     volumes:
-      - ./filebeat/:/usr/share/filebeat/
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./filebeat/crawler-filebeat.yml:/usr/share/filebeat/crawler-filebeat.yml
+      - ./filebeat/spring-backend-filebeat.yml:/usr/share/filebeat/spring-backend-filebeat.yml      
       - ../crawler/log:/var/log/crawler:ro
       - ../backend/log:/var/log/spring-backend:ro
       - ./certs:/usr/share/filebeat/certs:ro

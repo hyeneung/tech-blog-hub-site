@@ -12,5 +12,3 @@
   harvester_limit: 0
   scan_frequency: 10s
   tail_files: true
-  backoff.init: 1s
-  backoff.max: 10s
