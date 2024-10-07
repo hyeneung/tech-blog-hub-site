@@ -1,33 +1,91 @@
 <template>
-  <nav class="pagination">
-    <button class="pagination__btn pagination__btn--prev" disabled>
+  <nav v-if="paginationStore.pageInfo" class="pagination">
+    <button 
+      class="pagination__btn pagination__btn--prev" 
+      :disabled="currentPage === 0"
+      @click="changePage(currentPage - 1)"
+    >
       <span class="pagination__icon">←</span>
       <span>Previous</span>
     </button>
     <ul class="pagination__list">
-      <li><button class="pagination__page pagination__page--active">1</button></li>
-      <li><button class="pagination__page">2</button></li>
-      <li><button class="pagination__page">3</button></li>
-      <li><span class="pagination__gap">...</span></li>
-      <li><button class="pagination__page">98</button></li>
-      <li><button class="pagination__page">99</button></li>
+      <li v-for="page in displayedPages" :key="page">
+        <button 
+          v-if="page !== '...'"
+          class="pagination__page" 
+          :class="{ 'pagination__page--active': page === currentPage }"
+          @click="changePage(page)"
+        >
+          {{ typeof page === 'number' ? page + 1 : page }}
+        </button>
+        <span v-else class="pagination__gap">...</span>
+      </li>
     </ul>
-    <button class="pagination__btn pagination__btn--next">
+    <button 
+      class="pagination__btn pagination__btn--next"
+      :disabled="currentPage === totalPages - 1"
+      @click="changePage(currentPage + 1)"
+    >
       <span>Next</span>
       <span class="pagination__icon">→</span>
     </button>
   </nav>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
+import { usePaginationStore } from '@/stores/paginationStore'
+
+const searchStore = useArticleSearchCriteriaStore()
+const paginationStore = usePaginationStore()
+
+const currentPage = computed(() => paginationStore.pageInfo?.pageNumber || 0)
+const totalPages = computed(() => paginationStore.pageInfo?.totalPages || 1)
+
+const displayedPages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  const pages = []
+
+  pages.push(0);
+
+  if (total <= 7) {
+    for (let i = 1; i < total; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (current <= 3) {
+      for (let i = 1; i <= 4; i++) {
+        pages.push(i);
+      }
+      pages.push('...');
+      pages.push(total-1);
+    } else if (current >= total - 4) {
+      pages.push('...');
+      for (let i = total - 5; i < total - 1; i++) {
+        pages.push(i);
+      }
+      pages.push(total-1);
+    } else {
+      pages.push('...');
+      pages.push(current - 1);
+      pages.push(current);
+      pages.push(current + 1);
+      pages.push('...');
+      pages.push(total-1);
+    }
+  }
+
   
-<script setup>
-import { ref } from 'vue'
 
-const currentPage = ref(1)
-const totalPages = ref(99)
+  return pages
+})
 
-const changePage = (page) => {
-  currentPage.value = page
-  // 페이지 변경 로직
+const changePage = (page: number | string) => {
+  const newPage = typeof page === 'string' ? parseInt(page, 10) : page;
+  if (newPage < 0 || newPage >= totalPages.value) return;
+  searchStore.setPage(newPage);
 }
 </script>
 

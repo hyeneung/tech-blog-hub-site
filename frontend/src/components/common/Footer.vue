@@ -4,7 +4,7 @@
   </footer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Pagination from './Pagination.vue'
 </script>
 
