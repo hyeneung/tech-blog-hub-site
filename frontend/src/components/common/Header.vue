@@ -1,14 +1,21 @@
 <template>
   <header class="container">
-    <a href="/" class="logo">
+    <a href="/" class="logo" @click.prevent="resetAndNavigate">
       <img :src="logoSrc" alt="Logo">
       <h1>기술 블로그 허브 사이트</h1>
     </a>
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 import logoSrc from '@/assets/logo.png'
+
+const searchCriteriaStore = useArticleSearchCriteriaStore()
+
+const resetAndNavigate = () => {
+  searchCriteriaStore.resetCriteria()
+}
 </script>
 
 <style scoped>
