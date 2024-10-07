@@ -1,24 +1,41 @@
 <template>
   <div class="tags-wrapper">
     <section class="tags">
-      <button v-for="tag in tags" :key="tag.id" :class="{ active: tag.active }" @click="toggleTag(tag.id)">
-        {{ tag.name }}
+      <button 
+        v-for="tag in tags" 
+        :key="tag.name" 
+        :class="{ active: isTagActive(tag.name) }" 
+        @click="toggleTag(tag.name)"
+      >
+        {{ '#' + tag.name }}
       </button>
     </section>
   </div>
 </template>
   
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { tags as initialTags } from '@/data/tags'
+import { tags as initialTags, Tag } from '@/data/tags'
+import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 
-const tags = ref(initialTags)
+const tags = ref<Tag[]>(initialTags)
+const searchStore = useArticleSearchCriteriaStore()
 
-const toggleTag = (id) => {
-  const tag = tags.value.find(t => t.id === id)
-  if (tag) {
-      tag.active = !tag.active
+const isTagActive = (tagName: string) => {
+  return searchStore.hashtags.includes(tagName)
+}
+
+const toggleTag = (tagName: string) => {
+  const currentTags = [...searchStore.hashtags]
+  const tagIndex = currentTags.indexOf(tagName)
+  
+  if (tagIndex > -1) {
+    currentTags.splice(tagIndex, 1)
+  } else {
+    currentTags.push(tagName)
   }
+  
+  searchStore.setHashtags(currentTags)
 }
 </script>
   

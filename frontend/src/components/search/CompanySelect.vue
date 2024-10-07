@@ -1,21 +1,27 @@
 <template>
   <div class="select-wrapper">
     <div class="custom-select">
-      <select v-model="selectedCompany">
+      <select v-model="selectedCompany" @change="updateSelectedCompany">
         <option value="">모든 회사</option>
-        <option v-for="company in companies" :key="company" :value="company">
-          {{ company }}
+        <option v-for="company in companies" :key="company.name" :value="company.name">
+          {{ company.name }}
         </option>
       </select>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { companies } from '@/data/companies'
+import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 
-const companies = ['여기어때', '라인', '토스']
 const selectedCompany = ref('')
+const searchCriteriaStore = useArticleSearchCriteriaStore()
+
+const updateSelectedCompany = () => {
+  searchCriteriaStore.setCompany(selectedCompany.value)
+}
 </script>
 
 <style scoped>

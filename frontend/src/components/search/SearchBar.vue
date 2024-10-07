@@ -5,20 +5,31 @@
         <div class="search-icon">
           <img src="@/assets/search-icon.svg" alt="Search Icon" />
         </div>
-        <input v-model="searchQuery" type="text" placeholder="Search the keyword">
+        <input v-model="localSearchQuery" type="text" placeholder="Search the keyword" @keyup.enter="search">
       </div>
       <button @click="search"><span>Search</span></button>
     </div>
   </div>
 </template>
   
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 
-const searchQuery = ref('')
+const searchCriteriaStore = useArticleSearchCriteriaStore()
+const localSearchQuery = ref('')
+
+// Update local state when the store's query changes
+// This is crucial for synchronizing the input field with store changes,
+// especially when the header component resets the search criteria
+watch(() => searchCriteriaStore.query, (newQuery) => {
+  localSearchQuery.value = newQuery
+})
 
 const search = () => {
-  console.log('Searching for:', searchQuery.value)
+  if (localSearchQuery.value.trim()) {
+    searchCriteriaStore.setQuery(localSearchQuery.value.trim())
+  }
 }
 </script>
   
