@@ -75,7 +75,7 @@ func getOldestPostIndexForUpdate(posts []types.Post, lastUpdatedDateUnixTime int
 }
 
 func getTextSummary(stub *pb.CrawlerTextHandlerClient, posts *[]types.Post, lastIdxToUpdate int) *[]types.TextSummarized {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	logger := utils.GetLoggerSingletonInstance()
 
