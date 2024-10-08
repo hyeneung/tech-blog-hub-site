@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63rawler_text_handler.proto\"\x19\n\nUrlRequest\x12\x0b\n\x03url\x18\x01 \x01(\t\"T\n\x16SummarizedDataResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x17\n\x0fsummarized_text\x18\x02 \x01(\t\x12\x10\n\x08hashtags\x18\x03 \x03(\t2V\n\x12\x43rawlerTextHandler\x12@\n\x12StreamUrlSummaries\x12\x0b.UrlRequest\x1a\x17.SummarizedDataResponse\"\x00(\x01\x30\x01\x42\x19Z\x17../../crawler/generatedb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1a\x63rawler_text_handler.proto\"\x19\n\nUrlRequest\x12\x0b\n\x03url\x18\x01 \x01(\t\"C\n\x16SummarizedDataResponse\x12\x17\n\x0fsummarized_text\x18\x01 \x01(\t\x12\x10\n\x08hashtags\x18\x02 \x03(\t2V\n\x12\x43rawlerTextHandler\x12@\n\x12StreamUrlSummaries\x12\x0b.UrlRequest\x1a\x17.SummarizedDataResponse\"\x00(\x01\x30\x01\x42\x19Z\x17../../crawler/generatedb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,7 +35,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_URLREQUEST']._serialized_start=30
   _globals['_URLREQUEST']._serialized_end=55
   _globals['_SUMMARIZEDDATARESPONSE']._serialized_start=57
-  _globals['_SUMMARIZEDDATARESPONSE']._serialized_end=141
-  _globals['_CRAWLERTEXTHANDLER']._serialized_start=143
-  _globals['_CRAWLERTEXTHANDLER']._serialized_end=229
+  _globals['_SUMMARIZEDDATARESPONSE']._serialized_end=124
+  _globals['_CRAWLERTEXTHANDLER']._serialized_start=126
+  _globals['_CRAWLERTEXTHANDLER']._serialized_end=212
 # @@protoc_insertion_point(module_scope)

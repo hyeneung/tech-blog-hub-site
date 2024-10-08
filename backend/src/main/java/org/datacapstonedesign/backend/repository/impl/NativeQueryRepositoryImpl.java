@@ -45,7 +45,7 @@ public class NativeQueryRepositoryImpl implements NativeQueryRepository {
         if (hashtags != null && !hashtags.isEmpty()) {
             for (String hashtag : hashtags) {
                 TermQuery hashtagQuery = TermQuery.of(t -> t
-                    .field("hashtags")
+                    .field("hashtags.keyword")
                     .value(hashtag)
                 );
                 boolQueryBuilder.must(m -> m.term(hashtagQuery));
@@ -64,7 +64,7 @@ public class NativeQueryRepositoryImpl implements NativeQueryRepository {
         // General search query
         if (query != null && !query.isEmpty()) {
             MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
-                .fields("title", "content")
+                .fields("title^3", "summarized_text^2", "hashtags")
                 .query(query)
                 .type(TextQueryType.BestFields)
                 .operator(Operator.Or)

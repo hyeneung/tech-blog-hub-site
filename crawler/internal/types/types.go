@@ -11,7 +11,6 @@ type Post struct {
 }
 
 type TextSummarized struct {
-	Content        string
 	SummarizedText string
 	Hashtags       []string
 }

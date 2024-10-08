@@ -122,7 +122,6 @@ func getTextSummary(stub *pb.CrawlerTextHandlerClient, posts *[]types.Post, last
 				return
 			}
 			resultChan <- types.TextSummarized{
-				Content:        res.Content,
 				SummarizedText: res.SummarizedText,
 				Hashtags:       res.Hashtags,
 			}

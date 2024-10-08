@@ -23,7 +23,6 @@ type postData struct {
 	PubDate        string   `json:"pub_date"`
 	CompanyName    string   `json:"company_name"`
 	URL            string   `json:"url"`
-	Content        string   `json:"content"`
 	SummarizedText string   `json:"summarized_text"`
 	Hashtags       []string `json:"hashtags"`
 	CreatedAt      string   `json:"created_at"`
@@ -66,7 +65,6 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 			PubDate:        post.PubDate,
 			CompanyName:    companyName,
 			URL:            post.Link,
-			Content:        textInfo.Content,
 			SummarizedText: textInfo.SummarizedText,
 			Hashtags:       textInfo.Hashtags,
 			CreatedAt:      time.Now().UTC().Format(time.RFC3339),

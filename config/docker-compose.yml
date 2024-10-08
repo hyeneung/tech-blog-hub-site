@@ -70,9 +70,17 @@ services:
               \"pub_date\":{\"type\":\"date\"},
               \"company_name\":{\"type\":\"keyword\"},
               \"url\":{\"type\":\"keyword\"},
-              \"content\":{\"type\":\"text\", \"analyzer\": \"nori_analyzer\"},
               \"summarized_text\":{\"type\":\"text\", \"analyzer\": \"nori_analyzer\"},
-              \"hashtags\":{\"type\":\"keyword\"},
+              \"hashtags\":{
+                \"type\":\"text\",
+                \"analyzer\":\"standard\",
+                \"fields\": {
+                  \"keyword\": {
+                    \"type\": \"keyword\",
+                    \"ignore_above\": 256
+                  }
+                }
+              },
               \"created_at\":{\"type\":\"date\"}
             }
           }

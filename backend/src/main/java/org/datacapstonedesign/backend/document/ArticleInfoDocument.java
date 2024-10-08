@@ -22,8 +22,6 @@ public record ArticleInfoDocument(
     String companyName,
     @JsonProperty("url")
     String url,
-    @JsonProperty("content")
-    String content,
     @JsonProperty("summarized_text")
     @Field(name = "summarized_text")
     String summarizedText,

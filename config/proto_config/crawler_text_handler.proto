@@ -13,7 +13,6 @@ message UrlRequest {
 }
 
 message SummarizedDataResponse {
-  string content = 1; // 기술 블로그는 글자 많아봤자 30KB. string 타입으로 충분
-  string summarized_text = 2;
-  repeated string hashtags = 3;
+  string summarized_text = 1;
+  repeated string hashtags = 2;
 }

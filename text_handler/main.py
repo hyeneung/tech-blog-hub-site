@@ -23,7 +23,6 @@ class CrawlerTextHandlerServicer(crawler_text_handler_pb2_grpc.CrawlerTextHandle
                 summarized_text, hashtags = asyncio.run(self.process_text(preprocessed_text))
                 
                 yield crawler_text_handler_pb2.SummarizedDataResponse(
-                    content=preprocessed_text,
                     summarized_text=summarized_text,
                     hashtags=hashtags
                 )
