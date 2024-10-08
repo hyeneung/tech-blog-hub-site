@@ -16,6 +16,9 @@ recommend:
     responses:
       '200':
         description: 성공
+        headers:
+          X-User-ID:
+            $ref: '../common/header.yml#/XUserIDResponse'
         content:
           application/json:
             schema:

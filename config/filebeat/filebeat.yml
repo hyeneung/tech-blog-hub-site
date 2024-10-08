@@ -21,4 +21,7 @@ logging.files:
   keepfiles: 7
   permissions: 0644
 
-monitoring.enabled: true
+monitoring.enabled: false
+
+filebeat.backoff.init: 1s
+filebeat.backoff.max: 10s

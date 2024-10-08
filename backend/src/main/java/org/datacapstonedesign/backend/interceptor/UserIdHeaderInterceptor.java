@@ -2,7 +2,7 @@ package org.datacapstonedesign.backend.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.fasterxml.uuid.Generators;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -31,7 +31,7 @@ public class UserIdHeaderInterceptor implements HandlerInterceptor {
     ) {
         String userId = request.getHeader(CustomHeaderNameForLogging);
         if (userId == null || userId.isEmpty()) {
-            userId = Generators.timeBasedGenerator().generate().toString();
+            userId = UUID.randomUUID().toString();
         }
         // Set the User ID as a request attribute for logging in AOP
         // This allows the AOP logging aspect to access the User ID

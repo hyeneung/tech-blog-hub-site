@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import org.datacapstonedesign.backend.document.ArticleInfoDocument;
 import org.datacapstonedesign.backend.exception.ElasticsearchIOException;
-import org.datacapstonedesign.backend.generated.dto.CompaniesResponseBody;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 import org.datacapstonedesign.backend.mapper.ArticleInfoMapper;
 import org.datacapstonedesign.backend.repository.ArticleInfoRepository;
@@ -47,16 +46,6 @@ public class ArticleInfoServiceImpl implements ArticleInfoService {
             return articleInfoMapper.toSearchResponseBody(searchResponse, page, size);
         } catch (IOException e){
             throw new ElasticsearchIOException("Failed to fetch results for user query", e);
-        }
-    }
-    @Transactional(readOnly = true)
-    @Override
-    public CompaniesResponseBody getCompanyNames(){
-        try {
-            SearchResponse<Void> searchResponse = articleInfoRepository.findAllUniqueCompanyNames();
-            return articleInfoMapper.toCompaniesResponseBody(searchResponse);
-        } catch (IOException e) {
-            throw new ElasticsearchIOException("Failed to fetch company names", e);
         }
     }
 }

@@ -2,7 +2,6 @@ package org.datacapstonedesign.backend.delegate;
 
 import java.util.List;
 import org.datacapstonedesign.backend.generated.api.ArticleInfoApiDelegate;
-import org.datacapstonedesign.backend.generated.dto.CompaniesResponse;
 import org.datacapstonedesign.backend.generated.dto.SearchResponse;
 import org.datacapstonedesign.backend.service.ArticleInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +32,6 @@ public class ArticleInfoApiDelegateImpl implements ArticleInfoApiDelegate {
                 .status(HttpStatus.OK.value())
                 .message("ok")
                 .content(articleInfoService.getArticleInfosByQueryParams(hashtags, company, query, page, size))
-        );
-    }
-
-    @Override
-    public ResponseEntity<CompaniesResponse> getCompanyNames(final String xUserID) {
-        return ResponseEntity.ok(
-            new CompaniesResponse()
-                .status(HttpStatus.OK.value())
-                .message("ok")
-                .content(articleInfoService.getCompanyNames())
         );
     }
 }

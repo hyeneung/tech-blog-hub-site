@@ -9,8 +9,6 @@ servers:
 paths:
   /frontend/article-infos/search:
     $ref: "./request/articleInfo.yml#/search"
-  /frontend/article-infos/companies:
-    $ref: "./request/articleInfo.yml#/companies"
   /frontend/redirect:
     $ref: "./request/redirect.yml#/redirect"
   /extension/recommend:

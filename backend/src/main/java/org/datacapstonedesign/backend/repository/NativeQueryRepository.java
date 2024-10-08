@@ -12,6 +12,4 @@ public interface NativeQueryRepository{
         final String query,
         final Pageable pageable
     ) throws IOException;
-
-    SearchResponse<Void> findAllUniqueCompanyNames() throws IOException;
 }

@@ -2,11 +2,14 @@ package org.datacapstonedesign.backend.repository.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import java.io.IOException;
@@ -40,19 +43,20 @@ public class NativeQueryRepositoryImpl implements NativeQueryRepository {
 
         // Hashtags query
         if (hashtags != null && !hashtags.isEmpty()) {
-            TermsQuery hashtagsQuery = TermsQuery.of(t -> t
-                .field("hashtags")
-                .terms(TermsQueryField.of(f -> f
-                    .value(hashtags.stream().map(FieldValue::of).toList()))
-                ));
-            boolQueryBuilder.must(m -> m.terms(hashtagsQuery));
+            for (String hashtag : hashtags) {
+                TermQuery hashtagQuery = TermQuery.of(t -> t
+                    .field("hashtags")
+                    .value(hashtag)
+                );
+                boolQueryBuilder.must(m -> m.term(hashtagQuery));
+            }
         }
 
         // Company name query
         if (company != null && !company.isEmpty()) {
             TermQuery companyQuery = TermQuery.of(t -> t
                 .field("company_name")
-                .value(company.toLowerCase())
+                .value(company)
             );
             boolQueryBuilder.must(m -> m.term(companyQuery));
         }
@@ -62,6 +66,11 @@ public class NativeQueryRepositoryImpl implements NativeQueryRepository {
             MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
                 .fields("title", "content")
                 .query(query)
+                .type(TextQueryType.BestFields)
+                .operator(Operator.Or)
+                .fuzziness("AUTO")
+                .prefixLength(3)
+                .maxExpansions(10)
             );
             boolQueryBuilder.must(m -> m.multiMatch(multiMatchQuery));
         }
@@ -72,23 +81,14 @@ public class NativeQueryRepositoryImpl implements NativeQueryRepository {
             .query(q -> q.bool(boolQueryBuilder.build()))
             .from(pageable.getPageNumber() * pageable.getPageSize())
             .size(pageable.getPageSize())
-        );
-
-        return elasticsearchClient.search(searchRequest, ArticleInfoDocument.class);
-    }
-
-    @Override
-    public SearchResponse<Void> findAllUniqueCompanyNames() throws IOException {
-        SearchRequest searchRequest = SearchRequest.of(builder -> builder
-            .index(indexName)
-            .size(0)
-            .aggregations("unique_companies", a -> a
-                .terms(t -> t
-                    .field("company_name")
-                    .size(10000)
+            .sort(sort -> sort
+                .field(f -> f
+                    .field("pub_date")
+                    .order(SortOrder.Desc)
                 )
             )
         );
-        return elasticsearchClient.search(searchRequest, Void.class);
+
+        return elasticsearchClient.search(searchRequest, ArticleInfoDocument.class);
     }
 }

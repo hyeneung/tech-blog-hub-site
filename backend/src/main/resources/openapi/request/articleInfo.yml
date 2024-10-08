@@ -13,28 +13,27 @@ search:
           type: array
           items:
             type: string
-            minLength: 1
             maxLength: 15
-            pattern: '^[a-zA-Z가-힣]+$'
+            pattern: '^[a-zA-Z/]+$'
           maxItems: 10
         style: form
         explode: false
-        description: 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳과 한글만 허용)
+        description: 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳, /만 허용)
       - in: query
         name: company
         schema:
           type: string
-          minLength: 1
           maxLength: 10
-          pattern: '^[a-zA-Z가-힣0-9]+$'
+          default: ''
+          pattern: '^[a-zA-Z가-힣0-9]*$'
         description: 검색할 회사 이름 (선택사항, 최대 10자, 알파벳, 한글, 숫자 허용)
       - in: query
         name: query
         schema:
           type: string
-          minLength: 1
           maxLength: 15
-          pattern: '^[가-힣a-zA-Z0-9\s]+$'
+          default: ''
+          pattern: '^[가-힣a-zA-Z0-9\s]*$'
         description: 검색어 (선택사항, 최대 15자, 한국어, 영어, 숫자, 띄어쓰기만 허용)
       - in: query
         name: page
@@ -49,35 +48,24 @@ search:
           type: integer
           minimum: 1
           maximum: 30
-          default: 20
-        description: 페이지 당 결과 수 (기본값 20, 최대 30)
+          default: 10
+        description: 페이지 당 결과 수 (기본값 10, 최대 30)
     responses:
       '200':
         description: 성공
+        headers:
+          X-User-ID:
+            $ref: '../common/header.yml#/XUserIDResponse'
         content:
           application/json:
             schema:
               $ref: '../response/articleInfo.yml#/components/schemas/SearchResponse'
       '400':
         description: 잘못된 요청
+        headers:
+          X-User-ID:
+            $ref: '../common/header.yml#/XUserIDResponse'
         content:
           application/json:
             schema:
               $ref: '../response/common.yml#/schemas/ApiResult'
-
-companies:
-  get:
-    tags:
-      - ArticleInfo
-    operationId: getCompanyNames
-    summary: 회사 이름들 반환
-    description: 크롤링된 기술 블로그들의 회사명을 반환합니다.
-    parameters:
-      - $ref: '../common/header.yml#/XUserID'
-    responses:
-      '200':
-        description: 성공
-        content:
-          application/json:
-            schema:
-              $ref: '../response/articleInfo.yml#/components/schemas/CompaniesResponse'

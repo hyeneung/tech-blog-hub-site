@@ -1,7 +1,6 @@
 package org.datacapstonedesign.backend.service;
 
 import java.util.List;
-import org.datacapstonedesign.backend.generated.dto.CompaniesResponseBody;
 import org.datacapstonedesign.backend.generated.dto.SearchResponseBody;
 
 public interface ArticleInfoService {
@@ -12,6 +11,4 @@ public interface ArticleInfoService {
         final Integer page,
         final Integer size
     );
-
-    CompaniesResponseBody getCompanyNames();
 }
