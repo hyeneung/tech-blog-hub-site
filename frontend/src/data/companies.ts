@@ -9,7 +9,6 @@ export const companies: Company[] = [
     { name: "토스", logo: () => import('@/assets/company_logos/toss.png') },
     { name: "당근", logo: () => import('@/assets/company_logos/daangn.png') },
     { name: "카카오", logo: () => import('@/assets/company_logos/kakao.png') },
-    { name: "우아한형제들", logo: () => import('@/assets/company_logos/woowahan.png') },
     { name: "카카오페이", logo: () => import('@/assets/company_logos/kakaopay.png') },
     { name: "AWS", logo: () => import('@/assets/company_logos/aws.png') },
     { name: "컬리", logo: () => import('@/assets/company_logos/kurly.png') },
