@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"log"
+	"os"
 	"sync"
 
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -26,11 +27,11 @@ var (
 func GetConfigSingletonInstance() *Config {
 	once.Do(func() {
 		instance = &Config{
-			CrawlerConfigFilePath: "s3://tech-blog-hub/config-crawler.yaml",
-			IndexName:             "article_infos",
-			OpenSearchConfig:      getOpenSearchConfig("https://vpc-opensearch-bdip6fuxrceuqtroiovj234inm.ap-northeast-2.es.amazonaws.com"),
-			S3BucketName:          "tech-blog-hub",
-			KMSKeyARN:             "arn:aws:kms:ap-northeast-2:051826714237:key/7004defc-09e8-4f1d-8bff-c1aff837ee36",
+			CrawlerConfigFilePath: os.Getenv("CRAWLER_CONFIG_FILE_PATH"),
+			IndexName:             os.Getenv("INDEX_NAME"),
+			OpenSearchConfig:      getOpenSearchConfig(os.Getenv("OPENSEARCH_ENDPOINT")),
+			S3BucketName:          os.Getenv("S3_BUCKET_NAME"),
+			KMSKeyARN:             os.Getenv("KMS_KEY_ARN"),
 		}
 	})
 	return instance
