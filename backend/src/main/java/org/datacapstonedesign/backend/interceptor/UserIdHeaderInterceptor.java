@@ -9,7 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class UserIdHeaderInterceptor implements HandlerInterceptor {
 
-    public static final String CustomHeaderNameForLogging = "X-User-ID";
+    public static final String CustomHeaderNameForLogging = "X-User-Id";
 
     /**
      * This method is part of the HandlerInterceptor interface and is executed before the actual handler method.

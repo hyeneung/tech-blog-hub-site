@@ -33,14 +33,14 @@ export const RecommendApiAxiosParamCreator = function (configuration?: Configura
          * 
          * @summary 다른 기사 추천 및 요약 정보 제공
          * @param {string} url 분석할 기사의 URL
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recommendOtherArticles: async (url: string, xUserID?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recommendOtherArticles: async (url: string, xUserId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'url' is not null or undefined
             assertParamExists('recommendOtherArticles', 'url', url)
-            const localVarPath = `/extension/recommend`;
+            const localVarPath = `/recommend`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -56,8 +56,8 @@ export const RecommendApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['url'] = url;
             }
 
-            if (xUserID != null) {
-                localVarHeaderParameter['X-User-ID'] = String(xUserID);
+            if (xUserId != null) {
+                localVarHeaderParameter['X-User-Id'] = String(xUserId);
             }
 
 
@@ -85,12 +85,12 @@ export const RecommendApiFp = function(configuration?: Configuration) {
          * 
          * @summary 다른 기사 추천 및 요약 정보 제공
          * @param {string} url 분석할 기사의 URL
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recommendOtherArticles(url: string, xUserID?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecommendResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recommendOtherArticles(url, xUserID, options);
+        async recommendOtherArticles(url: string, xUserId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecommendResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recommendOtherArticles(url, xUserId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecommendApi.recommendOtherArticles']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -109,12 +109,12 @@ export const RecommendApiFactory = function (configuration?: Configuration, base
          * 
          * @summary 다른 기사 추천 및 요약 정보 제공
          * @param {string} url 분석할 기사의 URL
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recommendOtherArticles(url: string, xUserID?: string, options?: any): AxiosPromise<RecommendResponse> {
-            return localVarFp.recommendOtherArticles(url, xUserID, options).then((request) => request(axios, basePath));
+        recommendOtherArticles(url: string, xUserId?: string, options?: any): AxiosPromise<RecommendResponse> {
+            return localVarFp.recommendOtherArticles(url, xUserId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -130,13 +130,13 @@ export class RecommendApi extends BaseAPI {
      * 
      * @summary 다른 기사 추천 및 요약 정보 제공
      * @param {string} url 분석할 기사의 URL
-     * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+     * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RecommendApi
      */
-    public recommendOtherArticles(url: string, xUserID?: string, options?: RawAxiosRequestConfig) {
-        return RecommendApiFp(this.configuration).recommendOtherArticles(url, xUserID, options).then((request) => request(this.axios, this.basePath));
+    public recommendOtherArticles(url: string, xUserId?: string, options?: RawAxiosRequestConfig) {
+        return RecommendApiFp(this.configuration).recommendOtherArticles(url, xUserId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

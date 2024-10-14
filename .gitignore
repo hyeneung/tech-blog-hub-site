@@ -10,6 +10,7 @@ application-pub.yml
 
 # certification files for SSL
 certs/
+*.pem
 
 elasticsearch-data/
 

@@ -24,7 +24,6 @@ const posts = ref<ArticleInfo[]>([])
 
 onMounted(() => {
   searchCriteriaStore.loadFromLocalStorage()
-  fetchArticles()
 })
 
 // Fetch articles whenever search criteria changes

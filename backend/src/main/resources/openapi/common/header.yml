@@ -1,5 +1,5 @@
 XUserID:
-  name: X-User-ID
+  name: X-User-Id
   in: header
   description: Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
   required: false

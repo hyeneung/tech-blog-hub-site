@@ -14,7 +14,7 @@ import logoSrc from '@/assets/logo.png'
 const searchCriteriaStore = useArticleSearchCriteriaStore()
 
 const resetAndNavigate = () => {
-  searchCriteriaStore.resetCriteria()
+  searchCriteriaStore.resetCriteriaAndLoad()
 }
 </script>
 

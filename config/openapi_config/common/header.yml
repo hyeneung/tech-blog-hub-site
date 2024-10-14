@@ -1,5 +1,5 @@
 XUserID:
-  name: X-User-ID
+  name: X-User-Id
   in: header
   description: local storage에 저장한 user identifier for logging
   required: true
