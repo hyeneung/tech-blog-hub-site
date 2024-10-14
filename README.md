@@ -11,7 +11,7 @@
 
 > Explore, analyze, and discover tech blog posts from various companies all in one place!
 
-**🚀 [Visit Tech Blog Hub](https://your-deployed-url.com)**
+**🚀 [Visit Tech Blog Hub](https://www.tech-blog-hub.site)**
 
 ## 🔎 Overview
 
