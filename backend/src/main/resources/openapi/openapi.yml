@@ -4,14 +4,13 @@ info:
   description: 카테고리, 회사, 검색어를 기반으로 한 검색 API (페이징 지원)
   version: 1.0.0
 servers:
-  - url: http://localhost:8080/api/v1
-    description: Local server
+  - url: https://www.tech-blog-hub.site/api/v1
 paths:
-  /frontend/article-infos/search:
+  /article-infos/search:
     $ref: "./request/articleInfo.yml#/search"
-  /frontend/redirect:
+  /redirect:
     $ref: "./request/redirect.yml#/redirect"
-  /extension/recommend:
+  /recommend:
     $ref: "./request/recommend.yml#/recommend"
 
 tags:

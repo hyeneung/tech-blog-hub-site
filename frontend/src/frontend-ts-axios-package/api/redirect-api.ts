@@ -31,14 +31,14 @@ export const RedirectApiAxiosParamCreator = function (configuration?: Configurat
          * 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
          * @summary 지정된 URL로 리다이렉트
          * @param {string} url 리다이렉트할 URL
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        redirectToUrl: async (url: string, xUserID?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        redirectToUrl: async (url: string, xUserId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'url' is not null or undefined
             assertParamExists('redirectToUrl', 'url', url)
-            const localVarPath = `/frontend/redirect`;
+            const localVarPath = `/redirect`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -54,8 +54,8 @@ export const RedirectApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['url'] = url;
             }
 
-            if (xUserID != null) {
-                localVarHeaderParameter['X-User-ID'] = String(xUserID);
+            if (xUserId != null) {
+                localVarHeaderParameter['X-User-Id'] = String(xUserId);
             }
 
 
@@ -83,12 +83,12 @@ export const RedirectApiFp = function(configuration?: Configuration) {
          * 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
          * @summary 지정된 URL로 리다이렉트
          * @param {string} url 리다이렉트할 URL
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async redirectToUrl(url: string, xUserID?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.redirectToUrl(url, xUserID, options);
+        async redirectToUrl(url: string, xUserId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.redirectToUrl(url, xUserId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RedirectApi.redirectToUrl']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -107,12 +107,12 @@ export const RedirectApiFactory = function (configuration?: Configuration, baseP
          * 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
          * @summary 지정된 URL로 리다이렉트
          * @param {string} url 리다이렉트할 URL
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        redirectToUrl(url: string, xUserID?: string, options?: any): AxiosPromise<void> {
-            return localVarFp.redirectToUrl(url, xUserID, options).then((request) => request(axios, basePath));
+        redirectToUrl(url: string, xUserId?: string, options?: any): AxiosPromise<void> {
+            return localVarFp.redirectToUrl(url, xUserId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -128,13 +128,13 @@ export class RedirectApi extends BaseAPI {
      * 전달 받은 url로 redirect 합니다. user action logging 을 위한 api.
      * @summary 지정된 URL로 리다이렉트
      * @param {string} url 리다이렉트할 URL
-     * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+     * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RedirectApi
      */
-    public redirectToUrl(url: string, xUserID?: string, options?: RawAxiosRequestConfig) {
-        return RedirectApiFp(this.configuration).redirectToUrl(url, xUserID, options).then((request) => request(this.axios, this.basePath));
+    public redirectToUrl(url: string, xUserId?: string, options?: RawAxiosRequestConfig) {
+        return RedirectApiFp(this.configuration).redirectToUrl(url, xUserId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

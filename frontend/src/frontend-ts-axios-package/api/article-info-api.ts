@@ -34,8 +34,8 @@ export const ArticleInfoApiAxiosParamCreator = function (configuration?: Configu
         /**
          * 카테고리, 회사, 검색어를 기반으로 검색을 수행합니다. 페이징을 지원합니다.
          * @summary 검색 수행
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
-         * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳과 한글만 허용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳, /만 허용)
          * @param {string} [company] 검색할 회사 이름 (선택사항, 최대 10자, 알파벳, 한글, 숫자 허용)
          * @param {string} [query] 검색어 (선택사항, 최대 15자, 한국어, 영어, 숫자, 띄어쓰기만 허용)
          * @param {number} [page] 페이지 번호 (0부터 시작, 기본값 0)
@@ -43,8 +43,8 @@ export const ArticleInfoApiAxiosParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getArticleInfos: async (xUserID?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/frontend/article-infos/search`;
+        getArticleInfos: async (xUserId?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/article-infos/search`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -76,8 +76,8 @@ export const ArticleInfoApiAxiosParamCreator = function (configuration?: Configu
                 localVarQueryParameter['size'] = size;
             }
 
-            if (xUserID != null) {
-                localVarHeaderParameter['X-User-ID'] = String(xUserID);
+            if (xUserId != null) {
+                localVarHeaderParameter['X-User-Id'] = String(xUserId);
             }
 
 
@@ -104,8 +104,8 @@ export const ArticleInfoApiFp = function(configuration?: Configuration) {
         /**
          * 카테고리, 회사, 검색어를 기반으로 검색을 수행합니다. 페이징을 지원합니다.
          * @summary 검색 수행
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
-         * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳과 한글만 허용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳, /만 허용)
          * @param {string} [company] 검색할 회사 이름 (선택사항, 최대 10자, 알파벳, 한글, 숫자 허용)
          * @param {string} [query] 검색어 (선택사항, 최대 15자, 한국어, 영어, 숫자, 띄어쓰기만 허용)
          * @param {number} [page] 페이지 번호 (0부터 시작, 기본값 0)
@@ -113,8 +113,8 @@ export const ArticleInfoApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getArticleInfos(xUserID?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getArticleInfos(xUserID, hashtags, company, query, page, size, options);
+        async getArticleInfos(xUserId?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getArticleInfos(xUserId, hashtags, company, query, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ArticleInfoApi.getArticleInfos']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -132,8 +132,8 @@ export const ArticleInfoApiFactory = function (configuration?: Configuration, ba
         /**
          * 카테고리, 회사, 검색어를 기반으로 검색을 수행합니다. 페이징을 지원합니다.
          * @summary 검색 수행
-         * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
-         * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳과 한글만 허용)
+         * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+         * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳, /만 허용)
          * @param {string} [company] 검색할 회사 이름 (선택사항, 최대 10자, 알파벳, 한글, 숫자 허용)
          * @param {string} [query] 검색어 (선택사항, 최대 15자, 한국어, 영어, 숫자, 띄어쓰기만 허용)
          * @param {number} [page] 페이지 번호 (0부터 시작, 기본값 0)
@@ -141,8 +141,8 @@ export const ArticleInfoApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getArticleInfos(xUserID?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options?: any): AxiosPromise<SearchResponse> {
-            return localVarFp.getArticleInfos(xUserID, hashtags, company, query, page, size, options).then((request) => request(axios, basePath));
+        getArticleInfos(xUserId?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options?: any): AxiosPromise<SearchResponse> {
+            return localVarFp.getArticleInfos(xUserId, hashtags, company, query, page, size, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -157,8 +157,8 @@ export class ArticleInfoApi extends BaseAPI {
     /**
      * 카테고리, 회사, 검색어를 기반으로 검색을 수행합니다. 페이징을 지원합니다.
      * @summary 검색 수행
-     * @param {string} [xUserID] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
-     * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳과 한글만 허용)
+     * @param {string} [xUserId] Local storage에 저장된 UUID v4 형식의 사용자 식별자 (로깅용)
+     * @param {Array<string>} [hashtags] 검색할 카테고리 목록 (선택사항, 쉼표로 구분, 최대 10개, 각 원소는 최대 15자, 알파벳, /만 허용)
      * @param {string} [company] 검색할 회사 이름 (선택사항, 최대 10자, 알파벳, 한글, 숫자 허용)
      * @param {string} [query] 검색어 (선택사항, 최대 15자, 한국어, 영어, 숫자, 띄어쓰기만 허용)
      * @param {number} [page] 페이지 번호 (0부터 시작, 기본값 0)
@@ -167,8 +167,8 @@ export class ArticleInfoApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ArticleInfoApi
      */
-    public getArticleInfos(xUserID?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
-        return ArticleInfoApiFp(this.configuration).getArticleInfos(xUserID, hashtags, company, query, page, size, options).then((request) => request(this.axios, this.basePath));
+    public getArticleInfos(xUserId?: string, hashtags?: Array<string>, company?: string, query?: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return ArticleInfoApiFp(this.configuration).getArticleInfos(xUserId, hashtags, company, query, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
