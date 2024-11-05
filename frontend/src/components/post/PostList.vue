@@ -4,14 +4,14 @@
     <div v-if="loading">Loading...</div>
     <div v-else-if="error" class="error-message" role="alert">{{ error }}</div>
     <template v-else>
-      <PostItem v-for="post in posts" :key="post.title" :post="post" />
+      <Post v-for="post in posts" :key="post.title" :post="post" />
     </template>
   </section>
 </template>
   
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import PostItem from './PostItem.vue'
+import Post from './Post.vue'
 import CompanySelect from '../search/CompanySelect.vue'
 import { useArticleSearch } from '@/composables/useArticleSearch'
 import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
