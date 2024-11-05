@@ -5,7 +5,7 @@ from typing import List, Tuple
 from llamaapi import LlamaAPI
 
 # CAUTION : get_preprocessed_text를 통해 얻어진 텍스트에 맞춰 함수 작성 -> 해당 함수 return 형식이 달라지면 버그 발생 가능성 있음
-# from preprocessed import get_preprocessed_text
+from preprocessed import get_preprocessed_text
 from fewshot_examples import *
 from text_processing_utils import TextProcessingUtils
 from llm_request_utils import LLMRequestUtils
@@ -131,13 +131,9 @@ class HashtaggingModule:
         cleaned_keywords = keywords  # 초기 입력 keywords를 클린업하여 저장할 변수
 
         # 이상 단어 제거
-        # Intro 이상 단어 제거 (현재 버그 미발견 상태)
-        # Body 이상 단어 제거 (현재 버그 미발견 상태)
-        # Category 이상 단어 제거
-        cleaned_keywords = [
-            re.sub(r'Category: ', '', word) if "Category:" in word else word 
-            for word in cleaned_keywords
-        ]
+        cleaned_keywords = [re.sub(r'KEYWORDS: ', '', hashtag, flags=re.IGNORECASE) if "KEYWORDS: " in hashtag.upper() else hashtag for hashtag in cleaned_keywords]
+        cleaned_keywords = [re.sub(r'CATEGORY: ', '', hashtag, flags=re.IGNORECASE) if "CATEGORY: " in hashtag.upper() else hashtag for hashtag in cleaned_keywords]
+        cleaned_keywords = [item for item in cleaned_keywords if not re.search(r'[가-힣]', item)]
 
         # 블랙리스트 단어 제거
         blacklist = ["Kurly", "TechBlog", "Blog"]
@@ -145,7 +141,7 @@ class HashtaggingModule:
 
         # LLM에 보내기 전에, 키워드가 비어 있을 경우 대비
         if not filtered_keywords:
-            filtered_keywords.append("Experience Article")
+            return ["ExperienceArticle"]
 
         # 중복 키워드 제거
         unique_keywords = self.dedup_list(filtered_keywords)
@@ -153,6 +149,10 @@ class HashtaggingModule:
         # 의미적으로 동일한 키워드 제거 (ex. AI & Artificial Intelligence)
         final_prompt = self.llm_utils.make_prompt_for_postprocess(unique_keywords)
         processed_keywords = self.run_llm_request(final_prompt, token_label="POSTPROCESS TOKEN")
+
+        # 비정상적으로 긴 단어 제거
+        LENGTH_THROSHOLD = 25
+        processed_keywords = [word for word in processed_keywords if len(word) <= LENGTH_THROSHOLD]
 
         # 형식 변환 (Camel Case로 변환)
         final_hashtags = self.text_process_utils.to_camel_case(processed_keywords)
@@ -212,3 +212,10 @@ class HashtaggingModule:
         hashtags = self.dedup_list(self.postprocess_keywords(intro_keywords + body_keywords) + category_keywords)
 
         return hashtags
+
+url = "https://blog.banksalad.com/tech/spark-on-kubernetes/"
+api_token = "LA-d843d000bb204dbface398b467f7ae25b07d52071dd24de6a68ac9ac65aad93b"
+
+hm = HashtaggingModule(api_token=api_token)
+html_text = get_preprocessed_text(url=url)
+print(hm.generate_hashtags(html_text=html_text))

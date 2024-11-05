@@ -8,7 +8,7 @@
     { "name": "SoftwareEngineering", "active": true },
     { "name": "Programming", "active": true },
     { "name": "Security", "active": true },
-    { "name": "Experience Article", "active": true },
+    { "name": "ExperienceArticle", "active": true },
     { "name": "Frontend", "active": true },
     { "name": "Backend", "active": true }
 ]
