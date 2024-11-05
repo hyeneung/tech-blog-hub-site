@@ -20,6 +20,15 @@ export function useArticleSearch() {
     loading.value = true
     error.value = null
 
+    // send to Google Analytics
+    window.dataLayer.push({
+      'event': 'article_search',
+      'search_hashtags': searchCriteriaStore.hashtags,
+      'search_company': searchCriteriaStore.company,
+      'search_query': searchCriteriaStore.query,
+      'search_page': searchCriteriaStore.page
+    });
+
     // validation
     const validationError = validateSearchParams({
       hashtags: searchCriteriaStore.hashtags,

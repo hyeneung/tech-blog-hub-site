@@ -2,14 +2,14 @@
   <article class="post">
     <div @click="handlePostClick" class="post-content">
       <PostInfo :post="post" />
-      <PostContent :summary="post.summarizedText" />
+      <PostSummary :post="post" />
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
 import PostInfo from './PostInfo.vue'
-import PostContent from './PostSummary.vue'
+import PostSummary from './PostSummary.vue'
 import { getApiConfig } from '@/config/api'
 import { RedirectApi } from '@/frontend-ts-axios-package'
 import type { ArticleInfo } from '@/frontend-ts-axios-package'
@@ -30,6 +30,14 @@ const handlePostClick = async (event: MouseEvent) => {
     event.preventDefault()
     return
   }
+
+  // send to Google Analytics
+  window.dataLayer.push({
+    'event': 'post_click',
+    'post_title': props.post.title,
+    'post_hashtags': props.post.hashtags,
+    'post_url': props.post.url,
+  });
 
   searchCriteriaStore.saveToLocalStorage()
   /*

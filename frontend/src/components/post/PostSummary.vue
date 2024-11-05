@@ -6,7 +6,7 @@
           <span class="summary-toggle-text">요약된 내용 보기</span>
         </div>
         <div v-if="isActive" class="summary">
-          <p>{{ summary }}</p>
+          <p>{{ post.summarizedText }}</p>
         </div>
       </div>
     </div>
@@ -15,18 +15,25 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { ArticleInfo } from '@/frontend-ts-axios-package'
 
-const props = defineProps({
-  summary: {
-    type: String,
-    required: true
-  }
-} as const)
+const props = defineProps<{
+  post: ArticleInfo
+}>()
 
 const isActive = ref(false)
 
 const toggleSummary = () => {
   isActive.value = !isActive.value
+  if (isActive.value) {
+    // send to Google Analytics
+    window.dataLayer.push({
+      'event': 'summary_toggle_click',
+      'post_title': props.post.title,
+      'post_hashtags': props.post.hashtags,
+      'post_url': props.post.url,
+    });
+  }
 }
 </script>
 
