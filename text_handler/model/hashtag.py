@@ -13,8 +13,8 @@ from text_processing_utils import TextProcessingUtils
 from llm_request_utils import LLMRequestUtils
 
 class HashtaggingModule:
-    def __init__(self, api_token):
-        os.environ['OPENAI_API_KEY'] = api_token
+    def __init__(self, api_key: str):
+        self.api_key = api_key
         self.text_process_utils = TextProcessingUtils()
         self.llm_utils = LLMRequestUtils()
     
@@ -23,7 +23,7 @@ class HashtaggingModule:
         messages = [
             {"role": "user", "content": prompt}
         ]
-        responses = OpenAI().chat.completions.create(
+        responses = OpenAI(api_key=self.api_key).chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
             temperature=0,
