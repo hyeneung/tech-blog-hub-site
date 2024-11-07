@@ -7,8 +7,10 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
+from typing import Tuple
 
-def get_preprocessed_text(url: str) -> str:
+
+def get_preprocessed_text(url: str) -> Tuple[str]:
     """
     주어진 URL에서 HTML 파일을 읽어들인 후 텍스트를 전처리하여 반환합니다.
 
@@ -114,13 +116,18 @@ def get_preprocessed_text(url: str) -> str:
     else:
         return ''
 
-    preprocessed_text = ''
+    preprocessed_text_1 = ''
+    preprocessed_text_2 = ''
     title_text = title.get_text().strip()
-    preprocessed_text += 'Title: ' + title_text + '\n'
+    preprocessed_text_1 += 'Title: ' + title_text + '\n'
+    preprocessed_text_2 += 'Title: ' + title_text + '\n'
     for article in articles:
         for tag in article.find_all(['h1', 'h2', 'h3', 'p', 'ul'], recursive=True):
             article_text = tag.get_text().strip()
             if article_text != '' and article_text != title_text:
-                preprocessed_text += article_text + '\n'
+                if tag.name in ['h1', 'h2', 'h3']:
+                    preprocessed_text_1 += 'Subtitle: '
+                preprocessed_text_1 += article_text + '\n'
+                preprocessed_text_2 += article_text + '\n'
 
-    return preprocessed_text
+    return preprocessed_text_1, preprocessed_text_2
