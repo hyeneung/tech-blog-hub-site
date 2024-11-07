@@ -6,7 +6,7 @@
           <span class="summary-toggle-text">요약된 내용 보기</span>
         </div>
         <div v-if="isActive" class="summary">
-          <p>{{ post.summarizedText }}</p>
+          <p v-html="formattedSummary"></p>
         </div>
       </div>
     </div>
@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { ArticleInfo } from '@/frontend-ts-axios-package'
 
 const props = defineProps<{
@@ -35,6 +35,11 @@ const toggleSummary = () => {
     });
   }
 }
+
+// 줄바꿈을 <br>로 변환하여 HTML로 렌더링할 수 있게 함
+const formattedSummary = computed(() => {
+  return props.post.summarizedText.replace(/\n/g, '<br>')
+})
 </script>
 
 <style scoped>
@@ -116,7 +121,9 @@ const toggleSummary = () => {
   font-weight: 500;
   font-size: 1rem;
   line-height: 150%;
-  color: var(--primary-color);
+  color: var(--primary-color);  
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .summary-toggle.active + .summary {
