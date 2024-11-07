@@ -1,14 +1,17 @@
 [
-    { "name": "Infra", "active": true },
-    { "name": "Architecture", "active": true },
+    { "name": "Frontend", "active": true },
+    { "name": "Backend", "active": true },
     { "name": "Mobile", "active": true },
-    { "name": "AI", "active": true },
     { "name": "DataEngineering", "active": true },
     { "name": "DataScience", "active": true },
-    { "name": "SoftwareEngineering", "active": true },
-    { "name": "Programming", "active": true },
+    { "name": "AI", "active": true },
+    { "name": "Infra", "active": true },
     { "name": "Security", "active": true },
-    { "name": "ExperienceArticle", "active": true },
-    { "name": "Frontend", "active": true },
-    { "name": "Backend", "active": true }
+    { "name": "Architecture", "active": true },
+    { "name": "Automation", "active": true },
+    { "name": "Database", "active": true },
+    { "name": "Cloud", "active": true },
+    { "name": "Microservice", "active": true },
+    { "name": "Kubernetes", "active": true },
+    { "name": "DevOps", "active": true }
 ]
