@@ -36,7 +36,7 @@ def get_preprocessed_text(url: str) -> str:
             if time_to_live > 0:
                 continue
             else:
-                return ""
+                return ''
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
@@ -110,8 +110,9 @@ def get_preprocessed_text(url: str) -> str:
     elif soup.find('h1', 'postDetailsstyle__PostTitle-sc-r1ppdr-1') and soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5'):
         # banksalad
         title = soup.find('h1', 'postDetailsstyle__PostTitle-sc-r1ppdr-1')
-        articles = [
-            soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5')]
+        articles = [soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5')]
+    else:
+        return ''
 
     preprocessed_text = ''
     title_text = title.get_text().strip()
@@ -120,8 +121,6 @@ def get_preprocessed_text(url: str) -> str:
         for tag in article.find_all(['h1', 'h2', 'h3', 'p', 'ul'], recursive=True):
             article_text = tag.get_text().strip()
             if article_text != '' and article_text != title_text:
-                if tag.name in ['h1', 'h2', 'h3']:
-                    preprocessed_text += 'Subtitle: '
                 preprocessed_text += article_text + '\n'
 
     return preprocessed_text
