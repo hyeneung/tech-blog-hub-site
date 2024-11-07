@@ -1,30 +1,34 @@
+import os
 import re
 from math import ceil, floor
 from typing import List, Tuple
 
-from llamaapi import LlamaAPI
+from openai import OpenAI
 
 # CAUTION : get_preprocessed_text를 통해 얻어진 텍스트에 맞춰 함수 작성 -> 해당 함수 return 형식이 달라지면 버그 발생 가능성 있음
-from preprocessed import get_preprocessed_text
+# from preprocessed import get_preprocessed_text
 from fewshot_examples import *
 from text_processing_utils import TextProcessingUtils
 from llm_request_utils import LLMRequestUtils
 
 class HashtaggingModule:
     def __init__(self, api_token):
+        os.environ['OPENAI_API_KEY'] = api_token
         self.text_process_utils = TextProcessingUtils()
         self.llm_utils = LLMRequestUtils()
-        self.llama = LlamaAPI(api_token=api_token)
     
     def run_llm_request(self, prompt: str, token_label: str = "Token") -> List[str]:
         # LLM 요청을 보내고 응답에서 키워드를 추출하는 Helper 함수 (token_label로 요청 구분)
-        api_request_json = self.llm_utils.make_request_json(prompt)
-        response = self.llama.run(api_request_json=api_request_json)
-        response_json = response.json()
-
-        print(f"{token_label} USAGE:", response_json['usage'])  # Token 추적용
-
-        return response_json['choices'][0]['message']['content'].split(', ')
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+        responses = OpenAI().chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0,
+        )
+        print(f"{token_label} USAGE: {responses.usage.total_tokens}") # Token 추적용
+        return responses.choices[0].message.content.split(', ')
 
 
     def get_keywords_from_intro(self, intro_blocks: List[List[Tuple[str, str]]]) -> List[str]:
@@ -82,12 +86,12 @@ class HashtaggingModule:
         List[str]: LLM 모델이 선정한 keywords 리스트
         """
         total_candidates = []
+
         for block in body:
             candidates = self.get_candidates_from_block(block)
             total_candidates = total_candidates + candidates
         
         print("TOTAL CANDIDATES:",total_candidates)
-
         return self.make_keywords_from_candidates(total_candidates)
 
 
@@ -110,6 +114,7 @@ class HashtaggingModule:
         # keywords 내에 동일한 글자를 가진 단어가 여러개라면, 한 단어만 남기고 나머지를 제거하는 함수입니다.
         # 함수의 예시는 다음과 같습니다: ["machine learning, MachineLearning", "Deep Learning"] -> ["machine Learning", "Deep Learning"]
         dedup_dict = {}
+        
         for word in keywords:
             standard_word = word.lower().replace(" ", "")
             if standard_word not in dedup_dict:
@@ -136,6 +141,9 @@ class HashtaggingModule:
         cleaned_keywords = [item for item in cleaned_keywords if not re.search(r'[가-힣]', item)]
 
         # 블랙리스트 단어 제거
+        """
+        모델 성능에 따라서 필요없다고 판단될 시, 이 부분은 제거되어도 괜찮습니다.
+        """
         blacklist = ["Kurly", "TechBlog", "Blog"]
         filtered_keywords = [word for word in cleaned_keywords if word not in blacklist]
 
@@ -147,6 +155,10 @@ class HashtaggingModule:
         unique_keywords = self.dedup_list(filtered_keywords)
 
         # 의미적으로 동일한 키워드 제거 (ex. AI & Artificial Intelligence)
+        """
+        200토큰 정도밖에 사용안하긴 하지만, 효율이 많이 떨어지는 것으로 추정됩니다.
+        경험적이든 실증적이든 딱히 남길 이유가 없다고 판단될 시 이 부분은 제거될 예정입니다.
+        """
         final_prompt = self.llm_utils.make_prompt_for_postprocess(unique_keywords)
         processed_keywords = self.run_llm_request(final_prompt, token_label="POSTPROCESS TOKEN")
 
@@ -177,7 +189,7 @@ class HashtaggingModule:
         FOOTER_RATIO = 0.1  # 글의 마지막 부분 중 분석에서 제외할 비율 (마무리나 글쓴이의 프로필 정보 등 불필요한 부분)
         n = len(parsed_list)
         footer_length = ceil(FOOTER_RATIO * n)
-        extract_ratio = 0.6 # body_part에서 추출할 비율
+        extract_ratio = 0.75 # body_part에서 추출할 비율
 
         intro_keywords, candidates, body_keywords, category_keywords = [], [], [], []
 
@@ -212,10 +224,3 @@ class HashtaggingModule:
         hashtags = self.dedup_list(self.postprocess_keywords(intro_keywords + body_keywords) + category_keywords)
 
         return hashtags
-
-url = "https://blog.banksalad.com/tech/spark-on-kubernetes/"
-api_token = "LA-d843d000bb204dbface398b467f7ae25b07d52071dd24de6a68ac9ac65aad93b"
-
-hm = HashtaggingModule(api_token=api_token)
-html_text = get_preprocessed_text(url=url)
-print(hm.generate_hashtags(html_text=html_text))
