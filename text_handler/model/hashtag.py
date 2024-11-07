@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from math import ceil, floor
@@ -123,6 +124,29 @@ class HashtaggingModule:
         return list(dedup_dict.values())
 
 
+    def sort_hashtags_by_category_order(self, hashtags: List[str], category_file_path: str = 'category.json') -> List[str]:
+        """
+        category_file_path에 명시된 순서대로 정렬된 해시태그 리스트를 반환합니다.
+        (해당 파일에 포함되지 않은 해시태그는 후위로 배치됩니다.)
+        
+        Parameters:
+            hashtags (List[str]): 추출된 해시태그 리스트
+            category_file_path (str): category가 정의되어 있는 파일의 위치
+            
+        Returns:
+            List[str] : 정렬된 해시태그 리스트
+        """
+        # JSON 파일에서 카테고리 순서 로드
+        with open(category_file_path, 'r') as file:
+            categories = json.load(file)
+        
+        # JSON에 있는 카테고리 순서에 맞춰 정렬 순서 리스트 생성
+        category_order = [category['name'] for category in categories]
+        
+        # 정렬 수행: JSON에 명시된 순서에 있는 해시태그는 해당 순서대로, 없는 해시태그는 후순위
+        return sorted(hashtags, key=lambda x: (x not in category_order, category_order.index(x) if x in category_order else float('inf')))
+
+
     def postprocess_keywords(self, keywords: List[str]) -> List[str]:
         """
         get_keywords 계열 함수를 통해 얻어진 keywords를 모아, 후처리하여 최종 해시태그 리스트를 반환하는 함수입니다.
@@ -169,7 +193,7 @@ class HashtaggingModule:
         # 형식 변환 (Camel Case로 변환)
         final_hashtags = self.text_process_utils.to_camel_case(processed_keywords)
 
-        return final_hashtags
+        return self.sort_hashtags_by_category_order(final_hashtags)
 
 
     def generate_hashtags(self, html_text: str) -> List[str]:
@@ -180,7 +204,7 @@ class HashtaggingModule:
         html_text (str): 전처리된 html text
         
         Returns:
-        hashtags (List[str]): 추출된 해시태그 list
+        List[str]: 추출된 해시태그 list
         """
         parsed_list = self.text_process_utils.make_blocks_from_preprocessed_text(html_text)
         print("Length of parsed list :", len(parsed_list))  # CAUTION: 실제 추출에 사용되는 block 개수와 다를 수 있습니다.
@@ -223,4 +247,4 @@ class HashtaggingModule:
 
         hashtags = self.dedup_list(self.postprocess_keywords(intro_keywords + body_keywords) + category_keywords)
 
-        return hashtags
+        return self.sort_hashtags_by_category_order(hashtags=hashtags)
