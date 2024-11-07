@@ -13,6 +13,7 @@ class LLMRequestUtils:
     def __init__(self):
         pass
 
+    # CAUTION - Not currently used : llama3.1-70b 모델 사용시 사용되는 request 생성 함수. 참고용으로만 사용할 것.
     def make_request_json(self, prompt: str) -> dict:
         """
         prompt를 받아 LLM 모델에게 전송할 request를 만드는 함수입니다.
