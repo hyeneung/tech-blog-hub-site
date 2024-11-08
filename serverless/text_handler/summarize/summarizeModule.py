@@ -19,9 +19,10 @@ class SummarizeModule:
         self.output_token += usage
 
     def get_total_api_cost(self) -> float:
+        ex_rate = 1380
         input_cost = (0.15 / 1000000) * self.input_token
         output_cost = (0.6 / 1000000) * self.output_token
-        return input_cost + output_cost
+        return (input_cost + output_cost) * ex_rate
 
     def summarize(self, text: str) -> str:
         """
