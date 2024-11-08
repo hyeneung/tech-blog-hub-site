@@ -19,10 +19,9 @@ class SummarizeModule:
         self.output_token += usage
 
     def get_total_api_cost(self) -> float:
-        # TODO - api 호출 비용 계산해서 리턴
-        # 0.15 달러 / 1M 입력 토큰.
-        # 0.6 달러 / 1M 출력 토큰.
-        return 100
+        input_cost = (0.15 / 1000000) * self.input_token
+        output_cost = (0.6 / 1000000) * self.output_token
+        return input_cost + output_cost
 
     def summarize(self, text: str) -> str:
         """
@@ -50,7 +49,6 @@ class SummarizeModule:
 
         Summarized text:
         """
-        # TODO - 입력 토큰을 구해서 __add_input_token_usage 호출
 
         model = OpenAI(api_key=self.api_key)
 
@@ -63,7 +61,8 @@ class SummarizeModule:
                 }
             ]
         )
-        self.__add_output_token_usage(response.usage.total_tokens)
+        self.__add_input_token_usage(response.usage.prompt_tokens)
+        self.__add_output_token_usage(response.usage.completion_tokens)
         content = response.choices[0].message.content
 
         # post-processing

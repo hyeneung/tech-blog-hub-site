@@ -43,7 +43,7 @@ def get_preprocessed_text(url: str) -> Tuple[str]:
             if time_to_live > 0:
                 continue
             else:
-                return ""
+                return ''
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
@@ -117,8 +117,9 @@ def get_preprocessed_text(url: str) -> Tuple[str]:
     elif soup.find('h1', 'postDetailsstyle__PostTitle-sc-r1ppdr-1') and soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5'):
         # banksalad
         title = soup.find('h1', 'postDetailsstyle__PostTitle-sc-r1ppdr-1')
-        articles = [
-            soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5')]
+        articles = [soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5')]
+    else:
+        return ''
 
     preprocessed_text_with_subtitle = ''
     preprocessed_text = ''
