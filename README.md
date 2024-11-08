@@ -32,7 +32,8 @@ Tech Blog Hub Site is a capstone design project for the KHU 3-2 Data Analysis co
 - Personalized content recommendations based on user activity logs
 
 ## ⚙️ AWS Architecture
-![image](https://github.com/user-attachments/assets/733c5e57-43ac-41ca-b177-0585d4ed3cdd)
+![image](https://github.com/user-attachments/assets/6f5ab4af-8de0-48cf-a70a-2d1f207c81ed)
+
 
 
 ## 👥 Team
