@@ -28,7 +28,7 @@ watch(() => searchCriteriaStore.query, (newQuery) => {
 
 const search = () => {
   if (localSearchQuery.value.trim()) {
-    searchCriteriaStore.setQuery(localSearchQuery.value.trim())
+    searchCriteriaStore.resetCriteriaExceptQuery(localSearchQuery.value.trim())
   }
 }
 </script>

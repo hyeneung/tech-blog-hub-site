@@ -21,6 +21,7 @@ export const useArticleSearchCriteriaStore = defineStore('articleSearchCriteria'
     setPage(page: number){
         this.page = page
     },
+    // Move to post page
     saveToLocalStorage(expiryMinutes = 30) {
       const now = new Date();
       const item = {
@@ -35,6 +36,7 @@ export const useArticleSearchCriteriaStore = defineStore('articleSearchCriteria'
       };
       localStorage.setItem('articleSearchCriteria', JSON.stringify(item));
     },
+    // Come back from post page(to maintain search criteria)
     loadFromLocalStorage() {
       const savedCriteria = localStorage.getItem('articleSearchCriteria')
       if (savedCriteria) {
@@ -50,6 +52,7 @@ export const useArticleSearchCriteriaStore = defineStore('articleSearchCriteria'
       // This change will trigger the watch function in PostList to load new data.
       this.resetCriteriaAndLoad();
     },
+    // Click home button
     resetCriteriaAndLoad() {
       this.$patch({
         hashtags: [],
@@ -60,6 +63,17 @@ export const useArticleSearchCriteriaStore = defineStore('articleSearchCriteria'
       });
       this.saveToLocalStorage();
     },
+    // Click search button
+    resetCriteriaExceptQuery(query : string){
+      // Reset all criteria except for the query parameter.
+      this.$patch({
+        hashtags: [],
+        company: '',
+        query: query,
+        page: 0,
+        size: 10
+      });
+    }
   },
   getters: {
     currentCriteria(): object {
