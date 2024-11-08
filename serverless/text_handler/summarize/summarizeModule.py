@@ -60,7 +60,8 @@ class SummarizeModule:
                     'role': 'user',
                     'content': prompt
                 }
-            ]
+            ],
+            temperature=0
         )
         self.__add_input_token_usage(response.usage.prompt_tokens)
         self.__add_output_token_usage(response.usage.completion_tokens)
