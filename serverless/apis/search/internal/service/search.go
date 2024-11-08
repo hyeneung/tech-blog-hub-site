@@ -8,38 +8,12 @@ import (
 	"searchAPI/internal/model"
 	"strings"
 
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/opensearch-project/opensearch-go"
 	"github.com/opensearch-project/opensearch-go/opensearchapi"
-	"github.com/opensearch-project/opensearch-go/v2"
-	"github.com/opensearch-project/opensearch-go/v2/signer/awsv2"
 )
 
-func getOpenSearchConfig() opensearch.Config {
-	endpointUrl := os.Getenv("OPENSEARCH_ENDPOINT")
-
-	// load AWS config
-	cfg, err := awsConfig.LoadDefaultConfig(context.TODO(), awsConfig.WithRegion("ap-northeast-2"))
-	if err != nil {
-		log.Fatal("Failed to load AWS config: " + err.Error())
-	}
-	signer, err := awsv2.NewSignerWithService(cfg, "es")
-	if err != nil {
-		log.Fatal("Failed to create signer: " + err.Error())
-	}
-
-	return opensearch.Config{
-		Addresses: []string{endpointUrl},
-		Signer:    signer,
-	}
-}
-
-func PerformSearch(hashtags []string, company, query string, page, size int) ([]model.ArticleInfo, int) {
+func PerformSearch(client *opensearch.Client, hashtags []string, company, query string, page, size int) ([]model.ArticleInfo, int) {
 	indexName := os.Getenv("OPENSEARCH_INDEX_NAME")
-
-	client, err := opensearch.NewClient(getOpenSearchConfig())
-	if err != nil {
-		log.Fatal("Error creating the client: " + err.Error())
-	}
 
 	searchBody := buildSearchQuery(hashtags, company, query, page, size)
 

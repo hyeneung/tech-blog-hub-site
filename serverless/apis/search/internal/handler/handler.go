@@ -12,9 +12,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/uuid"
+	"github.com/opensearch-project/opensearch-go"
 )
 
-func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, client *opensearch.Client) (events.APIGatewayProxyResponse, error) {
 	// Check for X-User-Id in the request headers
 	userId := request.Headers["x-user-id"]
 	if userId == "" {
@@ -43,7 +44,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 
 	// Perform search
-	articleInfos, totalElements := service.PerformSearch(hashtags, company, query, page, size)
+	articleInfos, totalElements := service.PerformSearch(client, hashtags, company, query, page, size)
 
 	// Prepare response
 	response := model.SearchResponse{
