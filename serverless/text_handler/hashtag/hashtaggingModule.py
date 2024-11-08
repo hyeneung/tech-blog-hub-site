@@ -30,10 +30,10 @@ class HashtaggingModule:
         self.output_token += usage
 
     def get_total_api_cost(self):
-        # TODO - api 호출 비용 계산해서 리턴
-        # 0.15 달러 / 1M 입력 토큰.
-        # 0.6 달러 / 1M 출력 토큰.
-        return 100
+        ex_rate = 1380
+        input_cost = (0.15 / 1000000) * self.input_token
+        output_cost = (0.6 / 1000000) * self.output_token
+        return (input_cost + output_cost) * ex_rate
     
     def run_llm_request(self, prompt: str, token_label: str = "Token") -> List[str]:
         # LLM 요청을 보내고 응답에서 키워드를 추출하는 Helper 함수 (token_label로 요청 구분)
@@ -45,7 +45,8 @@ class HashtaggingModule:
             messages=messages,
             temperature=0,
         )
-        self.__add_output_token_usage(responses.usage.total_tokens)
+        self.__add_input_token_usage(responses.usage.prompt_tokens)
+        self.__add_output_token_usage(responses.usage.completion_tokens)
         return responses.choices[0].message.content.split(', ')
 
 
