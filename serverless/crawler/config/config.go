@@ -17,6 +17,7 @@ type Config struct {
 	OpenSearchConfig      opensearch.Config
 	S3BucketName          string
 	KMSKeyARN             string
+	TextHandlerLambdaName string
 }
 
 var (
@@ -32,6 +33,7 @@ func GetConfigSingletonInstance() *Config {
 			OpenSearchConfig:      getOpenSearchConfig(os.Getenv("OPENSEARCH_ENDPOINT")),
 			S3BucketName:          os.Getenv("S3_BUCKET_NAME"),
 			KMSKeyARN:             os.Getenv("KMS_KEY_ARN"),
+			TextHandlerLambdaName: os.Getenv("TEXT_HANDLER_LAMBDA_NAME"),
 		}
 	})
 	return instance

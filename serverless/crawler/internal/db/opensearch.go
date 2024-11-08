@@ -31,7 +31,7 @@ type postData struct {
 
 var semaphore = make(chan struct{}, 5)
 
-func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSummarized, lastIdxToUpdate int) uint32 {
+func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
 	logger := utils.GetLoggerSingletonInstance()
 	config := config.GetConfigSingletonInstance()
 
@@ -48,7 +48,7 @@ func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextSu
 	var wg sync.WaitGroup
 	resultChan := make(chan bool, lastIdxToUpdate+1)
 
-	worker := func(post types.Post, textInfo types.TextSummarized) {
+	worker := func(post types.Post, textInfo types.TextAnalysisResult) {
 		semaphore <- struct{}{}
 		defer func() { <-semaphore }()
 		defer wg.Done()

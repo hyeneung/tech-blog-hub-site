@@ -17,7 +17,7 @@ import (
 
 type Crawler struct {
 	Company     string `yaml:"company"`
-	URL         string `yaml:"url"`
+	MetaFileURL string `yaml:"url"`
 	LastUpdated int64  `yaml:"lastUpdated"`
 }
 

@@ -44,6 +44,7 @@ func (l *logger) processLogs() {
 		switch msg.level {
 		case slog.LevelError:
 			l.logger.Error(msg.message, msg.args...)
+			os.Exit(1)
 		case slog.LevelInfo:
 			l.logger.Info(msg.message, msg.args...)
 		case slog.LevelDebug:

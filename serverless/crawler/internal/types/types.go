@@ -10,7 +10,7 @@ type Post struct {
 	PubDate string `xml:"pubDate"`
 }
 
-type TextSummarized struct {
-	SummarizedText string
-	Hashtags       []string
+type TextAnalysisResult struct {
+	SummarizedText string   `json:"summarized_text"`
+	Hashtags       []string `json:"hashtags"`
 }

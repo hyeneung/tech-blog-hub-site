@@ -27,6 +27,7 @@ func handleRequest(ctx context.Context, event interface{}) {
 	var wg sync.WaitGroup
 	for i := range crawlerArrayAddress.Crawlers {
 		wg.Add(1)
+		// Pass by pointer to reflect changes and avoid memory copying of the full struct size
 		go func(crawler *crawlerUtils.Crawler) {
 			defer wg.Done()
 			crawler.Run()
