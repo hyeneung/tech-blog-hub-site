@@ -7,7 +7,7 @@
         @click="changePage(currentPage - 1)"
       >
         <span class="pagination__icon">←</span>
-        <span>Previous</span>
+        <span>Prev</span>
       </button>
       <ul class="pagination__list">
         <li v-for="page in displayedPages" :key="page">

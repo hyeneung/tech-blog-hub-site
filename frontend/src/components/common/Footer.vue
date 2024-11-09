@@ -35,9 +35,13 @@ footer {
   color: #666;
   text-align: center;
   margin: 0;
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden; /* Hides any overflow text */
+  text-overflow: ellipsis; /* Adds ellipsis (...) for overflowed text */
 }
 
 .feedback-link {
+  font-size: 1rem;
   color: #666; /* 링크 색상 */
   text-decoration: none; /* 밑줄 제거 */
   font-weight: 100; /* 글자 두께 */
@@ -57,6 +61,15 @@ footer {
 
   .llm-info{
     margin: 0 1rem;
+  }
+}
+@media (max-width: 480px) {
+  .llm-info{
+    font-size: 0.85rem;
+    margin: 0 1rem;
+  }
+  .feedback-link {
+    font-size: 0.85rem;
   }
 }
 </style>

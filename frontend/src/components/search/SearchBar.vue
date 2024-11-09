@@ -146,7 +146,7 @@ const search = () => {
 
 @media (max-width: 480px) {
   .search-bar-wrapper {
-    padding: 0.25rem;
+    padding: 0.35rem;
     margin: 0.75rem auto;
   }
 
@@ -159,8 +159,9 @@ const search = () => {
   }
 
   .search-bar button {
+    flex-shrink: 0;
     font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
+    padding: 0.4rem 0.8rem;
   }
 
 }

@@ -8,6 +8,7 @@
         </option>
       </select>
     </div>
+    <div class="empty-space"></div> <!-- Empty space to push content -->
   </div>
 </template>
 
@@ -31,37 +32,55 @@ const selectedCompany = computed({
 
 <style scoped>
 .select-wrapper {
-  display: flex;
-  justify-content: flex-start;
-  font-family: 'Montserrat', 'Inter', sans-serif;
-  width: 8rem;
+  display: flex; /* Use flexbox for layout */
+  justify-content: center; /* Center items initially */
+  align-items: center; /* Center items vertically */
+  width: 100%; /* Full width */
+  max-width: 58rem; /* Limit max width */
+  margin: 0 auto; /* Center align initially */
   margin-bottom: 0.5rem;
 }
 
+.custom-select {
+  display: inline-block; /* Keep it inline-block to size according to content */
+  text-align: left; /* Align text inside select to the left */
+}
+
 .custom-select select {
-  width: 100%;
+  width: 100%; /* Make select take full width of .custom-select */
   font-size: 1rem;
-  padding: 0.2rem 0.2rem;
+  padding: 0.2rem;
   border-radius: 0.3rem;
 }
 
-@media (max-width: 768px) {
+.empty-space {
+  flex-grow: 1; /* Allow this div to take up remaining space */
+}
+
+@media (max-width: 740px) {
   .select-wrapper {
-    width: 10rem; 
-  }
-  .custom-select select {
-    font-size: 0.8rem;
-    padding: 0.2rem 0.2rem;
+    justify-content: flex-start; /* Align items to the left when below breakpoint */
+    margin-left: 0; /* Remove auto margins on left for alignment */
+    margin-right: auto; /* Keep right margin auto for centering when above breakpoint */
+    padding-left: 1rem; /* Optional padding for better spacing */
+    padding-right: 1rem; /* Optional padding for better spacing */
+    max-width: none; /* Allow full width on small screens */
   }
 }
 
 @media (max-width: 480px) {
   .select-wrapper {
-    width: 6rem; 
+    padding: 0.25rem; /* Adjust padding for smaller screens */
+    width: auto; /* Allow it to resize naturally */
+    max-width: none; /* Remove max-width restriction for smaller screens */
+    margin-left: 0; /* Align left when below breakpoint */
+    margin-right: 0; /* Align left when below breakpoint */
+    justify-content: flex-start; /* Ensure items are aligned to the start on small screens */
   }
+  
   .custom-select select {
     font-size: 0.8rem;
-    padding: 0.1rem 0.1rem;
+    padding: 0.1rem;
   }
 }
 </style>

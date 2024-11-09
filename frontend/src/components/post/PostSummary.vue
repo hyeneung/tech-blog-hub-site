@@ -138,7 +138,7 @@ const formattedSummary = computed(() => {
 
   .summary-toggle-text,
   .summary p {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
 
   .summary-toggle::after {

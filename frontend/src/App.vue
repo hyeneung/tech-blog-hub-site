@@ -3,6 +3,7 @@
   <main class="app-container">
     <SearchBar />
     <Hashtags />
+    <CompanySelect/>
     <PostList />
   </main>
   <Footer class="app-container"/>
@@ -12,6 +13,7 @@
 import Header from './components/common/Header.vue'
 import SearchBar from './components/search/SearchBar.vue'
 import Hashtags from './components/search/Hashtags.vue'
+import CompanySelect from './components/search/CompanySelect.vue'
 import PostList from './components/post/PostList.vue'
 import Footer from './components/common/Footer.vue'
 </script>
@@ -22,7 +24,6 @@ import Footer from './components/common/Footer.vue'
   margin: 0 auto; /* 중앙 정렬을 위해 자동 마진 */
   display: flex; /* 플렉스 박스 사용 */
   flex-direction: column; /* 세로 방향으로 정렬 */
-  align-items: center; /* 자식 요소들을 중앙 정렬 */
 }
 
 .post-info-wrapper,

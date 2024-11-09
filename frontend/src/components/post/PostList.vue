@@ -1,6 +1,5 @@
 <template>
   <section class="post-container">
-    <CompanySelect />
     <div v-if="loading">Loading...</div>
     <div v-else-if="error" class="error-message" role="alert">{{ error }}</div>
     <template v-else>
@@ -12,7 +11,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import Post from './Post.vue'
-import CompanySelect from '../search/CompanySelect.vue'
 import { useArticleSearch } from '@/composables/useArticleSearch'
 import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 import type { ArticleInfo } from '@/frontend-ts-axios-package'
