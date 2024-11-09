@@ -52,7 +52,7 @@ const toggleTag = (tagName: string) => {
   align-items: flex-start;
   align-content: flex-start;
   gap: 0.5rem;
-  max-width: 52rem;  /* 수정 */
+  max-width: 52rem; 
 }
 
 .tags button {
@@ -84,5 +84,27 @@ const toggleTag = (tagName: string) => {
 
 .tags button.active:hover {
   background-color: #1A1A1A;
+}
+@media (max-width: 768px) {
+  .tags-wrapper {
+    margin-bottom: 0.75rem; /* 여백 조정 */
+  }
+
+  .tags button {
+    padding: 0.4rem;
+    font-size: 1rem;
+    line-height: normal; 
+    border-radius: 0.4rem; 
+    max-width: none; 
+    width: auto; 
+  }
+}
+
+@media (max-width: 480px) {
+   .tags button {
+    padding: 0.3rem; /* 패딩 더 감소 */
+    font-size: 0.8rem; /* 글꼴 크기 더 감소 */
+    border-radius: 0.3rem; /* 모서리 둥글기 더 조정 */
+   }
 }
 </style>

@@ -62,6 +62,7 @@ const formattedSummary = computed(() => {
   border-radius: 0.5rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
+  margin-top: 0.3rem;
 }
 
 .summary-container:hover {
@@ -75,7 +76,7 @@ const formattedSummary = computed(() => {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.8rem;
   width: 100%;
   background: var(--background-color);
   cursor: pointer;
@@ -130,14 +131,14 @@ const formattedSummary = computed(() => {
   display: flex;
 }
 
-@media (max-width: 70rem) {
+@media (max-width: 768px) {
   .summary-toggle {
     padding: 0.75rem;
   }
 
   .summary-toggle-text,
   .summary p {
-    font-size: 0.875rem;
+    font-size: 0.7rem;
   }
 
   .summary-toggle::after {

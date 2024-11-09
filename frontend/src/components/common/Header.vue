@@ -24,7 +24,6 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem;
-  margin-bottom: 2rem;
 }
 
 .container {

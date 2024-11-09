@@ -1,11 +1,11 @@
 <template>
   <Header />
-  <main>
+  <main class="app-container">
     <SearchBar />
     <Hashtags />
     <PostList />
   </main>
-  <Footer />
+  <Footer class="app-container"/>
 </template>
 
 <script setup lang="ts">
@@ -17,6 +17,14 @@ import Footer from './components/common/Footer.vue'
 </script>
 
 <style>
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto; /* 중앙 정렬을 위해 자동 마진 */
+  display: flex; /* 플렉스 박스 사용 */
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: center; /* 자식 요소들을 중앙 정렬 */
+}
+
 .post-info-wrapper,
 .post-summary-wrapper {
   width: 100% !important;

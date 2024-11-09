@@ -37,7 +37,7 @@ const search = () => {
 .search-bar-wrapper {
   display: flex;
   justify-content: center;
-  margin: 1.25rem auto;
+  margin: 1rem auto;
   padding: 0.5rem 1.25rem;
   position: relative;
   width: 100%;
@@ -107,8 +107,61 @@ const search = () => {
   line-height: 1.5rem;
 }
 
+.search-icon img {
+  display: flex;
+  align-items: center;
+}
+
 /* 검색 버튼 호버 효과 */
 .search-bar button:hover {
   background-color: #444;
+}
+@media (max-width: 768px) {
+  .search-bar-wrapper {
+    height: auto;
+    padding: 0.5rem;
+    margin: 1rem auto;
+  }
+
+  .search-bar {
+    gap: 0.5rem;
+  }
+
+  .search-group {
+    flex-grow: 1;
+    padding: 0.5rem;
+  }
+
+  .search-bar input {
+    font-size: 1rem;
+  }
+
+  .search-bar button {
+    flex-shrink: 0;
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .search-bar-wrapper {
+    padding: 0.25rem;
+    margin: 0.75rem auto;
+  }
+
+  .search-group {
+    padding: 0.25rem;
+  }
+
+  .search-bar input {
+    font-size: 0.9rem;
+  }
+
+  .search-bar button {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
 }
 </style>

@@ -44,4 +44,24 @@ const selectedCompany = computed({
   padding: 0.2rem 0.2rem;
   border-radius: 0.3rem;
 }
+
+@media (max-width: 768px) {
+  .select-wrapper {
+    width: 10rem; 
+  }
+  .custom-select select {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .select-wrapper {
+    width: 6rem; 
+  }
+  .custom-select select {
+    font-size: 0.8rem;
+    padding: 0.1rem 0.1rem;
+  }
+}
 </style>

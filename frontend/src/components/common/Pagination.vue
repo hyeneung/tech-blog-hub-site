@@ -1,35 +1,37 @@
 <template>
-  <nav v-if="paginationStore.pageInfo" class="pagination">
-    <button 
-      class="pagination__btn pagination__btn--prev" 
-      :disabled="currentPage === 0"
-      @click="changePage(currentPage - 1)"
-    >
-      <span class="pagination__icon">←</span>
-      <span>Previous</span>
-    </button>
-    <ul class="pagination__list">
-      <li v-for="page in displayedPages" :key="page">
-        <button 
-          v-if="page !== '...'"
-          class="pagination__page" 
-          :class="{ 'pagination__page--active': page === currentPage }"
-          @click="changePage(page)"
-        >
-          {{ typeof page === 'number' ? page + 1 : page }}
-        </button>
-        <span v-else class="pagination__gap">...</span>
-      </li>
-    </ul>
-    <button 
-      class="pagination__btn pagination__btn--next"
-      :disabled="currentPage === totalPages - 1"
-      @click="changePage(currentPage + 1)"
-    >
-      <span>Next</span>
-      <span class="pagination__icon">→</span>
-    </button>
-  </nav>
+  <div class="pagination-wrapper">
+    <nav v-if="paginationStore.pageInfo" class="pagination">
+      <button 
+        class="pagination__btn pagination__btn--prev" 
+        :disabled="currentPage === 0"
+        @click="changePage(currentPage - 1)"
+      >
+        <span class="pagination__icon">←</span>
+        <span>Previous</span>
+      </button>
+      <ul class="pagination__list">
+        <li v-for="page in displayedPages" :key="page">
+          <button 
+            v-if="page !== '...'"
+            class="pagination__page" 
+            :class="{ 'pagination__page--active': page === currentPage }"
+            @click="changePage(page)"
+          >
+            {{ typeof page === 'number' ? page + 1 : page }}
+          </button>
+          <span v-else class="pagination__gap">...</span>
+        </li>
+      </ul>
+      <button 
+        class="pagination__btn pagination__btn--next"
+        :disabled="currentPage === totalPages - 1"
+        @click="changePage(currentPage + 1)"
+      >
+        <span>Next</span>
+        <span class="pagination__icon">→</span>
+      </button>
+    </nav>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -77,8 +79,6 @@ const displayedPages = computed(() => {
     }
   }
 
-  
-
   return pages
 })
 
@@ -90,15 +90,21 @@ const changePage = (page: number | string) => {
 </script>
 
 <style scoped>
+.pagination-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* 중앙 정렬 */
+}
+
 .pagination {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   padding: 0;
-  gap: 0.5rem;
+  gap: 0rem;
+  margin: 1rem auto;
   width: 100%;
-  max-width: 32rem;
   height: 2.5rem; 
   font-family: 'Inter', sans-serif;
 }
@@ -110,13 +116,17 @@ const changePage = (page: number | string) => {
   align-items: center;
   padding: 0.5rem 0.8rem; 
   gap: 0.5rem;
-  height: 2rem;
+  height: auto;
   border: none;
   background: none;
   border-radius: 0.5rem; 
-  font-size: 1rem; 
+  font-size: inherit; /* Use inherited font size */ 
   color: #1E1E1E;
   cursor: pointer;
+}
+
+.pagination__icon {
+  font-size: inherit; /* Use inherited font size */
 }
 
 .pagination__btn:disabled {
@@ -125,11 +135,11 @@ const changePage = (page: number | string) => {
 }
 
 .pagination__btn--prev {
-  width: 7.5rem; 
+  width: auto; 
 }
 
 .pagination__btn--next {
-  width: 5.5rem;
+  width: auto;
 }
 
 .pagination__icon {
@@ -149,12 +159,13 @@ const changePage = (page: number | string) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 2rem; 
-  height: 2rem; 
+  width: auto; 
+  height: auto;
+  padding: 0.5rem; 
   border: none;
   background: none;
   border-radius: 0.5rem;
-  font-size: 1rem; 
+  font-size: inherit; 
   color: #1E1E1E;
   cursor: pointer;
 }
@@ -168,10 +179,9 @@ const changePage = (page: number | string) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 3rem; 
-  height: 2.5rem; 
+  width: auto; 
+  height: auto; 
   font-weight: 700;
-  font-size: 1rem;
   color: #000000;
 }
 </style>

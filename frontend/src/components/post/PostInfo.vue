@@ -46,7 +46,7 @@ const companyLogo = useCompanyLogo(props.post.companyName)
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .post-title-and-date {
@@ -71,20 +71,27 @@ const companyLogo = useCompanyLogo(props.post.companyName)
   font-size: 1.05rem;
   line-height: 1.2;
   color: #757575;
+  white-space: nowrap; /* Prevent date from wrapping */
 }
 
 .author-and-tags {
   display: flex;
   align-items: center;
+  height: 100%;
   width: 100%;
   margin-left: 1rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+  gap : 1rem;
 }
 
 .author-section {
   display: flex;
-  align-items: center;
-  width: 25%;
-  margin-right: 1rem;
+  flex-direction: row; /* 세로 방향으로 정렬 */
+  align-items: center;    /* 수평 중앙 정렬 */
+  justify-content: center; /* 수직 중앙 정렬 */
+  margin-right: 2rem;
+  margin: auto;
 }
 
 .company-logo {
@@ -136,5 +143,64 @@ const companyLogo = useCompanyLogo(props.post.companyName)
   font-size: 1rem;
   line-height: 1;
   color: #757575;
+}
+
+@media (max-width: 768px) {
+  .post-title-and-date {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .post-title {
+    font-size: 1.3rem;
+  }
+
+  .date {
+    font-size: 0.9rem;
+  }
+
+  .author-and-tags {
+    flex-direction: row;
+    align-items: flex-start;
+    align-content: center;
+    margin-left: 0;
+  }
+
+  .author {
+    font-size: 1rem;
+  }
+
+  .tags {
+    width: 100%;
+  }
+
+  .tag {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-title {
+    font-size: 1.1rem;
+  }
+
+  .date {
+    font-size: 0.8rem;
+  }
+
+  .company-logo {
+    height: 1.5rem;
+  }
+
+  .author {
+    font-size: 0.9rem;
+    display: none; /* author 숨기기 */
+  }
+
+  .tag {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.4rem;
+  }
 }
 </style>
