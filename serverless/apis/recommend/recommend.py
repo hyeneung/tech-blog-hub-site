@@ -1,56 +1,4 @@
-import json
-import os
 from typing import List, Dict, Any
-from opensearchpy import OpenSearch, RequestsHttpConnection
-from requests_aws4auth import AWS4Auth
-import boto3
-from dotenv import load_dotenv
-
-# .env 파일 로드
-load_dotenv()
-
-# AWS 및 OpenSearch 설정
-region = os.getenv('AWS_REGION')
-host = os.getenv('OPENSEARCH_HOST')
-service = 'es'
-index_name = 'article_infos'
-
-# AWS 인증 정보 가져오기
-credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
-                   region, service, session_token=credentials.token)
-
-# OpenSearch 클라이언트 초기화
-client = OpenSearch(
-    hosts=[{'host': host, 'port': 443}],
-    http_auth=awsauth,
-    use_ssl=True,
-    verify_certs=True,
-    connection_class=RequestsHttpConnection
-)
-
-def validate_url(url: str) -> bool:
-    """
-    주어진 URL이 OpenSearch에 존재하는지 검증하는 함수입니다.
-
-    Parameters:
-    url (str): 검증할 URL입니다.
-
-    Returns:
-    bool: URL이 존재하면 True, 그렇지 않으면 False를 반환합니다.
-    """
-    response = client.search(
-        index=index_name,
-        body={
-            "query": {
-                "match": {
-                    "url": url
-                }
-            }
-        }
-    )
-    
-    return response['hits']['total']['value'] > 0
 
 def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
     """
@@ -94,50 +42,34 @@ def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
     # bigquery 폴더의 사용자 로그 기반 추천 모듈 이용
     # opensearch 폴더의 컨텐츠 기반 추천 모듈 이용
 
-    return None
-
-def create_response(message: str, article_infos: List[Dict[str, Any]]) -> Dict[str, Any]:
-    response = {
-        "message": message,
-        "articleInfos": article_infos
-    }
-    return response
-
-def lambda_handler(event, context):
-    try:
-        url = event.get('queryStringParameters', {}).get('url')
-        
-        if not url:
-            return {
-                'statusCode': 400,
-                'body': json.dumps(create_response("URL parameter is missing", [])),
-                'headers': {'Content-Type': 'application/json'}
-            }
-
-        # URL 검증
-        if not validate_url(url):
-            return {
-                'statusCode': 400,
-                'body': json.dumps(create_response("No articles found for the given URL", [])),
-                'headers': {'Content-Type': 'application/json'}
-            }
-
-        articles = get_recommend_articles_by_url(url)
-
-        response = create_response("success", articles)
-
-        return {
-            'statusCode': 200,
-            'body': json.dumps(response),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
+    return [
+        {
+            "title": "베네딕트는 왜 이프카카오에서 안성재 성대모사를 했을까?",
+            "pub_date": "2024-11-08T00:00:00Z",
+            "company_name": "카카오",
+            "url": "https://tech.kakao.com/posts/659",
+            "summarized_text": "베네딕트가 이프카카오 발표 중 안성재 셰프의 성대모사를 한 이유와 발표 준비 과정에 대한 글입니다.\n\n목차:\n1. 발표 배경\n2. 발표 준비 과정\n3. 안성재 셰프의 심사 기준\n4. 코드버디와 PR의 의도\n5. AI 기술의 중요성\n6. 코드버디의 역할",
+            "hashtags": [
+                "AICodeReviewer",
+                "PullRequest",
+                "Presentation",
+                "Storytelling",
+                "KakaoAI",
+                "SoftwareEngineering"
+            ]
+        },
+        {
+            "title": "AWS DMS를 활용하여 MySQL 트랜잭셔널 데이터를 Amazon OpenSearch Service로 복제하기",
+            "pub_date": "2024-11-06T06:27:33Z",
+            "company_name": "AWS",
+            "url": "https://aws.amazon.com/ko/blogs/tech/rdb2opensearch-usging-dms/",
+            "summarized_text": "AWS DMS를 이용해 MySQL 트랜잭셔널 데이터를 Amazon OpenSearch Service로 실시간 복제하는 방법을 설명하는 글입니다.\n\n목차:\n1. 배경\n2. 아키텍처\n3. 사전 작업\n4. DMS 구성 및 태스크 시작\n5. 복제 검증 (Full load)\n6. 테스트 (CDC)\n7. 결론",
+            "hashtags": [
+                "Infra",
+                "AmazonOpenSearch",
+                "MySQL",
+                "SemanticSearch",
+                "AWSDMS"
+            ]
         }
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps(create_response(str(e), [])),
-            'headers': {
-                'Content-Type': 'application/json'
-            }
-        }
+    ]
