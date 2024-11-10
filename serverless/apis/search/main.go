@@ -7,6 +7,7 @@ import (
 	"searchAPI/internal/handler"
 
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-xray-sdk-go/xray"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -45,6 +46,9 @@ func init() {
 
 func main() {
 	lambda.Start(func(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		return handler.HandleRequest(context.Background(), request, client)
+		// Start the main segment
+		ctx, seg := xray.BeginSegment(context.Background(), "searchAPI")
+		defer seg.Close(nil) // Ensure the segment is closed after processing
+		return handler.HandleRequest(ctx, request, client)
 	})
 }

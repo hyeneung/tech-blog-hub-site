@@ -8,6 +8,7 @@ import (
 	crawlerUtils "crawler/internal/crawler"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var (
@@ -19,9 +20,13 @@ func init() {
 }
 
 func handleRequest(ctx context.Context, event interface{}) {
+	// Start the main segment
+	ctx, seg := xray.BeginSegment(ctx, "crawler")
+	defer seg.Close(nil) // Ensure the segment is closed after processing
+
 	// read crawler info from config file
 	configFilePath := cfg.CrawlerConfigFilePath
-	crawlerArrayAddress := crawlerUtils.GetCrawlerArrayAddressFromFile(configFilePath)
+	crawlerArrayAddress := crawlerUtils.GetCrawlerArrayAddressFromFile(ctx, configFilePath)
 
 	// run all crawlers
 	var wg sync.WaitGroup
@@ -30,13 +35,13 @@ func handleRequest(ctx context.Context, event interface{}) {
 		// Pass by pointer to reflect changes and avoid memory copying of the full struct size
 		go func(crawler *crawlerUtils.Crawler) {
 			defer wg.Done()
-			crawler.Run()
+			crawler.Run(ctx)
 		}(&crawlerArrayAddress.Crawlers[i])
 	}
 	wg.Wait()
 
 	// save changed crawler info
-	crawlerUtils.WriteCrawlerInfoToFile(configFilePath, crawlerArrayAddress)
+	crawlerUtils.WriteCrawlerInfoToFile(ctx, configFilePath, crawlerArrayAddress)
 }
 
 func main() {

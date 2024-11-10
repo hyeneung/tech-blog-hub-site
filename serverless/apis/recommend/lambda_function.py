@@ -4,6 +4,8 @@ from typing import Dict, Any, Tuple
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 import boto3
+from aws_xray_sdk.core import xray_recorder
+# from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 
 from recommend import get_recommend_articles_by_url
 
@@ -45,6 +47,9 @@ def get_current_article_by_url(url: str) -> Tuple[bool, Dict[str, Any]]:
         }
     }
 
+    # X-Ray 서브세션 시작
+    subsegment = xray_recorder.begin_subsegment('DBQuery')
+
     try:
         response = client.search(
             body=query,
@@ -69,6 +74,10 @@ def get_current_article_by_url(url: str) -> Tuple[bool, Dict[str, Any]]:
         print(f"Error querying OpenSearch: {e}")
         return False, {}
 
+    finally:
+        # 서브세션 종료
+        xray_recorder.end_subsegment()
+
 def create_response(message: str, body: Dict[str, Any]) -> Dict[str, Any]:
     response = {
         "message": message,
@@ -77,6 +86,8 @@ def create_response(message: str, body: Dict[str, Any]) -> Dict[str, Any]:
     return response
 
 def lambda_handler(event, context):
+    # 전체 Lambda 실행 시간 측정을 위한 서브세션 시작
+    segment = xray_recorder.begin_segment('recommendAPI')
     try:
         url = event.get('queryStringParameters', {}).get('url')
         if not url:
@@ -93,8 +104,15 @@ def lambda_handler(event, context):
                 'body': json.dumps(create_response("No articles found for the given URL", {})),
                 'headers': {'Content-Type': 'application/json'}
             }
+        
 
-        recommend_articles = get_recommend_articles_by_url(url)
+        # 추천 로직 수행
+        recommend_subsegment = xray_recorder.begin_subsegment('CoreLogic')
+        try:
+            recommend_articles = get_recommend_articles_by_url(url)
+        finally:
+            xray_recorder.end_subsegment()
+
         response_body = {
             "recommend" : recommend_articles,
             "current" : current_article
@@ -119,3 +137,6 @@ def lambda_handler(event, context):
                 'Content-Type': 'application/json'
             }
         }
+    finally:
+        # 전체 Lambda 실행 세그먼트 종료
+        xray_recorder.end_segment()

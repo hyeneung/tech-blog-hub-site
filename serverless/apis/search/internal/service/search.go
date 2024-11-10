@@ -12,7 +12,7 @@ import (
 	"github.com/opensearch-project/opensearch-go/opensearchapi"
 )
 
-func PerformSearch(client *opensearch.Client, hashtags []string, company, query string, page, size int) ([]model.ArticleInfo, int) {
+func PerformSearch(ctx context.Context, client *opensearch.Client, hashtags []string, company, query string, page, size int) ([]model.ArticleInfo, int) {
 	indexName := os.Getenv("OPENSEARCH_INDEX_NAME")
 
 	searchBody := buildSearchQuery(hashtags, company, query, page, size)
@@ -27,7 +27,7 @@ func PerformSearch(client *opensearch.Client, hashtags []string, company, query 
 		Body:  strings.NewReader(string(body)),
 	}
 
-	res, err := req.Do(context.Background(), client)
+	res, err := req.Do(ctx, client)
 	if err != nil {
 		log.Fatal("error performing search: %w", err)
 	}

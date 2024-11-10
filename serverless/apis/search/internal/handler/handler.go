@@ -11,6 +11,7 @@ import (
 	"searchAPI/internal/utils"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/google/uuid"
 	"github.com/opensearch-project/opensearch-go"
 )
@@ -43,8 +44,13 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, c
 		return errorResponse(400, err.Error(), userId)
 	}
 
-	// Perform search
-	articleInfos, totalElements := service.PerformSearch(client, hashtags, company, query, page, size)
+	// Create a subsegment for the search operation
+	var articleInfos []model.ArticleInfo
+	var totalElements int
+	xray.Capture(ctx, "DBQuery", func(ctx context.Context) error {
+		articleInfos, totalElements = service.PerformSearch(ctx, client, hashtags, company, query, page, size)
+		return nil // Return nil if no error occurs
+	})
 
 	// Prepare response
 	response := model.SearchResponse{

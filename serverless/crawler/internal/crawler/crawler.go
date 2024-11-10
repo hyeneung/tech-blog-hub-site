@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -8,20 +9,30 @@ import (
 
 	types "crawler/internal/types"
 	utils "crawler/internal/utils"
+
+	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 // Run the crawler
-func (c *Crawler) Run() {
+func (c *Crawler) Run(ctx context.Context) {
 	var postNumToUpdate int = 0
 	var postNumUpdated uint32 = 0
 	var posts []types.Post
 	var err error
+
+	ctx, segCrawler := xray.BeginSubsegment(ctx, "Run")
+	defer segCrawler.Close(nil)
+
 	logger := utils.GetLoggerSingletonInstance()
+
 	// read RSS file
+	_, segReadRSS := xray.BeginSubsegment(ctx, "Read RSS")
 	posts, err = utils.GetPostArrayFromUrl(c.MetaFileURL)
+	segReadRSS.Close(nil)
 	if err != nil {
 		return
 	}
+
 	// Determine the range of posts that need to be inserted in the database
 	var lastIdxToUpdate int = getOldestPostIndexForUpdate(&posts, c.LastUpdated)
 	// If there are no new posts to update, log the result and exit
@@ -31,10 +42,14 @@ func (c *Crawler) Run() {
 	}
 
 	// get text analysis results
+	_, segTextAnalysis := xray.BeginSubsegment(ctx, "Text Analyze")
 	var textInfos *[]types.TextAnalysisResult = getTextAnalysisResult(&posts, lastIdxToUpdate)
+	segTextAnalysis.Close(nil)
 
 	// insert results to DB
+	_, segInsertDB := xray.BeginSubsegment(ctx, "Insert DB")
 	postNumUpdated = db.InsertDB(c.Company, &posts, textInfos, lastIdxToUpdate)
+	segInsertDB.Close(nil)
 
 	// update crawler execution time info
 	c.LastUpdated = time.Now().Unix()

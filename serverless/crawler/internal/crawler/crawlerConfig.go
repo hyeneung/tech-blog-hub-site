@@ -12,6 +12,7 @@ import (
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"gopkg.in/yaml.v2"
 )
 
@@ -25,39 +26,46 @@ type CrawlerArray struct {
 	Crawlers []Crawler `yaml:"crawlers"`
 }
 
-func GetCrawlerArrayAddressFromFile(s3Path string) *CrawlerArray {
+func GetCrawlerArrayAddressFromFile(ctx context.Context, s3Path string) *CrawlerArray {
 	bucket, key := parseS3Path(s3Path)
 
-	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
+	cfg, err := awsConfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Fatal("Failed to load AWS config:", err)
 	}
 
 	client := s3.NewFromConfig(cfg)
 
-	result, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+	// Create a segment for the S3 GetObject operation
+	ctx, seg := xray.BeginSubsegment(ctx, "GetS3Object")
+	defer seg.Close(nil) // Ensure the segment is closed
+
+	result, err := client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {
+		seg.AddError(err) // Capture the error in the segment
 		log.Fatal("Failed to get object from S3:", err)
 	}
 	defer result.Body.Close()
 
 	data, err := io.ReadAll(result.Body)
 	if err != nil {
+		seg.AddError(err) // Capture the error in the segment
 		log.Fatal("Failed to read S3 object body:", err)
 	}
 
 	var crawlerArray CrawlerArray
 	err = yaml.Unmarshal(data, &crawlerArray)
 	if err != nil {
+		seg.AddError(err) // Capture the error in the segment
 		log.Fatal("Failed to unmarshal YAML:", err)
 	}
 	return &crawlerArray
 }
 
-func WriteCrawlerInfoToFile(s3Path string, crawlerArrayPointer *CrawlerArray) {
+func WriteCrawlerInfoToFile(ctx context.Context, s3Path string, crawlerArrayPointer *CrawlerArray) {
 	bucket, key := parseS3Path(s3Path)
 
 	yamlData, err := yaml.Marshal(crawlerArrayPointer)
@@ -65,14 +73,18 @@ func WriteCrawlerInfoToFile(s3Path string, crawlerArrayPointer *CrawlerArray) {
 		log.Fatal("Failed to marshal YAML:", err)
 	}
 
-	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
+	cfg, err := awsConfig.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Fatal("Failed to load AWS config:", err)
 	}
 
 	client := s3.NewFromConfig(cfg)
 
-	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
+	// Create a segment for the S3 PutObject operation
+	ctx, seg := xray.BeginSubsegment(ctx, "PutS3Object")
+	defer seg.Close(nil) // Ensure the segment is closed
+
+	_, err = client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:               aws.String(bucket),
 		Key:                  aws.String(key),
 		Body:                 bytes.NewReader(yamlData),
@@ -80,6 +92,7 @@ func WriteCrawlerInfoToFile(s3Path string, crawlerArrayPointer *CrawlerArray) {
 		SSEKMSKeyId:          aws.String(config.GetConfigSingletonInstance().KMSKeyARN),
 	})
 	if err != nil {
+		seg.AddError(err) // Capture the error in the segment
 		log.Fatal("Failed to write object to S3:", err)
 	}
 }
