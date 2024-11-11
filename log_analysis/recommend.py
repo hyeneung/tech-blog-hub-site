@@ -1,4 +1,5 @@
 from typing import List, Dict, Any
+from opensearch.article_analyze import get_related_urls_json
 
 def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
     """
@@ -28,8 +29,8 @@ def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
             ...
         ]
     """
-    
     # bigquery 폴더의 사용자 로그 기반 추천 모듈 이용
     # opensearch 폴더의 컨텐츠 기반 추천 모듈 이용
+    recommended_urls_by_hashtags = get_related_urls_json(url)
 
-    return None 
+    return recommended_urls_by_hashtags
