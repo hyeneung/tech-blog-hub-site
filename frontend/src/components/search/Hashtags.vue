@@ -34,8 +34,7 @@ const toggleTag = (tagName: string) => {
   } else {
     currentTags.push(tagName)
   }
-  
-  searchStore.setHashtags(currentTags)
+  searchStore.updateHashtags(currentTags)
 }
 </script>
   

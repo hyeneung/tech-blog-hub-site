@@ -9,17 +9,45 @@ export const useArticleSearchCriteriaStore = defineStore('articleSearchCriteria'
     size: 10,
   }),
   actions: {
-    setHashtags(hashtags: string[]){
-        this.hashtags = hashtags
-    },
+    // Select company
     setCompany(company: string){
-        this.company = company
+      this.$patch({
+        company: company,
+        page: 0,
+      });
     },
-    setQuery(query: string) {
-        this.query = query
-    },
+    // Click page number
     setPage(page: number){
         this.page = page
+    },
+    // Click hashtag
+    updateHashtags(hashtags: string[]){
+        this.$patch({
+          hashtags: hashtags,
+          page: 0,
+        });
+    },
+    // Click home button
+    resetCriteriaAndLoad() {
+      this.$patch({
+        hashtags: [],
+        company: '',
+        query: '',
+        page: 0,
+        size: 10
+      });
+      this.saveToLocalStorage();
+    },
+    // Click search button
+    resetCriteriaExceptQuery(query : string){
+      // Reset all criteria except for the query parameter.
+      this.$patch({
+        hashtags: [],
+        company: '',
+        query: query,
+        page: 0,
+        size: 10
+      });
     },
     // Move to post page
     saveToLocalStorage(expiryMinutes = 30) {
@@ -51,28 +79,6 @@ export const useArticleSearchCriteriaStore = defineStore('articleSearchCriteria'
       // If there are no saved criteria or they have expired, reset to default values.
       // This change will trigger the watch function in PostList to load new data.
       this.resetCriteriaAndLoad();
-    },
-    // Click home button
-    resetCriteriaAndLoad() {
-      this.$patch({
-        hashtags: [],
-        company: '',
-        query: '',
-        page: 0,
-        size: 10
-      });
-      this.saveToLocalStorage();
-    },
-    // Click search button
-    resetCriteriaExceptQuery(query : string){
-      // Reset all criteria except for the query parameter.
-      this.$patch({
-        hashtags: [],
-        company: '',
-        query: query,
-        page: 0,
-        size: 10
-      });
     }
   },
   getters: {
