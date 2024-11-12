@@ -1,0 +1,54 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "sort.field": "pub_date",
+      "sort.order": "desc"
+    },
+    "analysis": {
+      "analyzer": {
+        "my_nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "trim",
+            "my_stop"
+          ]
+        }
+      },
+      "tokenizer": {
+        "nori_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed"
+        }
+      },
+      "filter": {
+        "my_stop": {
+          "type": "stop",
+          "stopwords": ["_korean_", "은", "는", "이", "가"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {"type": "keyword"},
+      "title": {"type": "text", "analyzer": "my_nori_analyzer"},
+      "pub_date": {"type": "date"},
+      "company_name": {"type": "keyword"},
+      "url": {"type": "keyword"},
+      "summarized_text": {"type": "text", "analyzer": "my_nori_analyzer"},
+      "hashtags": { 
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "created_at": {"type": "date"}
+    }
+  }
+}
