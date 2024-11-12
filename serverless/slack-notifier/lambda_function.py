@@ -32,7 +32,7 @@ def lambda_handler(event, context):
     # 로그 이벤트 처리
     for log_event in payload['logEvents']:
         message = log_event['message'].lower()  # 모든 문자를 소문자로 변환
-        if 'error' in message or 'warn' in message:
+        if 'error' in message or 'warn' or '500' in message:
             slack_message = f"*Log Group:* {log_group}\n*Log Stream:* {log_stream}\n*Message:* {message}"
             response = send_slack_message(slack_message)
             if response:

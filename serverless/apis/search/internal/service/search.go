@@ -61,15 +61,21 @@ func PerformSearch(ctx context.Context, client *opensearch.Client, hashtags []st
 func buildSearchQuery(hashtags []string, company, query string, page, size int) map[string]interface{} {
 	var mustClauses []map[string]interface{}
 
-	// Hashtags query
+	// Hashtags query (AND condition) using keyword field
 	if len(hashtags) > 0 {
+		var hashtagClauses []map[string]interface{}
 		for _, hashtag := range hashtags {
-			mustClauses = append(mustClauses, map[string]interface{}{
+			hashtagClauses = append(hashtagClauses, map[string]interface{}{
 				"term": map[string]interface{}{
 					"hashtags.keyword": hashtag,
 				},
 			})
 		}
+		mustClauses = append(mustClauses, map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": hashtagClauses,
+			},
+		})
 	}
 
 	// Company name query
@@ -104,13 +110,6 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 		},
 		"from": page * size,
 		"size": size,
-		"sort": []map[string]interface{}{
-			{
-				"pub_date": map[string]interface{}{
-					"order": "desc",
-				},
-			},
-		},
 	}
 }
 
