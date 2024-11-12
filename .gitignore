@@ -8,6 +8,7 @@
 
 # api key
 bigQueryKey.json
+recommendAPIBigQueryKey.json
 
 # application config file
 application-dev.yml

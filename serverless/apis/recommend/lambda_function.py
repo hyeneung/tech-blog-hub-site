@@ -86,10 +86,9 @@ def create_response(message: str, body: Dict[str, Any]) -> Dict[str, Any]:
     return response
 
 def lambda_handler(event, context):
-    # 전체 Lambda 실행 시간 측정을 위한 서브세션 시작
-    segment = xray_recorder.begin_segment('recommendAPI')
     try:
         url = event.get('queryStringParameters', {}).get('url')
+        print(f"input url : {url}")
         if not url:
             return {
                 'statusCode': 400,
@@ -109,7 +108,7 @@ def lambda_handler(event, context):
         # 추천 로직 수행
         recommend_subsegment = xray_recorder.begin_subsegment('CoreLogic')
         try:
-            recommend_articles = get_recommend_articles_by_url(url)
+            recommend_articles = get_recommend_articles_by_url(client, url)
         finally:
             xray_recorder.end_subsegment()
 
@@ -137,6 +136,3 @@ def lambda_handler(event, context):
                 'Content-Type': 'application/json'
             }
         }
-    finally:
-        # 전체 Lambda 실행 세그먼트 종료
-        xray_recorder.end_segment()
