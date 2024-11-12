@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,6 +23,8 @@ func (c *Crawler) Run(ctx context.Context) {
 
 	ctx, segCrawler := xray.BeginSubsegment(ctx, "Run")
 	defer segCrawler.Close(nil)
+	// Add metadata about the crawler execution
+	segCrawler.AddMetadata("Company", c.Company)
 
 	logger := utils.GetLoggerSingletonInstance()
 
@@ -80,6 +83,14 @@ func getOldestPostIndexForUpdate(posts *[]types.Post, lastUpdatedDateUnixTime in
 			logger.LogWarn("Failed to convert to Unix time: " + err.Error())
 			continue
 		}
+
+		// Trim the link to exclude query parameters
+		if strings.Contains(post.Link, "?") {
+			linkParts := strings.Split(post.Link, "?")
+			(*posts)[i].Link = linkParts[0] // Keep only the part before '?'
+			// don't need {url}?source=rss----18356045d353---4
+		}
+
 		if unixTime <= lastUpdatedDateUnixTime {
 			return i - 1 // last one that needs updating
 		}
@@ -87,6 +98,7 @@ func getOldestPostIndexForUpdate(posts *[]types.Post, lastUpdatedDateUnixTime in
 	return len((*posts)) - 1 // all posts need to be updated
 }
 
+var semaphore_lambda = make(chan struct{}, 3) // Limit to 3 concurrent execution
 func getTextAnalysisResult(posts *[]types.Post, lastIdxToUpdate int) *[]types.TextAnalysisResult {
 	results := make([]types.TextAnalysisResult, lastIdxToUpdate+1)
 	var wg sync.WaitGroup
@@ -95,6 +107,8 @@ func getTextAnalysisResult(posts *[]types.Post, lastIdxToUpdate int) *[]types.Te
 		wg.Add(1)
 		go func(i int, url string) {
 			defer wg.Done()
+			semaphore_lambda <- struct{}{}        // Acquire the semaphore
+			defer func() { <-semaphore_lambda }() // Release the semaphore
 			results[i] = utils.ExecuteTextHandlerLambda(url)
 		}(i, (*posts)[i].Link)
 	}

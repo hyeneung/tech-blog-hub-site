@@ -31,10 +31,11 @@ func GetLoggerSingletonInstance() *logger {
 }
 
 func (l *logger) initLogger() {
+	// Create a handler with default log level (Info)
+	handler := slog.NewJSONHandler(os.Stdout, nil) // nil means default level is Info
 
-	l.logger = slog.New(
-		slog.NewJSONHandler(os.Stdout, nil),
-	)
+	l.logger = slog.New(handler) // Initialize logger with handler
+
 	l.ch = make(chan logMessage, 10)
 	go l.processLogs()
 }
@@ -49,6 +50,8 @@ func (l *logger) processLogs() {
 			l.logger.Info(msg.message, msg.args...)
 		case slog.LevelDebug:
 			l.logger.Debug(msg.message, msg.args...)
+		case slog.LevelWarn:
+			l.logger.Warn(msg.message, msg.args...)
 		}
 	}
 }
