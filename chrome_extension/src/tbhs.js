@@ -191,6 +191,7 @@ function insertMain(data) {
   });
 }
 
+
 async function fetchData(apiRequestUrl) {
   if (apiRequestUrl === null) return null;
 
@@ -208,52 +209,6 @@ async function fetchData(apiRequestUrl) {
       return res["body"];
     } else return null;
   });
-
-  // return {
-  //   "recommend": [
-  //     {
-  //       "title": "베네딕트는 왜 이프카카오에서 안성재 성대모사를 했을까?",
-  //       "pub_date": "2024-11-08T00:00:00Z",
-  //       "company_name": "카카오",
-  //       "url": "https://tech.kakao.com/posts/659",
-  //       "summarized_text": "베네딕트가 이프카카오 발표 중 안성재 셰프의 성대모사를 한 이유와 발표 준비 과정에 대한 글입니다.\n\n목차:\n1. 발표 배경\n2. 발표 준비 과정\n3. 안성재 셰프의 심사 기준\n4. 코드버디와 PR의 의도\n5. AI 기술의 중요성\n6. 코드버디의 역할",
-  //       "hashtags": [
-  //         "AICodeReviewer",
-  //         "PullRequest",
-  //         "Presentation",
-  //         "Storytelling",
-  //         "KakaoAI",
-  //         "SoftwareEngineering"
-  //       ]
-  //     },
-  //     {
-  //       "title": "AWS DMS를 활용하여 MySQL 트랜잭셔널 데이터를 Amazon OpenSearch Service로 복제하기",
-  //       "pub_date": "2024-11-06T06:27:33Z",
-  //       "company_name": "AWS",
-  //       "url": "https://aws.amazon.com/ko/blogs/tech/rdb2opensearch-usging-dms/",
-  //       "summarized_text": "AWS DMS를 이용해 MySQL 트랜잭셔널 데이터를 Amazon OpenSearch Service로 실시간 복제하는 방법을 설명하는 글입니다.\n\n목차:\n1. 배경\n2. 아키텍처\n3. 사전 작업\n4. DMS 구성 및 태스크 시작\n5. 복제 검증 (Full load)\n6. 테스트 (CDC)\n7. 결론",
-  //       "hashtags": [
-  //         "Infra",
-  //         "AmazonOpenSearch",
-  //         "MySQL",
-  //         "SemanticSearch",
-  //         "AWSDMS"
-  //       ]
-  //     }
-  //   ],
-  //   "current": {
-  //     "title": "모닥불 | EP.5 토스 개발자는 개발만 잘해도 될까",
-  //     "pub_date": "2024-09-25T09:44:00Z",
-  //     "company_name": "토스",
-  //     "url": "https://toss.tech/article/firesidechat_frontend_5",
-  //     "summarized_text": "토스 개발자의 기준과 일 잘하는 개발자란 무엇인지에 대해 이야기하는 블로그 글입니다.\n\n목차:\n1. 토스의 개발자 기준\n2. 좋은 코드는 제품의 성공을 보장하지 않는다\n3. 개발자는 요구사항 정의와 구현이 중요하다\n4. 실제 업무 적용 팁\n5. 개발자가 개발만 잘해야 하는가?",
-  //     "hashtags": [
-  //       "Toss",
-  //       "Developer",
-  //       "SoftwareEngineering"
-  //     ]
-  //   }
-  // };
 }
 
 
@@ -305,12 +260,9 @@ function getUrl() {
   }
 
   const requestUrl = `${currentProtocol}//${currentDomain}${currentPath}${currentQuery}`;
-  // console.log(`https://www.tech-blog-hub.site/api/v1/recommend?url=${requestUrl}`);
   console.log(requestUrl);
   return `https://www.tech-blog-hub.site/api/v1/recommend?url=${requestUrl}`;
 }
-
-// brandi -> no extension (추가 확인)
 
 
 function init() {
@@ -319,11 +271,3 @@ function init() {
 
 
 init();
-
-// 버튼을 기존의 영역에서 튀어나오도록 해서 처리하면 못 클릭하는 영역이 없지 않을까?
-// -----------------------------
-// |           |   |           |
-// |           |   |           |
-// -----------------------------
-//             |btn|
-//             -----
