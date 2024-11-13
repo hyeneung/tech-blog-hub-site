@@ -110,6 +110,13 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 		},
 		"from": page * size,
 		"size": size,
+		"sort": []map[string]interface{}{
+			{
+				"pub_date": map[string]interface{}{
+					"order": "desc",
+				},
+			},
+		},
 	}
 }
 
