@@ -12,10 +12,11 @@ import (
 	utils "crawler/internal/utils"
 
 	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/opensearch-project/opensearch-go/v2"
 )
 
 // Run the crawler
-func (c *Crawler) Run(ctx context.Context) {
+func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
 	var postNumToUpdate int = 0
 	var postNumUpdated uint32 = 0
 	var posts []types.Post
@@ -51,7 +52,7 @@ func (c *Crawler) Run(ctx context.Context) {
 
 	// insert results to DB
 	_, segInsertDB := xray.BeginSubsegment(ctx, "Insert DB")
-	postNumUpdated = db.InsertDB(c.Company, &posts, textInfos, lastIdxToUpdate)
+	postNumUpdated = db.InsertDB(client, c.Company, &posts, textInfos, lastIdxToUpdate)
 	segInsertDB.Close(nil)
 
 	// update crawler execution time info

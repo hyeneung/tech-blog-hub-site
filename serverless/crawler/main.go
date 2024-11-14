@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"sync"
 
 	config "crawler/config"
@@ -9,14 +10,21 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/opensearch-project/opensearch-go/v2"
 )
 
 var (
-	cfg *config.Config
+	cfg    *config.Config
+	client *opensearch.Client
 )
 
 func init() {
 	cfg = config.GetConfigSingletonInstance()
+	var err error
+	client, err = opensearch.NewClient(cfg.OpenSearchConfig)
+	if err != nil {
+		log.Fatal("Error creating the client: " + err.Error())
+	}
 }
 
 func handleRequest(ctx context.Context, event interface{}) {
@@ -35,7 +43,7 @@ func handleRequest(ctx context.Context, event interface{}) {
 		// Pass by pointer to reflect changes and avoid memory copying of the full struct size
 		go func(crawler *crawlerUtils.Crawler) {
 			defer wg.Done()
-			crawler.Run(ctx)
+			crawler.Run(ctx, client)
 		}(&crawlerArrayAddress.Crawlers[i])
 	}
 	wg.Wait()

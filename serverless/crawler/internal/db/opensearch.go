@@ -31,15 +31,9 @@ type postData struct {
 
 var semaphore = make(chan struct{}, 5)
 
-func InsertDB(companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
+func InsertDB(client *opensearch.Client, companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
 	logger := utils.GetLoggerSingletonInstance()
 	config := config.GetConfigSingletonInstance()
-
-	client, err := opensearch.NewClient(config.OpenSearchConfig)
-	if err != nil {
-		logger.LogError("Error creating the client: " + err.Error())
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
