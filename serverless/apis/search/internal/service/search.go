@@ -87,6 +87,8 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 		})
 	}
 
+	// Determine the sorting criteria based on the presence of a search query
+	var sortCriteria []map[string]interface{}
 	// General search query
 	if query != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
@@ -100,6 +102,16 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 				"max_expansions": 10,
 			},
 		})
+		// If a search query is provided, prioritize relevance (score) then publication date
+		sortCriteria = []map[string]interface{}{
+			{"_score": map[string]interface{}{"order": "desc"}},
+			{"pub_date": map[string]interface{}{"order": "desc"}},
+		}
+	} else {
+		// If no search query, sort by publication date only
+		sortCriteria = []map[string]interface{}{
+			{"pub_date": map[string]interface{}{"order": "desc"}},
+		}
 	}
 
 	return map[string]interface{}{
@@ -110,13 +122,7 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 		},
 		"from": page * size,
 		"size": size,
-		"sort": []map[string]interface{}{
-			{
-				"pub_date": map[string]interface{}{
-					"order": "desc",
-				},
-			},
-		},
+		"sort": sortCriteria,
 	}
 }
 
