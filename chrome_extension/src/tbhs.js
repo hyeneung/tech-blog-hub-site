@@ -42,7 +42,9 @@ class TbhsContent {
 
     content.addEventListener("click", (event) => {
       if (!event.target.closest(".tbhs__main-body__carousel__content__summary")) {
-        window.open(this.url, "_self");
+        if (this.type === "추천 글") {
+          window.open(this.url, "_blank");
+        }
       }
     });
 
@@ -119,10 +121,15 @@ class TbhsMain {
 }
 
 
-function updateCarousel(contents, contentItems, indicators, currentIndex) {
+function closeSummary(contentItems) {
   contentItems.forEach((content) => {
     content.querySelector(".tbhs__main-body__carousel__content__summary").open = false;
   });
+}
+
+
+function updateCarousel(contents, contentItems, indicators, currentIndex) {
+  closeSummary(contentItems);
   contents.scrollTo({
     left: contents.clientWidth * currentIndex,
     behavior: "smooth"
@@ -146,14 +153,10 @@ function insertMain(data) {
   const tbhsIndicators = tbhsMain.querySelectorAll(".tbhs__main-body__indicator");
   const tbhsMainBtn = tbhsMain.querySelector(".tbhs__main-btn");
   const tbhsMainBtnArrow = tbhsMain.querySelector(".tbhs__main-btn__box-text");
-  const tbhsMainContainerHeight = tbhsMain.querySelector(".tbhs__main-container").clientHeight;
+  const tbhsMainWrapperHeight = tbhsWrapper.clientHeight;
   const tbhsTotalContentItems = tbhsContentItems.length;
   let tbhsCurrentIndex = 0;
   let tbhsIsOpened = true;
-
-  tbhsIndicators[tbhsCurrentIndex].classList.add("checked");
-
-  tbhsMainBtn.style.top = `${tbhsMainContainerHeight}px`;
 
   tbhsIndicators.forEach((indicator) => {
     indicator.addEventListener("click", (event) => {
@@ -178,17 +181,20 @@ function insertMain(data) {
 
   tbhsMain.querySelector(".tbhs__main-btn__box").addEventListener("click", () => {
     if (tbhsIsOpened) {
-      tbhsWrapper.style.top = `-${tbhsMainContainerHeight}px`;
-      tbhsMainBtn.style.top = "0px"
+      closeSummary(tbhsContentItems);
+      tbhsMain.style.top = `-${tbhsMainWrapperHeight}px`;
       tbhsMainBtnArrow.style.transform = "rotate(180deg)";
       tbhsIsOpened = false;
     } else {
-      tbhsWrapper.style.top = "0px";
-      tbhsMainBtn.style.top = `${tbhsMainContainerHeight}px`;
+      tbhsMain.style.top = "0px";
       tbhsMainBtnArrow.style.transform = "";
       tbhsIsOpened = true;
     }
   });
+
+  tbhsIndicators[tbhsCurrentIndex].classList.add("checked");
+
+  tbhsMainBtn.style.top = `${tbhsMainWrapperHeight}px`;
 }
 
 
@@ -196,7 +202,7 @@ async function fetchData(apiRequestUrl) {
   if (apiRequestUrl === null) return null;
 
   return await fetch(apiRequestUrl, {
-    methos: "GET",
+    methods: "GET",
     headers: {
       "Content-type": "application/json"
     }
@@ -260,14 +266,10 @@ function getUrl() {
   }
 
   const requestUrl = `${currentProtocol}//${currentDomain}${currentPath}${currentQuery}`;
-  console.log(requestUrl);
   return `https://www.tech-blog-hub.site/api/v1/recommend?url=${requestUrl}`;
 }
 
 
-function init() {
+(function () {
   fetchData(getUrl()).then(fetchedData => insertMain(fetchedData));
-}
-
-
-init();
+})();
