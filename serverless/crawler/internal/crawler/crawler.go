@@ -46,9 +46,7 @@ func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
 	}
 
 	// get text analysis results
-	_, segTextAnalysis := xray.BeginSubsegment(ctx, "Text Analyze")
-	var textInfos *[]types.TextAnalysisResult = getTextAnalysisResult(&posts, lastIdxToUpdate)
-	segTextAnalysis.Close(nil)
+	var textInfos *[]types.TextAnalysisResult = getTextAnalysisResult(ctx, &posts, lastIdxToUpdate)
 
 	// insert results to DB
 	_, segInsertDB := xray.BeginSubsegment(ctx, "Insert DB")
@@ -99,8 +97,8 @@ func getOldestPostIndexForUpdate(posts *[]types.Post, lastUpdatedDateUnixTime in
 	return len((*posts)) - 1 // all posts need to be updated
 }
 
-var semaphore_lambda = make(chan struct{}, 3) // Limit to 3 concurrent execution
-func getTextAnalysisResult(posts *[]types.Post, lastIdxToUpdate int) *[]types.TextAnalysisResult {
+var semaphore_lambda = make(chan struct{}, 5) // Limit to 5 concurrent execution
+func getTextAnalysisResult(ctx context.Context, posts *[]types.Post, lastIdxToUpdate int) *[]types.TextAnalysisResult {
 	results := make([]types.TextAnalysisResult, lastIdxToUpdate+1)
 	var wg sync.WaitGroup
 
@@ -110,7 +108,10 @@ func getTextAnalysisResult(posts *[]types.Post, lastIdxToUpdate int) *[]types.Te
 			defer wg.Done()
 			semaphore_lambda <- struct{}{}        // Acquire the semaphore
 			defer func() { <-semaphore_lambda }() // Release the semaphore
+			// call text_handler lambda function
+			_, segTextAnalysis := xray.BeginSubsegment(ctx, "Text Analyze")
 			results[i] = utils.ExecuteTextHandlerLambda(url)
+			segTextAnalysis.Close(nil)
 		}(i, (*posts)[i].Link)
 	}
 
