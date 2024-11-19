@@ -22,14 +22,18 @@ Tech Blog Hub Site is a capstone design project for the KHU 3-2 Data Analysis co
 - Automated hashtag extraction and analysis from blog content
 - Personalized content recommendations derived from user logs.
 
-[Detailed Project Presentation](https://gamma.app/docs/-5i75coxbxfpndyl?mode=doc)
-
 ## ✨ Features
 
 - Automated RSS feed scraping from various tech company blogs
 - Natural Language Processing for text analysis and hashtag extraction
 - Advanced search functionality using hashtag filters
 - Personalized content recommendations based on user activity logs
+
+[Detailed Project Presentation](https://docs.google.com/presentation/d/1dQycfTnDb-gflfqTdEr3cU8wBd9EVCDA9jUdFHy9PpY/edit?usp=sharing)
+
+## 📹 Demonstration Video
+
+[Watch the Demonstration Video](https://drive.google.com/file/d/1Tp3tB6NE2iWXGJYb2OTA_AnpTMgWLzhZ/view?usp=sharing)
 
 ## ⚙️ AWS Architecture
 ![image](https://github.com/user-attachments/assets/6898ae53-c5e3-4db4-9ee5-4bfdeb167e01)
@@ -43,7 +47,7 @@ Tech Blog Hub Site is a capstone design project for the KHU 3-2 Data Analysis co
 | <img src="https://github.com/hyeneung.png" width="100px;"/><br />[hyeneung](https://github.com/hyeneung) | <img src="https://github.com/chanhy-lee.png" width="100px;"/><br />[chanhy-lee](https://github.com/chanhy-lee) | <img src="https://github.com/MintChoco0706.png" width="100px;"/><br />[MintChoco0706](https://github.com/MintChoco0706) |
 |:---:|:---:|:---:|
 | Project Lead & Full-Stack Developer | Data Scientist | Data Scientist |
-| Responsible for project management, frontend, backend, and infrastructure development | Content Summarization Specialist & Log Analysis for Recommendation Systems | Hashtag Extraction Specialist & Log Analysis for Recommendation Systems |
+| Project Manager & frontend, backend, and infrastructure development | Content Summarization Specialist & Chrome Extension Developer | Hashtag Extraction Specialist & Log Analysis for Recommendation Systems |
 
 
 ## 📄 License
