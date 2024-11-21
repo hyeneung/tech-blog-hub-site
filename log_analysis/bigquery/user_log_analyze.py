@@ -1,33 +1,43 @@
-from google.cloud import bigquery
-from google.oauth2 import service_account
+import os
+import pickle
+from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
 
-# BigQuery 클라이언트 설정
-credentials = service_account.Credentials.from_service_account_file('bigqueryKey.json')
-client = bigquery.Client(credentials=credentials, project=credentials.project_id)
+def latent_recommended_urls(n, url):
+    # Load the latent factors DataFrame
+    file_path = os.path.join(os.path.dirname(__file__), 'trained_article_latent_matrix.pkl')
+    with open(file_path, 'rb') as f:
+        article_latent_df = pickle.load(f)
 
-# 데이터셋 목록 가져오기
-datasets = list(client.list_datasets())
+    # Ensure the URL exists in the DataFrame
+    if url not in article_latent_df.index:
+        raise ValueError(f"URL {url} not found in the latent factors dataset.")
 
-for dataset in datasets:
-    print(f"\nDataset: {dataset.dataset_id}")
+    # Extract the latent factors of the input URL
+    input_vector = article_latent_df.loc[url].values.reshape(1, -1)
+
+    # Calculate cosine similarity for all URLs
+    similarities = cosine_similarity(input_vector, article_latent_df.values).flatten()
+
+    # Create a DataFrame to store similarity scores with URLs
+    similarity_df = pd.DataFrame({
+        'url': article_latent_df.index,
+        'similarity': similarities
+    })
+
+    # Exclude the input URL and sort by similarity in descending order
+    similar_urls = similarity_df[similarity_df['url'] != url].sort_values(by='similarity', ascending=False)
+    selected_urls = [s['url'] for s in similar_urls.head(n).to_dict(orient='records')]
+
+    # 해당 URL의 정보를 찾아 최종 반환
+    article_info_file_path = os.path.join(os.path.dirname(__file__), 'article_infos.pkl')
+    with open(article_info_file_path, 'rb') as f:
+        article_info_df = pickle.load(f)
+
+    result = []
+
+    for url in selected_urls:
+        row = article_info_df.loc[article_info_df['url'] == url].iloc[0]
+        result.append(row.to_dict())
     
-    # 각 데이터셋의 테이블 목록 가져오기
-    tables = list(client.list_tables(dataset.reference))
-    for table in tables:
-        print(f"\nTable: {table.table_id}")
-        
-        # 테이블의 전체 행을 가져와 DataFrame으로 변환
-        query = f"""
-        SELECT *
-        FROM `{dataset.dataset_id}.{table.table_id}`
-        """
-        
-        try:
-            df = client.query(query).to_dataframe()
-            print("\nFirst 5 rows:")
-            print(df.head())
-            print("\nColumn names:")
-            print(df.columns.tolist())
-            print(f"\nShape: {df.shape}")
-        except Exception as e:
-            print(f"Error querying table {table.table_id}: {str(e)}")
+    return result
