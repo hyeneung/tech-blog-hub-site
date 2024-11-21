@@ -1,0 +1,54 @@
+log_analysis
+├── bigquery/
+│   ├── article_infos_pkl
+│   ├── trained_article_latent_matrix.pkl
+│   ├── user_latent_matrix.pkl
+│   └── user_log_analyze.py
+├── opensearch/
+│   ├── article_infos_pkl
+│   ├── trained_flag.pkl
+│   ├── article_analyze.py
+│   └── query_all.py
+├── exploratory_recommended_urls.py
+└── recommend.py
+
+
+bigquery 폴더
+1) article_infos_pkl
+게시글 정보 pkl 파일, 해시태그가 기본값으로 되어 있음?
+
+2) trained_article_latent_matrix.pkl
+학습된 게시글-잠재요인 행렬 중, 학습에 실제 사용된
+게시글의 잠재요인만 모아놓은 행렬 (0행이 제외된 행렬)
+
+3)user_latent_matrix.pkl
+학습된 유저-잠재요인 행렬. 사용되지 않음
+
+4) user_log_analyze.py
+latent_recommended_urls : 게시글-잠재요인 행렬을 불러와서 유사도 기반 추천
+('2)' pkl 파일에 의해 학습된 게시글에 대해서만 추천)
+
+
+opensearch 폴더
+1) article_infos_pkl
+게시글 정보 pkl 파일, 중복된 것 맞음 (따로 게시글 정보를 불러오는 구조라서..)
+
+2) trained_flag.pkl
+학습에 사용된 게시글은 1, 사용되지 않은 게시글은 0으로 매칭한 파일
+(cold-start problem 이슈 때문에, 학습에 사용되지 않으면 CBF 방식을 사용해야함)
+
+3)article_analyze.py
+hashtags_recommended_urls : CBF 기반 게시글 탐색 함수
+"stored_posts"는 학습에 사용된 게시글(flag = 1) 에서
+"new_posts"는 학습에 사용되지 않은 게시글(flag = 0)에서 탐색
+
+----------------------
+log_analysis 폴더
+1) exploratory_recommended_urls.py
+exploratory_recommended_urls : 비교적 후순위에서 게시글 탐색 함수
+현재는 CBF 방식으로만 탐색중이지만, CF 방식으로도 탐색하게끔 업데이트 할 예정
+
+2) recommend.py
+최종 추천 시스템 파일,
+User-Based가 빠짐에 따라 비율은 현재 고정값인 상태
+- Returns에 'created_at'이 포함된 상태
