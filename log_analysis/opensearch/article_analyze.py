@@ -1,67 +1,90 @@
+from random import sample
 import os
 import pickle
-from itertools import combinations
-from random import shuffle
 from typing import List, Dict, Any
 
-def get_related_urls_json(input_url: str) -> List[Dict[str, Any]]:
+def hashtags_recommended_urls(n: int, input_url: str, post_label: str) -> List[Dict[str, Any]]:
     """
     주어진 URL과 유사한 해시태그를 보유한 URL들을 JSON 형식으로 반환하는 함수입니다.
 
     Parameters:
+        n (int): 반환할 URL의 개수입니다.
         input_url (str): 유사한 URL을 찾고자 하는 기준 URL입니다.
+        post_label (str): 기존 저장된 게시글에서 찾을 지, 비교적 신규 게시글에서 찾을 지 결정하는 레이블입니다.
 
     Returns:
         List[Dict[str, Any]]: 유사한 해시태그를 가진 URL 목록을 JSON 형식으로 반환합니다.
     """
-
+    
     # pickle 파일에서 DataFrame 불러오기
-    file_path = os.path.join(os.path.dirname(__file__), 'article_infos.pkl')
-    with open(file_path, 'rb') as f:
-        df = pickle.load(f)
+    article_info_file_path = os.path.join(os.path.dirname(__file__), 'article_infos.pkl')
+    trained_data_file_path = os.path.join(os.path.dirname(__file__), 'trained_flag.pkl')
+    
+    with open(article_info_file_path, 'rb') as f:
+        article_info_df = pickle.load(f)
+    
+    with open(trained_data_file_path, 'rb') as f:
+        trained_data_df = pickle.load(f)
 
-    # input_url에 해당하는 행 추출
-    input_row = df[df['url'] == input_url]
-    
-    # input_url의 해시태그 목록 추출 및 길이 확인
-    input_hashtags = list(input_row['hashtags'].values[0])
-    n = len(input_hashtags)
-    
-    # input_url을 제외한 다른 URL들을 후보 목록으로 설정하고 무작위로 섞기
-    candidates = df[df['url'] != input_url].copy()
-    candidtates_length = len(candidates)
-    candidates = candidates.sample(frac=1).reset_index(drop=True)
-    
-    # 최대 반환할 URL 개수 설정
-    M = 6
-    result = []
-    
-    # 해시태그 부분집합 크기 n에서 1까지 감소시키며 유사한 URL 찾기
-    for i in range(n, 0, -1):
-        now_result = []
-        # 현재 크기 i에 대한 해시태그 부분집합 생성
-        n_subsets = list(combinations(input_hashtags, i))
-        shuffle(n_subsets)  # 부분집합 순서를 무작위로 섞음
+    # 입력한 URL에 대한 해시태그 집합 추출
+    input_hashtags = set(article_info_df.loc[article_info_df['url'] == input_url, 'hashtags'].iloc[0])
 
-        # 각 부분집합을 포함하는 URL들을 후보 목록에서 찾기
-        for subset in n_subsets:
-            for j in range(candidtates_length):
-                if set(subset).issubset(set(candidates.iloc[j]['hashtags'])):
-                    now_result.append(list(candidates.iloc[j]))
-        
-        # 중복을 피하면서 결과에 추가, M개가 채워지면 중단
-        for sublist in now_result:
-            if len(result) == M:
+    # 게시글의 학습 여부에 따라 구분하여 추출
+    similarity_scores = []
+
+    if post_label == "stored_posts":
+        # flag가 1인 URL 필터링
+        filtered_urls = trained_data_df.loc[trained_data_df['flag'] == 1, 'url']
+
+    elif post_label == "new_posts":
+        # flag가 0인 URL 필터링
+        filtered_urls = trained_data_df.loc[trained_data_df['flag'] == 0, 'url']
+    
+    for url in filtered_urls:
+        hashtags = set(article_info_df.loc[article_info_df['url'] == url, 'hashtags'].iloc[0])
+        similarity = jaccard_similarity(input_hashtags, hashtags)
+        similarity_scores.append((url, similarity))
+    
+    # 유사도 점수 내림 차순 정렬
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    
+    # 동점자 처리를 고려하여 n개 추출
+    selected_urls = []
+    candidates = []
+    for i, (url, similarity) in enumerate(similarity_scores):
+        # 현재 유사도 그룹을 가져옴
+        if not candidates or candidates[-1][1] == similarity:
+            candidates.append((url, similarity))
+        else:
+            # 이전 그룹 처리
+            if len(selected_urls) + len(candidates) <= n:
+                selected_urls.extend(candidates)
+            else:
+                # 남은 자리를 채우기 위해 무작위로 선택
+                remaining_spots = n - len(selected_urls)
+                selected_urls.extend(sample(candidates, remaining_spots))
                 break
-            if sublist not in result:
-                result.append(sublist)
-        
-        # 최소 절반 이상이 채워지면 중단
-        if len(result) >= M // 2:
-            break
-    
-    # 결과를 JSON 형식으로 변환
-    columns = list(df.columns)
-    json_data = [dict(zip(columns, item[:len(item)-1])) for item in result] # 'created_at'은 제외
+            candidates = [(url, similarity)]
 
-    return json_data
+    # 마지막 그룹 처리
+    if len(selected_urls) < n and candidates:
+        remaining_spots = n - len(selected_urls)
+        if len(candidates) <= remaining_spots:
+            selected_urls.extend(candidates)
+        else:
+            selected_urls.extend(sample(candidates, remaining_spots))
+    
+    # 해당 URL의 정보를 찾아 최종 반환
+    result = []
+
+    for url, _ in selected_urls:
+        row = article_info_df.loc[article_info_df['url'] == url].iloc[0]
+        result.append(row.to_dict())
+
+    return result
+
+def jaccard_similarity(set1, set2):
+    # 두 집합의 Jaccard 유사도 계산
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
+    return intersection / union if union != 0 else 0.0
