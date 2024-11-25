@@ -1,8 +1,9 @@
 from typing import List, Dict, Tuple, Any
 
-from bigquery.user_log_analyze import latent_recommended_urls
-from opensearch.article_analyze import hashtags_recommended_urls
-from exploratory_recommended_urls import exploratory_recommended_urls
+from recommend_utils.get_recommendation_proportions import get_recommendation_proportions
+from recommend_utils.content_based_filtering import hashtags_recommended_urls
+from recommend_utils.item_based_filtering import latent_recommended_urls
+from recommend_utils.exploratory_filtering import exploratory_recommended_urls
 
 def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
     """
@@ -37,27 +38,28 @@ def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
     
     # 추천게시글 시스템 별 할당할 게시글 수 결정
     N = 10 # 기준값
-    cf = int(0.36*N)
-    stored_cbf = int(0.36*N)
-    new_cbf = int(0.18*N)
-    expl = N - cf - stored_cbf - new_cbf
+    cf, trained_cbf, non_trained_cbf, expl = get_recommendation_proportions(N, url)
     
     # 초기화
     recommended_urls = []
 
     # 사용자 패턴에 대하여 학습된 잠재요인 기반 유사한 게시글 추천 (Item-Based filtering, CF)
-    recommended_urls.append(latent_recommended_urls(cf, url))
+    if cf > 0:
+        recommended_urls.append(latent_recommended_urls(cf, url))
 
     # 해시태그 기반 DB 내 저장된 게시글 추천 (Content-Based filtering, CBF)
-    recommended_urls.append(hashtags_recommended_urls(stored_cbf, url, "stored_posts"))
+    if trained_cbf > 0:
+        recommended_urls.append(hashtags_recommended_urls(trained_cbf, url, "trained"))
 
     # 해시태그 기반 DB 외의 추가된 게시글 추천 (Content-Based filtering, CBF)
-    recommended_urls.append(hashtags_recommended_urls(new_cbf, url, "new_posts"))
+    if non_trained_cbf > 0:
+        recommended_urls.append(hashtags_recommended_urls(non_trained_cbf, url, "non_trained"))
 
     # 기타 탐색적(보완적) 방법으로 게시글 추천 (사용자 관심사 확장 유도)
-    recommended_urls.append(exploratory_recommended_urls(expl, url))
+    if expl > 0:
+        recommended_urls.append(exploratory_recommended_urls(expl, url))
 
-    # list flatten, 필요한 정보만 반환
+    # list flatten,
     recommended_urls = [item for sublist in recommended_urls for item in sublist]
     
     # 중복 URL 제거
@@ -69,5 +71,10 @@ def get_recommend_articles_by_url(url: str) -> List[Dict[str, Any]]:
         if current_url not in seen_urls:
             seen_urls.add(current_url)
             unique_recommended_urls.append(item)
+    
+    # 'created_at' 키를 각 dict에서 제거
+    for item in unique_recommended_urls:
+        if 'created_at' in item:
+            del item['created_at']
 
     return unique_recommended_urls

@@ -46,4 +46,5 @@ data = [hit['_source'] for hit in hits]
 df = pd.DataFrame(data)
 
 # pickle 파일로 저장
-df.to_pickle("article_infos.pkl")
+file_path = os.path.join(os.path.dirname(__file__), "article_infos.pkl")
+df.to_pickle(file_path)

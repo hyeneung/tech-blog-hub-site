@@ -3,16 +3,14 @@ import pickle
 from random import sample
 from typing import List, Dict, Tuple, Any
 
-from bigquery.user_log_analyze import latent_recommended_urls
-from opensearch.article_analyze import hashtags_recommended_urls
-
-def exploratory_recommended_urls(expl, input_url):
-    article_info_file_path = os.path.join(os.path.dirname(__file__), 'opensearch', 'article_infos.pkl')
+def exploratory_recommended_urls(expl, url):
+    # pickle 파일에서 DataFrame 불러오기
+    article_info_file_path = os.path.join(os.path.dirname(__file__), 'article_infos.pkl')
     with open(article_info_file_path, 'rb') as f:
         article_info_df = pickle.load(f)
     
     # 입력한 URL에 대한 해시태그 집합 추출
-    input_hashtags = set(article_info_df.loc[article_info_df['url'] == input_url, 'hashtags'].iloc[0])
+    input_hashtags = set(article_info_df.loc[article_info_df['url'] == url, 'hashtags'].iloc[0])
 
     # 게시글의 학습 여부에 따라 구분하여 추출
     similarity_scores = []
@@ -20,8 +18,11 @@ def exploratory_recommended_urls(expl, input_url):
     urls = article_info_df['url']
 
     for url in urls:
+        # URL에 해당하는 해시태그 집합 추출
         hashtags = set(article_info_df.loc[article_info_df['url'] == url, 'hashtags'].iloc[0])
+        # 입력 URL과의 Jaccard 유사도 계산
         similarity = jaccard_similarity(input_hashtags, hashtags)
+        # 유사도 점수를 저장
         similarity_scores.append((url, similarity))
     
     similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
@@ -40,8 +41,6 @@ def exploratory_recommended_urls(expl, input_url):
         result.append(row.to_dict())
 
     return result
-
-    
 
 def jaccard_similarity(set1, set2):
     # 두 집합의 Jaccard 유사도 계산
