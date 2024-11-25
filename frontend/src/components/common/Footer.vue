@@ -2,9 +2,14 @@
   <footer>
     <div class="footer-content">
       <Pagination />
-      <p class="llm-info">Summaries and hashtags are generated using LLM</p>
-      <div class="feedback-section">
-        <a href="https://forms.gle/DnngrecMjMytAkCL9" target="_blank" class="feedback-link">Send Feedback</a>
+      <div class="additional-info">
+        <p>Summaries and hashtags are generated using LLM</p>
+      </div>
+      <div class="link-section">
+        <p>For a recommendation system,  
+          <a href="https://chromewebstore.google.com/detail/tech-blog-hub-site-extens/jkccccofndhnikmhcfmgcelhbmbpncmh" target="_blank" class="link">try our Chrome extension!</a>
+        </p>
+        <a href="https://forms.gle/DnngrecMjMytAkCL9" target="_blank" class="link">Send Feedback</a>
       </div>
     </div>
   </footer>
@@ -29,7 +34,12 @@ footer {
   width: 100%;
   gap: 0.5rem;
 }
-.llm-info {
+
+.link-section {
+  text-align: center;
+}
+
+.additional-info{
   font-size: 1rem;
   opacity: 0.8;
   color: #666;
@@ -40,14 +50,15 @@ footer {
   text-overflow: ellipsis; /* Adds ellipsis (...) for overflowed text */
 }
 
-.feedback-link {
+.link {
   font-size: 1rem;
-  color: #666; /* 링크 색상 */
+  text-align: center;
+  color: #555; /* 링크 색상 */
   text-decoration: none; /* 밑줄 제거 */
   font-weight: 100; /* 글자 두께 */
 }
 
-.feedback-link:hover {
+.link:hover {
   text-decoration: underline; /* 호버 시 밑줄 표시 */
 }
 
