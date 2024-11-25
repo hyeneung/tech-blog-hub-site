@@ -21,7 +21,9 @@ Tech Blog Hub Site is a capstone design project for the KHU 3-2 Data Analysis co
 - Aggregation of tech blog posts from multiple company sources
 - Automated hashtag extraction and analysis from blog content
 - Personalized content recommendations derived from user logs.
-
+  - With our Chrome extension program, users can access a technology blog recommendation service in conjunction with our website Tech Blog Hub Site. By visiting specific company tech blogs and running the extension program, users receive summary information of the posts, hashtags, and recommendations of other tech blog posts.
+  - This extension allows users to read other tech blog posts on similar topics without returning to our site.
+https://chromewebstore.google.com/detail/tech-blog-hub-site-extens/jkccccofndhnikmhcfmgcelhbmbpncmh
 ## ✨ Features
 
 - Automated RSS feed scraping from various tech company blogs
