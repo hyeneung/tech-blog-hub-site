@@ -37,6 +37,9 @@ func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
 		return
 	}
 
+	// Reverse posts if necessary
+	c.reversePosts(posts)
+
 	// Determine the range of posts that need to be inserted in the database
 	var lastIdxToUpdate int = getOldestPostIndexForUpdate(&posts, c.LastUpdated)
 	// If there are no new posts to update, log the result and exit
@@ -59,6 +62,21 @@ func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
 	// log the result
 	postNumToUpdate = lastIdxToUpdate + 1
 	logger.LogCrawlerResult(c.Company, postNumToUpdate, postNumUpdated)
+}
+
+// reversePosts checks if the company is KakaoPay and reverses the posts slice if true.
+func (c *Crawler) reversePosts(posts []types.Post) {
+	// For KakaoPay, the RSS file is structured such that the most recent posts are at the end of the list,
+	if c.Company == "카카오페이" {
+		reverse(posts) // Reverse the posts order for KakaoPay
+	}
+}
+
+// reverses the order of the posts slice in place.
+func reverse(posts []types.Post) {
+	for i, j := 0, len(posts)-1; i < j; i, j = i+1, j-1 {
+		posts[i], posts[j] = posts[j], posts[i] // Swap elements
+	}
 }
 
 // The posts are assumed to be sorted in descending order by date (newest first).
