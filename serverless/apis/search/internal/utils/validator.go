@@ -12,7 +12,7 @@ var (
 
 	hashtagRegex = regexp.MustCompile(`^[a-zA-Z/]{1,15}$`)
 	companyRegex = regexp.MustCompile(`^[a-zA-Z가-힣0-9]{1,10}$`)
-	queryRegex   = regexp.MustCompile(`^[가-힣a-zA-Z0-9\s]{1,15}$`)
+	queryRegex   = regexp.MustCompile(`^[가-힣a-zA-Z0-9\s/,&+]{1,15}$`)
 )
 
 func init() {

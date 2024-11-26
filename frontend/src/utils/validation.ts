@@ -22,7 +22,7 @@ function isValidCompany(company: string): boolean {
  * @returns 유효하면 true, 그렇지 않으면 false
  */
 function isValidQuery(query: string): boolean {
-  return /^[가-힣a-zA-Z0-9\s]{0,15}$/.test(query);
+  return /^[가-힣a-zA-Z0-9\s/,&+]{0,15}$/.test(query);
 }
 
 /**
@@ -53,7 +53,7 @@ export function validateSearchParams(params: {
   }
 
   if (query && !isValidQuery(query)) {
-    return "유효하지 않은 검색어입니다. (최대 15자, 완성형 한글, 알파벳, 숫자, 띄어쓰기만 허용)";
+    return "유효하지 않은 검색어입니다. (최대 15자, 완성형 한글, 알파벳, 숫자, 띄어쓰기, /, ,, &, + 만 허용)";
   }
 
   if (page !== undefined && (page < 0 || !Number.isInteger(page))) {
