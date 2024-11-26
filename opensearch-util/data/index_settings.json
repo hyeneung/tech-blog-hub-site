@@ -14,7 +14,8 @@
           "filter": [
             "lowercase",
             "trim",
-            "my_stop"
+            "my_stop",
+            "my_synonym_filter"
           ]
         }
       },
@@ -28,6 +29,17 @@
         "my_stop": {
           "type": "stop",
           "stopwords": ["_korean_", "은", "는", "이", "가"]
+        },
+        "my_synonym_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "카프카, kafka",
+            "쿠버네티스, k8s, kubernetes",
+            "도커, docker",
+            "마이크로서비스, msa, microservices",
+            "테스트, test",
+            "동시성, concurrency"
+          ]
         }
       }
     }
