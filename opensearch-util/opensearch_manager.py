@@ -134,23 +134,35 @@ class OpenSearchManager:
         except Exception as e:
             print(f"Error retrieving document with ID '{doc_id}': {e}")
 
-    def update_document(self, url, summarized_text):
-        """주어진 URL과 요약된 텍스트로 문서를 업데이트합니다."""
+    def update_document(self, url, hashtags=None, summarized_text=None):
+        """Update specific fields of a document identified by its URL."""
+        doc_id = self.get_document_id(url)
         
-        doc_id = self.get_document_id(url)  # URL로부터 문서 ID 생성
+        # Prepare the update body
+        update_body = {}
         
-        update_body = {
-            "doc": {
-                "summarized_text": summarized_text  # 업데이트할 필드와 값 설정
-            }
-        }
-
+        if hashtags is not None:
+            update_body['hashtags'] = hashtags
+        
+        if summarized_text is not None:
+            update_body['summarized_text'] = summarized_text
+        
+        if not update_body:
+            print("No fields to update.")
+            return
+        
         try:
-            response = self.client.update(index=self.index_name, id=doc_id, body=update_body, refresh='true')  # refresh 추가
-            print(f"Document updated successfully: {response}")
-        
+            response = self.client.update(
+                index=self.index_name,
+                id=doc_id,
+                body={
+                    "doc": update_body
+                }
+            )
+            print(f"Updated document with ID: {doc_id}")
+            print(response)
         except Exception as e:
-            print(f"Error updating document: {e}")
+            print(f"Failed to update document: {e}")
 
     def save_all_urls_to_file(self, filename='article_urls.txt'):
         """인덱스 내 모든 문서의 URL을 가져와 파일에 저장합니다."""
