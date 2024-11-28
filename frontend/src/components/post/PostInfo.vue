@@ -2,7 +2,7 @@
   <div class="post-info-wrapper">
     <div class="post-info">
       <div class="post-title-and-date">
-        <h2 class="post-title">{{ post.title }}</h2>
+        <h2 class="post-title">{{ formattedTitle }}</h2>
         <span class="date">{{ formattedDate  }}</span>
       </div>                
       <div class="author-and-tags">                    
@@ -27,6 +27,10 @@ import type { ArticleInfo } from '@/frontend-ts-axios-package'
 const props = defineProps<{
   post: ArticleInfo
 }>()
+
+const formattedTitle = computed(() => {
+  return props.post.title.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+});
 
 const formattedDate = computed(() => {
   const date = new Date(props.post.pubDate);
