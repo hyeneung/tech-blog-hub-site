@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/go-redis/redis/v8"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/opensearch-project/opensearch-go/v2/signer/awsv2"
 )
@@ -34,13 +35,26 @@ func getOpenSearchConfig() opensearch.Config {
 	}
 }
 
-var client *opensearch.Client
+func getRedisConfig() *redis.Options {
+	return &redis.Options{
+		Addr: os.Getenv("REDIS_ENDPOINT"),
+		DB:   0, // use default DB
+	}
+}
+
+var openSearchClient *opensearch.Client
+var redisClient *redis.Client
 
 func init() {
 	var err error
-	client, err = opensearch.NewClient(getOpenSearchConfig())
+	openSearchClient, err = opensearch.NewClient(getOpenSearchConfig())
 	if err != nil {
 		log.Fatal("Error creating the client: " + err.Error())
+	}
+	redisClient = redis.NewClient(getRedisConfig())
+	_, err = redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatal("Error connecting to Redis: " + err.Error())
 	}
 }
 
@@ -49,6 +63,6 @@ func main() {
 		// Start the main segment
 		ctx, seg := xray.BeginSegment(context.Background(), "searchAPI")
 		defer seg.Close(nil) // Ensure the segment is closed after processing
-		return handler.HandleRequest(ctx, request, client)
+		return handler.HandleRequest(ctx, request, openSearchClient, redisClient)
 	})
 }

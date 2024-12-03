@@ -6,16 +6,96 @@ import (
 	"log"
 	"os"
 	"searchAPI/internal/model"
+	"searchAPI/internal/utils"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/go-redis/redis/v8"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/opensearch-project/opensearch-go/opensearchapi"
 )
 
-func PerformSearch(ctx context.Context, client *opensearch.Client, hashtags []string, company, query string, page, size int) ([]model.ArticleInfo, int) {
+func PerformSearch(ctx context.Context, openSearchClient *opensearch.Client, redisClient *redis.Client, params utils.SearchParams) model.Content {
+	var content model.Content
+	cacheKey := generateCacheKey(params)
+
+	// Read from cache
+	xray.Capture(ctx, "CacheRead", func(ctx context.Context) error {
+		cachedResult, err := redisClient.Get(ctx, cacheKey).Result()
+		if err == nil {
+			if err := json.Unmarshal([]byte(cachedResult), &content); err == nil {
+				return nil
+			}
+		}
+		return err
+	})
+
+	// If data is not found in cache, execute DB query
+	if content.ArticleInfos == nil {
+		xray.Capture(ctx, "DBQuery", func(ctx context.Context) error {
+			articleInfos, totalElements := queyOpenSearch(ctx, openSearchClient, params)
+			content = model.Content{
+				ArticleInfos: articleInfos,
+				Pageable: model.Pageable{
+					PageNumber:    params.Page,
+					PageSize:      params.Size,
+					TotalElements: totalElements,
+					TotalPages:    (totalElements + params.Size - 1) / params.Size,
+				},
+			}
+			return nil
+		})
+
+		// Write to cache
+		xray.Capture(ctx, "CacheWrite", func(ctx context.Context) error {
+			cacheData, _ := json.Marshal(content)
+			expirationTime := calculateCacheExpiration()
+
+			err := redisClient.Set(ctx, cacheKey, cacheData, 0).Err()
+			if err != nil {
+				return err
+			}
+
+			return redisClient.ExpireAt(ctx, cacheKey, expirationTime).Err()
+		})
+	}
+
+	return content
+}
+
+func generateCacheKey(params utils.SearchParams) string {
+	return strings.Join([]string{
+		strings.Join(params.Hashtags, ","),
+		params.Company,
+		params.Query,
+		strconv.Itoa(params.Page),
+		strconv.Itoa(params.Size),
+	}, ":")
+}
+
+// calculateCacheExpiration determines the expiration time for cache entries
+// It returns 19:00 KST of the current day if the current time is before 19:00,
+// or 19:00 KST of the next day if the current time is after 19:00
+// This timing is aligned with the daily crawler execution at 19:00 KST,
+// ensuring that cached data remains valid until the next crawler run.
+func calculateCacheExpiration() time.Time {
+	koreaLocation, _ := time.LoadLocation("Asia/Seoul")
+	now := time.Now().In(koreaLocation)
+	expirationTime := time.Date(now.Year(), now.Month(), now.Day(), 19, 0, 0, 0, koreaLocation)
+
+	if now.Hour() >= 19 {
+		expirationTime = expirationTime.Add(24 * time.Hour)
+	}
+
+	return expirationTime
+}
+
+func queyOpenSearch(ctx context.Context, client *opensearch.Client, params utils.SearchParams) ([]model.ArticleInfo, int) {
 	indexName := os.Getenv("OPENSEARCH_INDEX_NAME")
 
-	searchBody := buildSearchQuery(hashtags, company, query, page, size)
+	searchBody := buildSearchQuery(params)
 
 	body, err := json.Marshal(searchBody)
 	if err != nil {
@@ -58,13 +138,13 @@ func PerformSearch(ctx context.Context, client *opensearch.Client, hashtags []st
 	return articles, totalHits
 }
 
-func buildSearchQuery(hashtags []string, company, query string, page, size int) map[string]interface{} {
+func buildSearchQuery(params utils.SearchParams) map[string]interface{} {
 	var mustClauses []map[string]interface{}
 
 	// Hashtags query (AND condition) using keyword field
-	if len(hashtags) > 0 {
+	if len(params.Hashtags) > 0 {
 		var hashtagClauses []map[string]interface{}
-		for _, hashtag := range hashtags {
+		for _, hashtag := range params.Hashtags {
 			hashtagClauses = append(hashtagClauses, map[string]interface{}{
 				"term": map[string]interface{}{
 					"hashtags.keyword": hashtag,
@@ -79,10 +159,10 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 	}
 
 	// Company name query
-	if company != "" {
+	if params.Company != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
 			"term": map[string]interface{}{
-				"company_name": company,
+				"company_name": params.Company,
 			},
 		})
 	}
@@ -90,10 +170,10 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 	// Determine the sorting criteria based on the presence of a search query
 	var sortCriteria []map[string]interface{}
 	// General search query
-	if query != "" {
+	if params.Query != "" {
 		mustClauses = append(mustClauses, map[string]interface{}{
 			"multi_match": map[string]interface{}{
-				"query":          query,
+				"query":          params.Query,
 				"fields":         []string{"title^3", "summarized_text^2", "hashtags"},
 				"type":           "best_fields",
 				"operator":       "or",
@@ -120,8 +200,8 @@ func buildSearchQuery(hashtags []string, company, query string, page, size int) 
 				"must": mustClauses,
 			},
 		},
-		"from": page * size,
-		"size": size,
+		"from": params.Page * params.Size,
+		"size": params.Size,
 		"sort": sortCriteria,
 	}
 }
