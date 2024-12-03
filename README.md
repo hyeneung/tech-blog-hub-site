@@ -38,7 +38,8 @@ https://chromewebstore.google.com/detail/tech-blog-hub-site-extens/jkccccofndhni
 [Watch the Demonstration Video](https://drive.google.com/file/d/1Tp3tB6NE2iWXGJYb2OTA_AnpTMgWLzhZ/view?usp=sharing)
 
 ## ⚙️ AWS Architecture
-![image](https://github.com/user-attachments/assets/6898ae53-c5e3-4db4-9ee5-4bfdeb167e01)
+![image](https://github.com/user-attachments/assets/ed419131-98a7-4c3b-8054-e2a4a46a3f6a)
+
 
 ## 👥 Team
 
