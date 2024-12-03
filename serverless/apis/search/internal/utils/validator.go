@@ -31,15 +31,7 @@ type SearchParams struct {
 	Size     int      `validate:"min=1,max=30"`
 }
 
-func ValidateParams(hashtags []string, company, query string, page, size int) error {
-	params := SearchParams{
-		Hashtags: hashtags,
-		Company:  company,
-		Query:    query,
-		Page:     page,
-		Size:     size,
-	}
-
+func ValidateParams(params SearchParams) error {
 	if err := validate.Struct(params); err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return fmt.Errorf("invalid validation error")

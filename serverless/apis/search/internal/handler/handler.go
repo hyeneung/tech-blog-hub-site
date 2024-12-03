@@ -11,12 +11,12 @@ import (
 	"searchAPI/internal/utils"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/opensearch-project/opensearch-go"
 )
 
-func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, client *opensearch.Client) (events.APIGatewayProxyResponse, error) {
+func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, openSearchClient *opensearch.Client, redisClient *redis.Client) (events.APIGatewayProxyResponse, error) {
 	// Check for X-User-Id in the request headers
 	userId := request.Headers["x-user-id"]
 	if userId == "" {
@@ -28,43 +28,30 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, c
 	utils.LogRequest(userId, request.QueryStringParameters)
 
 	// parse query params that concerns
-	var hashtags []string
-	if hashtagParam := request.QueryStringParameters["hashtags"]; hashtagParam != "" {
-		hashtags = strings.Split(hashtagParam, ",")
-	} else {
-		hashtags = []string{}
-	}
-	company := request.QueryStringParameters["company"]
-	query := request.QueryStringParameters["query"]
 	page, _ := strconv.Atoi(request.QueryStringParameters["page"])
 	size, _ := strconv.Atoi(request.QueryStringParameters["size"])
-
-	// Validate input parameters
-	if err := utils.ValidateParams(hashtags, company, query, page, size); err != nil {
-		return errorResponse(400, err.Error(), userId)
+	searchParams := utils.SearchParams{
+		Hashtags: strings.Split(request.QueryStringParameters["hashtags"], ","),
+		Company:  request.QueryStringParameters["company"],
+		Query:    request.QueryStringParameters["query"],
+		Page:     page,
+		Size:     size,
+	}
+	// handle empty hashtags param
+	if len(searchParams.Hashtags) == 1 && searchParams.Hashtags[0] == "" {
+		searchParams.Hashtags = []string{}
 	}
 
-	// Create a subsegment for the search operation
-	var articleInfos []model.ArticleInfo
-	var totalElements int
-	xray.Capture(ctx, "DBQuery", func(ctx context.Context) error {
-		articleInfos, totalElements = service.PerformSearch(ctx, client, hashtags, company, query, page, size)
-		return nil // Return nil if no error occurs
-	})
+	// Validate input parameters
+	if err := utils.ValidateParams(searchParams); err != nil {
+		return errorResponse(400, err.Error(), userId)
+	}
 
 	// Prepare response
 	response := model.SearchResponse{
 		Status:  200,
 		Message: "Success",
-		Content: model.Content{
-			ArticleInfos: articleInfos,
-			Pageable: model.Pageable{
-				PageNumber:    page,
-				PageSize:      size,
-				TotalElements: totalElements,
-				TotalPages:    (totalElements + size - 1) / size,
-			},
-		},
+		Content: service.PerformSearch(ctx, openSearchClient, redisClient, searchParams),
 	}
 
 	// Serialize response to JSON
