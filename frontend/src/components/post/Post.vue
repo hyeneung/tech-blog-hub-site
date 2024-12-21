@@ -39,7 +39,6 @@ const handlePostClick = async (event: MouseEvent) => {
     'post_url': props.post.url,
   });
 
-  searchCriteriaStore.saveToLocalStorage()
   /*
     * CONTEXT AND REASONING:
     * 
@@ -49,51 +48,15 @@ const handlePostClick = async (event: MouseEvent) => {
     *
     * This implementation ensures a seamless browsing experience,
     * allowing users to navigate away and return without losing their search context.
-  */  
-  
+  */ 
+  searchCriteriaStore.saveToLocalStorage()
+     
+  // Open in a new tab if Ctrl key (or Cmd key on Mac) is pressed during click
   event.preventDefault();
-  try {
-    const userId = localStorage.getItem('userId') || undefined;
-    await redirectApi.redirectToUrl(props.post.url, userId);    
-  } catch (error) {    
-    console.error('Error logging click:', error instanceof Error ? error.message : String(error));
-  } finally{
-    // Even if a request fails due to CORS issues, we still redirect the user to maintain a smooth experience
-    // Open in a new tab if Ctrl key (or Cmd key on Mac) is pressed during click
-    if (event.ctrlKey || event.metaKey) {
-      window.open(props.post.url, '_blank');
-    } else {
-      window.location.href = props.post.url;
-    }
-    /*
-      * CONTEXT AND REASONING:
-      *
-      * 1. Cross-Origin Challenges:
-      *    Our application needs to redirect users to external blog posts, which are on different domains.
-      *    These external domains may not have CORS (Cross-Origin Resource Sharing) properly configured,
-      *    especially for OPTIONS requests (preflight requests).
-      *
-      * 2. Logging Requirement:
-      *    We want to log user clicks for analytics purposes before redirecting them.
-      *    This requires an API call to our backend.
-      *
-      * 3. CORS and OPTIONS Method:
-      *    Modern browsers send an OPTIONS request before the actual GET request for cross-origin requests,
-      *    especially when custom headers (like our user ID) are included.
-      *    Many external domains don't handle OPTIONS requests, leading to CORS errors.
-      *
-      * 4. Solution Approach:
-      *    To overcome these limitations, we've implemented a "fire-and-forget" logging mechanism:
-      *    a. We initiate the logging API call to our backend.
-      *    b. Without waiting for the response, we immediately redirect the user.
-      *    
-      *    This approach ensures:
-      *    - The user experience is not delayed by waiting for our logging to complete.
-      *    - We avoid CORS issues with external domains that don't support OPTIONS requests.
-      * 
-      * This implementation balances the needs for analytics data collection with providing a seamless user experience,
-      * while working around the limitations imposed by external domains that we cannot control.
-    */
+  if (event.ctrlKey || event.metaKey) {
+    window.open(props.post.url, '_blank');
+  } else {
+    window.location.href = props.post.url;
   }
 }
 </script>
