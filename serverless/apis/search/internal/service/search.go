@@ -139,6 +139,7 @@ func queyOpenSearch(ctx context.Context, client *opensearch.Client, params utils
 }
 
 func buildSearchQuery(params utils.SearchParams) map[string]interface{} {
+	var filterClauses []map[string]interface{}
 	var mustClauses []map[string]interface{}
 
 	// Hashtags query (AND condition) using keyword field
@@ -151,16 +152,16 @@ func buildSearchQuery(params utils.SearchParams) map[string]interface{} {
 				},
 			})
 		}
-		mustClauses = append(mustClauses, map[string]interface{}{
+		filterClauses = append(filterClauses, map[string]interface{}{
 			"bool": map[string]interface{}{
-				"must": hashtagClauses,
+				"filter": hashtagClauses,
 			},
 		})
 	}
 
 	// Company name query
 	if params.Company != "" {
-		mustClauses = append(mustClauses, map[string]interface{}{
+		filterClauses = append(filterClauses, map[string]interface{}{
 			"term": map[string]interface{}{
 				"company_name": params.Company,
 			},
@@ -194,15 +195,18 @@ func buildSearchQuery(params utils.SearchParams) map[string]interface{} {
 		}
 	}
 
-	return map[string]interface{}{
-		"query": map[string]interface{}{
-			"bool": map[string]interface{}{
-				"must": mustClauses,
-			},
+	query := map[string]interface{}{
+		"bool": map[string]interface{}{
+			"filter": filterClauses,
+			"must":   mustClauses,
 		},
-		"from": params.Page * params.Size,
-		"size": params.Size,
-		"sort": sortCriteria,
+	}
+
+	return map[string]interface{}{
+		"query": query,
+		"from":  params.Page * params.Size,
+		"size":  params.Size,
+		"sort":  sortCriteria,
 	}
 }
 
