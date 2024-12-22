@@ -2,6 +2,9 @@
   <section class="post-container">
     <div v-if="loading">Loading...</div>
     <div v-else-if="error" class="error-message" role="alert">{{ error }}</div>
+    <div v-else-if="noResults" class="no-results-message">
+      검색 결과를 찾을 수 없습니다. 다른 검색어나 필터를 시도해보세요.
+    </div>
     <template v-else>
       <Post v-for="post in posts" :key="post.title" :post="post" />
     </template>
@@ -15,7 +18,7 @@ import { useArticleSearch } from '@/composables/useArticleSearch'
 import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 import type { ArticleInfo } from '@/frontend-ts-axios-package'
 
-const { articles, loading, error, fetchArticles } = useArticleSearch()
+const { articles, loading, error, noResults, fetchArticles } = useArticleSearch()
 const searchCriteriaStore = useArticleSearchCriteriaStore()
 
 const posts = ref<ArticleInfo[]>([])

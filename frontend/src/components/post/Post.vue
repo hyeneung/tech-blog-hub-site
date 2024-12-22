@@ -10,16 +10,12 @@
 <script setup lang="ts">
 import PostInfo from './PostInfo.vue'
 import PostSummary from './PostSummary.vue'
-import { getApiConfig } from '@/config/api'
-import { RedirectApi } from '@/frontend-ts-axios-package'
 import type { ArticleInfo } from '@/frontend-ts-axios-package'
 import { useArticleSearchCriteriaStore } from '@/stores/articleSearchCriteriaStore'
 
 const props = defineProps<{
   post: ArticleInfo
 }>()
-
-const redirectApi = new RedirectApi(getApiConfig())
 
 const searchCriteriaStore = useArticleSearchCriteriaStore()
 

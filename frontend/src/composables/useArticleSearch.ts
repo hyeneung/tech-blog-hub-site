@@ -10,6 +10,7 @@ export function useArticleSearch() {
   const articles = ref<ArticleInfo[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const noResults = ref(false)
 
   const searchCriteriaStore = useArticleSearchCriteriaStore()
   const paginationStore = usePaginationStore()
@@ -19,6 +20,7 @@ export function useArticleSearch() {
   async function fetchArticles() {
     loading.value = true
     error.value = null
+    noResults.value = false
 
     // send to Google Analytics
     window.dataLayer.push({
@@ -61,8 +63,11 @@ export function useArticleSearch() {
       const apiResult = response.data as ApiResult
       if (apiResult.status === 200) {
         const searchResponseBody = apiResult.content as SearchResponseBody
-        articles.value = searchResponseBody.articleInfos
+        articles.value = searchResponseBody.articleInfos || []
         paginationStore.setPageInfo(searchResponseBody.page)
+        if (articles.value.length === 0) {
+          noResults.value = true
+        }
       } else {
         error.value = apiResult.message
       }
@@ -78,6 +83,7 @@ export function useArticleSearch() {
     articles,
     loading,
     error,
+    noResults,
     fetchArticles
   }
 }
