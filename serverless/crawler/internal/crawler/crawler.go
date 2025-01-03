@@ -115,7 +115,6 @@ func getOldestPostIndexForUpdate(posts *[]types.Post, lastUpdatedDateUnixTime in
 	return len((*posts)) - 1 // all posts need to be updated
 }
 
-var semaphore_lambda = make(chan struct{}, 5) // Limit to 5 concurrent execution
 func getTextAnalysisResult(ctx context.Context, posts *[]types.Post, lastIdxToUpdate int) *[]types.TextAnalysisResult {
 	results := make([]types.TextAnalysisResult, lastIdxToUpdate+1)
 	var wg sync.WaitGroup
@@ -124,8 +123,6 @@ func getTextAnalysisResult(ctx context.Context, posts *[]types.Post, lastIdxToUp
 		wg.Add(1)
 		go func(i int, url string) {
 			defer wg.Done()
-			semaphore_lambda <- struct{}{}        // Acquire the semaphore
-			defer func() { <-semaphore_lambda }() // Release the semaphore
 			// call text_handler lambda function
 			_, segTextAnalysis := xray.BeginSubsegment(ctx, "Text Analyze")
 			results[i] = utils.ExecuteTextHandlerLambda(url)
