@@ -1,20 +1,19 @@
 package db
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"strings"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	config "crawler/config"
 	types "crawler/internal/types"
 	utils "crawler/internal/utils"
 
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/opensearch-project/opensearch-go/v2"
 	"github.com/opensearch-project/opensearch-go/v2/opensearchapi"
 )
@@ -29,23 +28,13 @@ type postData struct {
 	CreatedAt      string   `json:"created_at"`
 }
 
-var semaphore = make(chan struct{}, 5)
-
-func InsertDB(client *opensearch.Client, companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
-	logger := utils.GetLoggerSingletonInstance()
+func InsertDB(client *opensearch.Client, ctx context.Context, companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
 	config := config.GetConfigSingletonInstance()
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
-	var successCount uint32 = 0
-
-	var wg sync.WaitGroup
-	resultChan := make(chan bool, lastIdxToUpdate+1)
-
-	worker := func(post types.Post, textInfo types.TextAnalysisResult) {
-		semaphore <- struct{}{}
-		defer func() { <-semaphore }()
-		defer wg.Done()
+	// prepare bulk insert request
+	var bulkRequestBody bytes.Buffer
+	for i := 0; i <= lastIdxToUpdate && i < len(*posts); i++ {
+		post, textInfo := (*posts)[i], (*textInfos)[i]
 		data := postData{
 			Title:          post.Title,
 			PubDate:        post.PubDate,
@@ -55,58 +44,78 @@ func InsertDB(client *opensearch.Client, companyName string, posts *[]types.Post
 			Hashtags:       textInfo.Hashtags,
 			CreatedAt:      time.Now().UTC().Format(time.RFC3339),
 		}
+		appendToBulkRequestBody(&bulkRequestBody, data, config)
+	}
+	_, segInsertDB := xray.BeginSubsegment(ctx, "Insert DB")
+	successCount := executeBulkInsert(client, &bulkRequestBody, ctx)
+	segInsertDB.Close(nil)
 
-		jsonData, err := json.Marshal(data)
-		if err != nil {
-			logger.LogError("Error marshaling data: " + err.Error())
-			resultChan <- false
-			return
-		}
+	return successCount
+}
 
-		req := opensearchapi.CreateRequest{
-			Index:      config.IndexName,
-			DocumentID: getDocumentID(post.Link),
-			Body:       strings.NewReader(string(jsonData)),
-		}
+func appendToBulkRequestBody(buf *bytes.Buffer, data postData, config *config.Config) {
+	meta := []byte(fmt.Sprintf(`{ "create" : { "_index" : "%s", "_id" : "%s" } }%s`, config.IndexName, getDocumentID(data.URL), "\n"))
+	dataJSON, err := json.Marshal(data)
+	if err != nil {
+		utils.GetLoggerSingletonInstance().LogError("Error marshaling data: " + err.Error())
+		return
+	}
+	dataJSON = append(dataJSON, "\n"...)
 
-		res, err := req.Do(ctx, client)
-		if err != nil {
-			if err == context.Canceled {
-				logger.LogError("Request was canceled by context")
-			} else {
-				logger.LogError("Error creating document: " + err.Error())
-			}
-			resultChan <- false
-			return
-		}
-		defer res.Body.Close()
+	buf.Grow(len(meta) + len(dataJSON))
+	buf.Write(meta)
+	buf.Write(dataJSON)
+}
 
-		if res.StatusCode == 409 {
-			logger.LogWarn(fmt.Sprintf("Document already exists: URL=%s", post.Link))
-			resultChan <- false
-		} else if res.IsError() {
-			logger.LogError("Error creating document: " + res.String())
-			resultChan <- false
+func executeBulkInsert(client *opensearch.Client, bulkBody *bytes.Buffer, ctx context.Context) uint32 {
+	logger := utils.GetLoggerSingletonInstance()
+	req := opensearchapi.BulkRequest{
+		Body: bytes.NewReader(bulkBody.Bytes()),
+	}
+
+	res, err := req.Do(ctx, client)
+	if err != nil {
+		logger.LogError("Error executing bulk request: " + err.Error())
+		return 0
+	}
+	defer res.Body.Close()
+
+	return countSuccessfulInserts(res)
+}
+
+func countSuccessfulInserts(res *opensearchapi.Response) uint32 {
+	logger := utils.GetLoggerSingletonInstance()
+
+	// parse response
+	var bulkResponse struct {
+		Items []struct {
+			Create struct {
+				Status int    `json:"status"`
+				Id     string `json:"_id"`
+				Error  struct {
+					Type   string `json:"type"`
+					Reason string `json:"reason"`
+				} `json:"error,omitempty"`
+			} `json:"create"`
+		} `json:"items"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&bulkResponse); err != nil {
+		logger.LogError("Error parsing bulk response: " + err.Error())
+		return 0
+	}
+
+	// get success count
+	var successCount uint32
+	for _, item := range bulkResponse.Items {
+		if item.Create.Status == 409 {
+			logger.LogWarn(fmt.Sprintf("Document already exists: ID=%s", item.Create.Id))
+		} else if item.Create.Status >= 200 && item.Create.Status < 300 {
+			successCount++
 		} else {
-			resultChan <- true
+			logger.LogError(fmt.Sprintf("Error creating document: ID=%s, Status=%d, Type=%s, Reason=%s",
+				item.Create.Id, item.Create.Status, item.Create.Error.Type, item.Create.Error.Reason))
 		}
 	}
-
-	for i := 0; i <= lastIdxToUpdate && i < len(*posts); i++ {
-		wg.Add(1)
-		go worker((*posts)[i], (*textInfos)[i])
-	}
-
-	go func() {
-		wg.Wait()
-		close(resultChan)
-	}()
-	for success := range resultChan {
-		if success {
-			atomic.AddUint32(&successCount, 1)
-		}
-	}
-
 	return successCount
 }
 
