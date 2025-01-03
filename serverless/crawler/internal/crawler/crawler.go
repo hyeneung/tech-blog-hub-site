@@ -17,30 +17,23 @@ import (
 
 // Run the crawler
 func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
-	var postNumToUpdate int = 0
-	var postNumUpdated uint32 = 0
-	var posts []types.Post
-	var err error
-
 	ctx, segCrawler := xray.BeginSubsegment(ctx, "Run")
 	defer segCrawler.Close(nil)
-	// Add metadata about the crawler execution
 	segCrawler.AddMetadata("Company", c.Company)
-
 	logger := utils.GetLoggerSingletonInstance()
 
 	// read RSS file
-	_, segReadRSS := xray.BeginSubsegment(ctx, "Read RSS")
-	posts, err = utils.GetPostArrayFromUrl(c.MetaFileURL)
-	segReadRSS.Close(nil)
+	posts, err := utils.GetPostArrayFromUrl(ctx, c.MetaFileURL)
 	if err != nil {
 		return
 	}
 
-	// Reverse posts if necessary
+	// Reverse RSS file data if necessary
 	c.reversePosts(posts)
 
-	// Determine the range of posts that need to be inserted in the database
+	// Check for newly uploaded posts
+	var postNumToUpdate int = 0
+	var postNumUpdated uint32 = 0
 	var lastIdxToUpdate int = getOldestPostIndexForUpdate(&posts, c.LastUpdated)
 	// If there are no new posts to update, log the result and exit
 	if lastIdxToUpdate < 0 {
@@ -49,12 +42,10 @@ func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
 	}
 
 	// get text analysis results
-	var textInfos *[]types.TextAnalysisResult = getTextAnalysisResult(ctx, &posts, lastIdxToUpdate)
+	textInfos := getTextAnalysisResult(ctx, &posts, lastIdxToUpdate)
 
 	// insert results to DB
-	_, segInsertDB := xray.BeginSubsegment(ctx, "Insert DB")
-	postNumUpdated = db.InsertDB(client, c.Company, &posts, textInfos, lastIdxToUpdate)
-	segInsertDB.Close(nil)
+	postNumUpdated = db.InsertDB(client, ctx, c.Company, &posts, textInfos, lastIdxToUpdate)
 
 	// update crawler execution time info
 	c.LastUpdated = time.Now().Unix()

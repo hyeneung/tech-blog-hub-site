@@ -1,15 +1,21 @@
 package utils
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 
 	types "crawler/internal/types"
+
+	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
-func GetPostArrayFromUrl(url string) ([]types.Post, error) {
+func GetPostArrayFromUrl(ctx context.Context, url string) ([]types.Post, error) {
+	_, segReadRSS := xray.BeginSubsegment(ctx, "Read RSS")
+	defer segReadRSS.Close(nil)
+
 	logger := GetLoggerSingletonInstance()
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
