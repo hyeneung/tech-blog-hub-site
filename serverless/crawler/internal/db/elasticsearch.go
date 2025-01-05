@@ -14,8 +14,8 @@ import (
 	utils "crawler/internal/utils"
 
 	"github.com/aws/aws-xray-sdk-go/xray"
-	"github.com/opensearch-project/opensearch-go/v2"
-	"github.com/opensearch-project/opensearch-go/v2/opensearchapi"
+	"github.com/elastic/go-elasticsearch/esapi"
+	"github.com/elastic/go-elasticsearch/v8"
 )
 
 type postData struct {
@@ -28,7 +28,7 @@ type postData struct {
 	CreatedAt      string   `json:"created_at"`
 }
 
-func InsertDB(client *opensearch.Client, ctx context.Context, companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
+func InsertDB(client *elasticsearch.Client, ctx context.Context, companyName string, posts *[]types.Post, textInfos *[]types.TextAnalysisResult, lastIdxToUpdate int) uint32 {
 	config := config.GetConfigSingletonInstance()
 
 	// prepare bulk insert request
@@ -67,9 +67,9 @@ func appendToBulkRequestBody(buf *bytes.Buffer, data postData, config *config.Co
 	buf.Write(dataJSON)
 }
 
-func executeBulkInsert(client *opensearch.Client, bulkBody *bytes.Buffer, ctx context.Context) uint32 {
+func executeBulkInsert(client *elasticsearch.Client, bulkBody *bytes.Buffer, ctx context.Context) uint32 {
 	logger := utils.GetLoggerSingletonInstance()
-	req := opensearchapi.BulkRequest{
+	req := esapi.BulkRequest{
 		Body: bytes.NewReader(bulkBody.Bytes()),
 	}
 
@@ -83,7 +83,7 @@ func executeBulkInsert(client *opensearch.Client, bulkBody *bytes.Buffer, ctx co
 	return countSuccessfulInserts(res)
 }
 
-func countSuccessfulInserts(res *opensearchapi.Response) uint32 {
+func countSuccessfulInserts(res *esapi.Response) uint32 {
 	logger := utils.GetLoggerSingletonInstance()
 
 	// parse response

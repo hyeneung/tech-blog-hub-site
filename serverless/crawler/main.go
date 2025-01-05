@@ -10,20 +10,20 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-xray-sdk-go/xray"
-	"github.com/opensearch-project/opensearch-go/v2"
+	"github.com/elastic/go-elasticsearch/v8"
 )
 
 var (
 	cfg    *config.Config
-	client *opensearch.Client
+	client *elasticsearch.Client
 )
 
 func init() {
 	cfg = config.GetConfigSingletonInstance()
 	var err error
-	client, err = opensearch.NewClient(cfg.OpenSearchConfig)
+	client, err = elasticsearch.NewClient(cfg.ElasticSearchConfig)
 	if err != nil {
-		log.Fatal("Error creating the client: " + err.Error())
+		log.Fatal("Error creating Elasticsearch client: " + err.Error())
 	}
 }
 
