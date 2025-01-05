@@ -2,36 +2,42 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"searchAPI/internal/handler"
+	"strconv"
 
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/elastic/go-elasticsearch/v8"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-redis/redis/v8"
-	"github.com/opensearch-project/opensearch-go"
-	"github.com/opensearch-project/opensearch-go/v2/signer/awsv2"
 )
 
-func getOpenSearchConfig() opensearch.Config {
-	endpointUrl := os.Getenv("OPENSEARCH_ENDPOINT")
+func getElasticsearchConfig() elasticsearch.Config {
+	host := os.Getenv("ELASTICSEARCH_HOST")
+	portStr := os.Getenv("ELASTICSEARCH_PORT")
+	username := os.Getenv("ELASTICSEARCH_USERNAME")
+	password := os.Getenv("ELASTICSEARCH_PASSWORD")
 
-	// load AWS config
-	cfg, err := awsConfig.LoadDefaultConfig(context.TODO(), awsConfig.WithRegion("ap-northeast-2"))
+	port, err := strconv.Atoi(portStr)
 	if err != nil {
-		log.Fatal("Failed to load AWS config: " + err.Error())
-	}
-	signer, err := awsv2.NewSignerWithService(cfg, "es")
-	if err != nil {
-		log.Fatal("Failed to create signer: " + err.Error())
+		log.Fatalf("Invalid port number: %s", err)
 	}
 
-	return opensearch.Config{
-		Addresses: []string{endpointUrl},
-		Signer:    signer,
+	return elasticsearch.Config{
+		Addresses: []string{fmt.Sprintf("https://%s:%d", host, port)},
+		Username:  username,
+		Password:  password,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
 	}
 }
 
@@ -42,14 +48,14 @@ func getRedisConfig() *redis.Options {
 	}
 }
 
-var openSearchClient *opensearch.Client
+var elasticClient *elasticsearch.Client
 var redisClient *redis.Client
 
 func init() {
 	var err error
-	openSearchClient, err = opensearch.NewClient(getOpenSearchConfig())
+	elasticClient, err = elasticsearch.NewClient(getElasticsearchConfig())
 	if err != nil {
-		log.Fatal("Error creating the client: " + err.Error())
+		log.Fatal("Error creating Elasticsearch client: " + err.Error())
 	}
 	redisClient = redis.NewClient(getRedisConfig())
 	_, err = redisClient.Ping(context.Background()).Result()
@@ -63,6 +69,6 @@ func main() {
 		// Start the main segment
 		ctx, seg := xray.BeginSegment(context.Background(), "searchAPI")
 		defer seg.Close(nil) // Ensure the segment is closed after processing
-		return handler.HandleRequest(ctx, request, openSearchClient, redisClient)
+		return handler.HandleRequest(ctx, request, elasticClient, redisClient)
 	})
 }

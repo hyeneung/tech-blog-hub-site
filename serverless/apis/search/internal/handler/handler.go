@@ -11,12 +11,12 @@ import (
 	"searchAPI/internal/utils"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/opensearch-project/opensearch-go"
 )
 
-func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, openSearchClient *opensearch.Client, redisClient *redis.Client) (events.APIGatewayProxyResponse, error) {
+func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, elasticClient *elasticsearch.Client, redisClient *redis.Client) (events.APIGatewayProxyResponse, error) {
 	// Check for X-User-Id in the request headers
 	userId := request.Headers["x-user-id"]
 	if userId == "" {
@@ -51,7 +51,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest, o
 	response := model.SearchResponse{
 		Status:  200,
 		Message: "Success",
-		Content: service.PerformSearch(ctx, openSearchClient, redisClient, searchParams),
+		Content: service.PerformSearch(ctx, elasticClient, redisClient, searchParams),
 	}
 
 	// Serialize response to JSON

@@ -12,11 +12,11 @@ import (
 	utils "crawler/internal/utils"
 
 	"github.com/aws/aws-xray-sdk-go/xray"
-	"github.com/opensearch-project/opensearch-go/v2"
+	"github.com/elastic/go-elasticsearch/v8"
 )
 
 // Run the crawler
-func (c *Crawler) Run(ctx context.Context, client *opensearch.Client) {
+func (c *Crawler) Run(ctx context.Context, client *elasticsearch.Client) {
 	ctx, segCrawler := xray.BeginSubsegment(ctx, "Run")
 	defer segCrawler.Close(nil)
 	segCrawler.AddMetadata("Company", c.Company)
