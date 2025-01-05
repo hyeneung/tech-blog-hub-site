@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"log"
@@ -12,12 +13,11 @@ import (
 	"time"
 
 	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-redis/redis/v8"
-	"github.com/opensearch-project/opensearch-go"
-	"github.com/opensearch-project/opensearch-go/opensearchapi"
 )
 
-func PerformSearch(ctx context.Context, openSearchClient *opensearch.Client, redisClient *redis.Client, params utils.SearchParams) model.Content {
+func PerformSearch(ctx context.Context, elasticClient *elasticsearch.Client, redisClient *redis.Client, params utils.SearchParams) model.Content {
 	var content model.Content
 	cacheKey := generateCacheKey(params)
 
@@ -35,7 +35,7 @@ func PerformSearch(ctx context.Context, openSearchClient *opensearch.Client, red
 	// If data is not found in cache, execute DB query
 	if content.ArticleInfos == nil {
 		xray.Capture(ctx, "DBQuery", func(ctx context.Context) error {
-			articleInfos, totalElements := queyOpenSearch(ctx, openSearchClient, params)
+			articleInfos, totalElements := queyElasticSearch(ctx, elasticClient, params)
 			content = model.Content{
 				ArticleInfos: articleInfos,
 				Pageable: model.Pageable{
@@ -92,8 +92,8 @@ func calculateCacheExpiration() time.Time {
 	return expirationTime
 }
 
-func queyOpenSearch(ctx context.Context, client *opensearch.Client, params utils.SearchParams) ([]model.ArticleInfo, int) {
-	indexName := os.Getenv("OPENSEARCH_INDEX_NAME")
+func queyElasticSearch(ctx context.Context, client *elasticsearch.Client, params utils.SearchParams) ([]model.ArticleInfo, int) {
+	indexName := os.Getenv("ELASTICSEARCH_INDEX_NAME")
 
 	searchBody := buildSearchQuery(params)
 
@@ -102,12 +102,13 @@ func queyOpenSearch(ctx context.Context, client *opensearch.Client, params utils
 		log.Fatal("error marshaling search body: %w", err)
 	}
 
-	req := opensearchapi.SearchRequest{
-		Index: []string{indexName},
-		Body:  strings.NewReader(string(body)),
-	}
-
-	res, err := req.Do(ctx, client)
+	// Perform the search request
+	res, err := client.Search(
+		client.Search.WithContext(ctx),
+		client.Search.WithIndex(indexName),
+		client.Search.WithBody(bytes.NewReader(body)),
+		client.Search.WithTrackTotalHits(true),
+	)
 	if err != nil {
 		log.Fatal("error performing search: %w", err)
 	}
