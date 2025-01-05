@@ -1,11 +1,11 @@
 from aws_xray_sdk.core import xray_recorder
-from opensearchpy import OpenSearch
+from elasticsearch import Elasticsearch
 from itertools import combinations
 from random import shuffle
 from typing import List, Dict, Any
 import pandas as pd
 
-def get_db_dataframe(client: OpenSearch) -> pd.DataFrame:
+def get_db_dataframe(client: Elasticsearch) -> pd.DataFrame:
     # X-Ray 서브세션 시작
     subsegment = xray_recorder.begin_subsegment('DBQueryAll')
     # 모든 데이터 검색
@@ -17,18 +17,22 @@ def get_db_dataframe(client: OpenSearch) -> pd.DataFrame:
         "size": 10000
     }
 
-    response = client.search(
-        body = query,
-        index = index_name
-    )    
-    # 검색 결과를 DataFrame으로 변환
-    hits = response['hits']['hits']
-    data = [hit['_source'] for hit in hits]
-    # X-Ray 서브세션 종료
-    xray_recorder.end_subsegment()
-    return pd.DataFrame(data)
+    try:
+        response = client.search(
+            body=query,
+            index=index_name
+        )        
+        xray_recorder.end_subsegment()
 
-def get_contents_base_recommendations(client: OpenSearch, input_url: str) -> List[Dict[str, Any]]:
+        # 검색 결과를 DataFrame으로 변환
+        hits = response['hits']['hits']
+        data = [hit['_source'] for hit in hits]
+        return pd.DataFrame(data)
+    except Exception as e:
+        print(f"Error querying Elasticsearch: {e}")
+        return pd.DataFrame()  # 빈 DataFrame 반환
+
+def get_contents_base_recommendations(client: Elasticsearch, input_url: str) -> List[Dict[str, Any]]:
     """
     주어진 URL과 유사한 해시태그를 보유한 URL들을 JSON 형식으로 반환하는 함수입니다.
 

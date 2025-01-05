@@ -1,8 +1,8 @@
 from typing import List, Dict, Any
 from opensearch.article_analyze import get_contents_base_recommendations
-from opensearchpy import OpenSearch
+from elasticsearch import Elasticsearch
 
-def get_recommend_articles_by_url(client: OpenSearch, url: str) -> List[Dict[str, Any]]:
+def get_recommend_articles_by_url(client: Elasticsearch, url: str) -> List[Dict[str, Any]]:
     """
     사용자가 방문한 기술 블로그 게시글 URL을 받아 추천할 게시글들을 반환하는 함수입니다.
 

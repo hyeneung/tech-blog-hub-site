@@ -1,32 +1,24 @@
 import json
 import os
 from typing import Dict, Any, Tuple
-from opensearchpy import OpenSearch, RequestsHttpConnection
-from requests_aws4auth import AWS4Auth
-import boto3
+from elasticsearch import Elasticsearch
 from aws_xray_sdk.core import xray_recorder
 # from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 
 from recommend import get_recommend_articles_by_url
 
 # AWS 및 OpenSearch 설정
-host = os.getenv('OPENSEARCH_HOST')
-region = 'ap-northeast-2'
-service = 'es'
+host = os.getenv('ELASTICSEARCH_HOST')
+port = os.getenv('ELASTICSEARCH_PORT')
+username = os.getenv('ELASTICSEARCH_USERNAME')
+password = os.getenv('ELASTICSEARCH_PASSWORD')
 index_name = 'article_infos'
 
-# AWS 인증 정보 가져오기
-credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(credentials.access_key, credentials.secret_key,
-                   region, service, session_token=credentials.token)
-
-# OpenSearch 클라이언트 초기화
-client = OpenSearch(
-    hosts=[{'host': host, 'port': 443}],
-    http_auth=awsauth,
-    use_ssl=True,
-    verify_certs=True,
-    connection_class=RequestsHttpConnection
+client = Elasticsearch(
+    [f"https://{host}:{port}"],
+    basic_auth=(username, password),
+    verify_certs=False,
+    ssl_show_warn=False
 )
 
 def get_current_article_by_url(url: str) -> Tuple[bool, Dict[str, Any]]:
