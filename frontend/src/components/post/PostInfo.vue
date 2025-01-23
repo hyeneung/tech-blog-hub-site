@@ -23,13 +23,14 @@
 import { computed } from 'vue';
 import { useCompanyLogo } from '@/utils/useCompanyLogo'
 import type { ArticleInfo } from '@/frontend-ts-axios-package'
+import { decode } from 'he';
 
 const props = defineProps<{
   post: ArticleInfo
 }>()
 
 const formattedTitle = computed(() => {
-  return props.post.title.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+  return decode(props.post.title);
 });
 
 const formattedDate = computed(() => {
