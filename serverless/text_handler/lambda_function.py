@@ -18,26 +18,38 @@ async def process_text(preprocessed_text_with_subtitle: str, preprocessed_text :
     summarize_task = asyncio.create_task(summarize_url(preprocessed_text))
     hashtag_task = asyncio.create_task(generate_hashtags(preprocessed_text_with_subtitle))
 
-    summarized_text = await summarize_task
-    hashtags = await hashtag_task
+    try:
+        summarized_text, hashtags = await asyncio.wait_for(
+            asyncio.gather(summarize_task, hashtag_task),
+            timeout=300
+        )
+    except asyncio.TimeoutError:
+        print("Operation timed out after 5 minutes")
 
     return summarized_text, hashtags
 
 async def summarize_url(preprocessed_text: str) -> str:
     summarize_module.init_token_usage()
     loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(executor, summarize_module.summarize, preprocessed_text)
+    try:
+        return await loop.run_in_executor(executor, summarize_module.summarize, preprocessed_text)
+    except Exception as e:
+        return f"Summarization failed: {str(e)}"
 
 async def generate_hashtags(preprocessed_text: str) -> List[str]:
     hashtagging_module.init_token_usage()
     loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(executor, hashtagging_module.generate_hashtags, preprocessed_text)
+    try:
+        return await loop.run_in_executor(executor, hashtagging_module.generate_hashtags, preprocessed_text)
+    except Exception as e:
+        return [f"Hashtag generation failed: {str(e)}"]
 
 def lambda_handler(event, context):
     try:
         # URL을 이벤트에서 추출
         url = event['url']
 
+        print(f"processing {url}")
         # 텍스트 전처리
         preprocessed_text_with_subtitle, preprocessed_text = get_preprocessed_text(url)
 
@@ -57,7 +69,7 @@ def lambda_handler(event, context):
             })
         }
     except Exception as e:
-        print(f"Error in lambda_handler: {e}")
+        print(f"Error in text_handler: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({

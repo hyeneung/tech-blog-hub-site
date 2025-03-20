@@ -1,5 +1,5 @@
 # utils/preprocess.py
-from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -35,15 +35,17 @@ def get_preprocessed_text(url: str) -> Tuple[str]:
     while True:
         try:
             driver.get(url)
-            wait = WebDriverWait(driver, timeout=5)
-            wait.until(lambda d: d.find_element(By.TAG_NAME, 'body'))
+            wait = WebDriverWait(driver, timeout=10)
+            wait.until(lambda d: d.find_element(By.CSS_SELECTOR, 'h1'))
             break
-        except:
+        except Exception as e:
             time_to_live -= 1
             if time_to_live > 0:
                 continue
             else:
-                return ''
+                print(f"error : unable to get post data {url}")
+                driver.quit()
+                exit()
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
@@ -82,6 +84,10 @@ def get_preprocessed_text(url: str) -> Tuple[str]:
         # daangn, yogiyo, yeogi, cj, 29cm, heydealer
         title = soup.find('h1', 'pw-post-title')
         articles = soup.find('section').find_all('div', 'gn go gp gq gr')
+    elif soup.find('h1', 'pw-post-title') and soup.find('p', 'pw-post-body-paragraph'):
+        # daangn 25.3.20.
+        title = soup.find('h1', 'pw-post-title')
+        articles = soup.find_all('p', 'pw-post-body-paragraph')
     elif soup.find('h1', 'entry-title') and soup.find('div', 'entry-content'):
         # hancom
         title = soup.find('h1', 'entry-title')
@@ -94,9 +100,9 @@ def get_preprocessed_text(url: str) -> Tuple[str]:
         # saramin
         title = soup.find('div', 'post-heading').h1
         articles = [soup.find('article', 'blog-post')]
-    elif soup.find('header', 'Post-module--header--d603a') and soup.find('article', id='article'):
+    elif soup.find('header', 'mb-13 border-b border-bg-line-weak pb-13') and soup.find('article', id='article'):
         # devsisters
-        title = soup.find('header', 'Post-module--header--d603a').h1
+        title = soup.find('header', 'mb-13 border-b border-bg-line-weak pb-13').h1
         articles = [soup.find('article', id='article').div]
     elif soup.find('h1', 'title') and soup.find('article', 'post-content'):
         # brandilabs
@@ -119,6 +125,7 @@ def get_preprocessed_text(url: str) -> Tuple[str]:
         title = soup.find('h1', 'postDetailsstyle__PostTitle-sc-r1ppdr-1')
         articles = [soup.find('div', 'postDetailsstyle__PostDescription-sc-r1ppdr-5')]
     else:
+        print(f"error: unable to find title and articles {url}")
         return ''
 
     preprocessed_text_with_subtitle = ''
