@@ -12,7 +12,7 @@ var (
 
 	hashtagRegex = regexp.MustCompile(`^[a-zA-Z/]{1,15}$`)
 	companyRegex = regexp.MustCompile(`^[a-zA-Z가-힣0-9]{1,10}$`)
-	queryRegex   = regexp.MustCompile(`^[가-힣a-zA-Z0-9\s/,&+]{1,15}$`)
+	queryRegex   = regexp.MustCompile(`^[가-힣a-zA-Z0-9\s/,&+]{1,30}$`)
 )
 
 func init() {
@@ -44,7 +44,7 @@ func ValidateParams(params SearchParams) error {
 			case "Company":
 				return fmt.Errorf("invalid company name: must be 1-10 characters, only letters, numbers, and Korean characters")
 			case "Query":
-				return fmt.Errorf("invalid query: must be 1-15 characters, only letters, numbers, Korean characters, and spaces")
+				return fmt.Errorf("invalid query: must be 1-30 characters, only letters, numbers, Korean characters, and spaces")
 			case "Page":
 				return fmt.Errorf("invalid page number: must be non-negative")
 			case "Size":

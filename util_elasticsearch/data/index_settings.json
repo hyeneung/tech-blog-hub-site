@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "analysis": {
+      "analyzer": {
+        "my_nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "trim",
+            "my_stop",
+            "my_synonym_filter"
+          ]
+        }
+      },
+      "tokenizer": {
+        "nori_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed"
+        }
+      },
+      "filter": {
+        "my_stop": {
+          "type": "stop",
+          "stopwords": ["_korean_", "은", "는", "이", "가"]
+        },
+        "my_synonym_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "카프카, kafka",
+            "쿠버네티스, k8s, kubernetes",
+            "도커, docker",
+            "마이크로서비스, msa, microservices",
+            "테스트, test",
+            "동시성, concurrency"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {"type": "keyword"},
+      "title": {"type": "text", "analyzer": "my_nori_analyzer"},
+      "pub_date": {"type": "date"},
+      "company_name": {"type": "keyword"},
+      "url": {"type": "keyword"},
+      "summarized_text": {"type": "text", "analyzer": "my_nori_analyzer"},
+      "hashtags": { 
+        "type": "text",
+        "analyzer": "my_nori_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "created_at": {"type": "date"}
+    }
+  }
+}

@@ -2,9 +2,7 @@
   "settings": {
     "index": {
       "number_of_shards": 1,
-      "number_of_replicas": 0,
-      "sort.field": "pub_date",
-      "sort.order": "desc"
+      "number_of_replicas": 0
     },
     "analysis": {
       "analyzer": {
@@ -54,6 +52,7 @@
       "summarized_text": {"type": "text", "analyzer": "my_nori_analyzer"},
       "hashtags": { 
         "type": "text",
+        "analyzer": "my_nori_analyzer",
         "fields": {
           "keyword": {
             "type": "keyword"
